@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TopHeader from '../components/TopHeader.astro';
+import Navbar from '../components/Navbar.astro';
+const {title} = Astro.props;
+---
+
+<Layout title={title}>
+	<main class='relative'>
+
+		<TopHeader />
+		<slot/>
+		<Navbar />
+
+	</main>
+</Layout>
