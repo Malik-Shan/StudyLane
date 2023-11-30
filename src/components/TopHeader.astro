@@ -11,8 +11,10 @@
 
     <h2 class='pageTitle font-extralight text-4xl text-slate-700'>HOME</h2>
 
-    <button class='loginBtn lowPrimaryBtn border-2 text-lg max-sm:text-md py-1 
-      px-4 rounded-full font-semibold transition-all' 
-      type='button'>Login</button>
+    <div class='w-[70px] h-full bg-slate-400 rounded-full animate-pulse'
+      hx-post='/partials/loginBtn'
+      hx-swap='outerHTML'
+      hx-trigger='load'
+    ></div>
   </div>
 </header>
