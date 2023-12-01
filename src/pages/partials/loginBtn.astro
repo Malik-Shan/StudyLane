@@ -1,10 +1,19 @@
 ---
 export const prerender = false;
 export const partial = true;
-const sessionCookie = Astro.cookies.get('session')
+import {app} from '../../firebase/server';
+import {getAuth} from 'firebase-admin/auth';
+
+const auth = getAuth(app);
+let user
+if(Astro.cookies.has('session')){
+	const sessionCookie = Astro.cookies.get('session').value;
+	const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+	user = await auth.getUser(decodedCookie.uid);
+}
 ---
-{sessionCookie ? 
-	(<h2>You?</h2>)
+{user ? 
+	(<h2>{user.displayName}</h2>)
 	: 
 	( <a href='/login' class='loginBtn lowPrimaryBtn border-2 text-lg max-sm:text-base py-1 
 		px-4 max-sm:px-2 rounded-full font-semibold transition-all' 

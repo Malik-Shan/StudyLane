@@ -1,0 +1,28 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title='new user'>
+	<h1>User? resgister?</h1>
+	<form 
+		hx-post='/api/auth/registerUser'
+		hx-swap='none'
+		hx-trigger='submit'
+		method='post'
+		class='flex flex-col px-6'>
+		<label>Name</label>
+		<input type='text' name='name' />
+		<label>Email</label>
+		<input type="email" name='email' />
+		<label>Password</label>
+		<input type="password" name='password' />
+		<label>Roles</label>
+		<input type="text" name='roles' />
+		<button class='primaryBtn' type='submit'>Create User</button>
+	</form>
+</Layout>
+<style>
+input {
+	@apply border border-slate-300;
+}
+</style>

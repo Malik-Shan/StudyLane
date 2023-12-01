@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro'
 <Layout title='Login'>
 	<section class=' loginFormSection grid grid-cols-12 grid-row-1'>
 		<div class='loginFormWrapper col-start-1 col-end-6 row-span-1 bg-white flex justify-center items-center px-6 max-md:fixed max-md:inset-0'>
-			<form method='post' class='max-w-[400px] flex flex-col gap-4 justify-center items-center'>
+			<form class='max-w-[400px] flex flex-col gap-4 justify-center items-center'>
 				<h2 class='text-5xl font-thin'>LOGIN</h2>
 				<div class='inputGroup'>
 					<label for='email'>Email</label>
@@ -49,6 +49,52 @@ import Layout from '../layouts/Layout.astro'
 }
 </style>
 <script>
+import {
+	getAuth, inMemoryPersistence, signInWithEmailAndPassword,
+} from "firebase/auth"
+import { app } from "../firebase/client.ts";
+
+
+const auth = getAuth(app);
+// This will prevent the browser from storing session data
+auth.setPersistence(inMemoryPersistence);
+
+const form = document.querySelector("form") as HTMLFormElement;
+form.addEventListener("submit", async (e) => {
+	const spinner = document.querySelector("#indicator") as HTMLSpanElement;
+	spinner.style.display = "inline-block";
+	e.preventDefault();
+	const formData = new FormData(form);
+	const email = formData.get("email")?.toString();
+	const password = formData.get("password")?.toString();
+
+	if (!email || !password) {
+		return;
+	}
+	try {
+		const userCredential = await signInWithEmailAndPassword(
+			auth,
+			email,
+			password
+		);
+		const idToken = await userCredential.user.getIdToken();
+		const response = await fetch("/api/auth/login", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${idToken}`,
+			},
+		});
+
+		if (response.redirected) {
+			spinner.style.display = "none";
+			window.location.assign(response.url);
+		}
+	} catch (error) {
+		spinner.style.display = "none";
+		console.error(error);
+	}
+});
+
 const showPassBtn = document.querySelector("#showPass")
 showPassBtn.addEventListener('click', () =>{
 	const password = document.querySelector('#password');
