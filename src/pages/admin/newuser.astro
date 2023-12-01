@@ -1,28 +1,63 @@
 ---
 export const prerender = false;
-import Layout from '../../layouts/Layout.astro';
+import DefaultLayout from '../../layouts/DefaultLayout.astro';
+import {app} from '../../firebase/server';
+import {getFirestore} from 'firebase-admin/firestore';
+
+interface User {
+	uid:string;
+	name: string;
+	email: string;
+	roles: string;
+}
+
+const db = getFirestore(app);
+const usersRef = db.collection('users');
+const usersSnap = await usersRef.get()
+const users = usersSnap.docs.map((u) => ({
+	uid: u.id,
+	...u.data(),
+})) as User[]
 ---
-<Layout title='new user'>
-	<h1>User? resgister?</h1>
-	<form 
-		hx-post='/api/auth/registerUser'
-		hx-swap='none'
-		hx-trigger='submit'
-		method='post'
-		class='flex flex-col px-6'>
-		<label>Name</label>
-		<input type='text' name='name' />
-		<label>Email</label>
-		<input type="email" name='email' />
-		<label>Password</label>
-		<input type="password" name='password' />
-		<label>Roles</label>
-		<input type="text" name='roles' />
-		<button class='primaryBtn' type='submit'>Create User</button>
-	</form>
-</Layout>
-<style>
+<DefaultLayout title='Add User'>
+	<section class='adduserSection container mx-auto px-3'>
+		<form 
+			hx-post='/api/auth/registerUser'
+			hx-swap='afterbegin'
+			hx-target='#allUsers'
+			hx-trigger='submit'
+			hx-on::after-request=" if(event.detail.successful) this.reset()"
+			method='post'
+			class='grid grid-flow-col grid-cols-5 justify-center space-x-1 mt-4'>
+			<input type='text' name='name' placeholder='Name' />
+			<input type="email" name='email' placeholder='Email'/>
+			<input type="password" name='password' placeholder='Password'/>
+			<input type="text" name='roles' placeholder='Roles1,Roles2 etc'/>
+			<button class='primaryBtn p-1 rounded-sm border-2' type='submit'>Add</button>
+		</form>
+		<div id='allUsers' class='mt-6 space-y-2'>
+			{
+			users.map((u) => (
+				<div class='user' data-id={u.uid}>
+					<p>{u.name}</p>
+					<p>{u.email}</p>
+					<p>{u.roles}</p>
+					<button class='primaryBtn p-2 rounded-md border'><svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z"/></svg></button>
+				</div>))
+			}
+		</div>
+	</section>
+</DefaultLayout>
+<style is:global>
 input {
-	@apply border border-slate-300;
+	@apply border border-slate-300 px-2 rounded-sm text-base;
+}
+.user {
+	display:grid;
+	grid-template-columns: 3fr 3fr 3fr max-content;
+	@apply items-center space-x-2;
+}
+.user p{
+	@apply flex justify-center items-center bg-slate-300 h-full text-sm rounded-sm;
 }
 </style>
