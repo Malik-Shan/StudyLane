@@ -4,7 +4,7 @@ import {getAuth} from 'firebase-admin/auth';
 import {getFirestore} from 'firebase-admin/firestore';
 import {app} from '../../../firebase/server';
 
-export const POST: APIRoute = async ({request}) => {
+export const DELETE: APIRoute = async ({request}) => {
   const db = getFirestore(app);
   const auth = getAuth(app);
 

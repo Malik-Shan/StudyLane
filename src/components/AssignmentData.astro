@@ -6,7 +6,7 @@ const {id , todo, link , subject, type, date, admin} = Astro.props;
   {
   admin && (
     <button 
-      hx-post='/api/database/del_assignment'
+      hx-delete='/api/database/del_assignment'
       hx-swap='delete swap:400ms'
       hx-confirm='Are you sure?'
       hx-target={`#assign-${id}`}
