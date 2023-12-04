@@ -1,0 +1,70 @@
+---
+const {id , todo, link , subject, type, date, admin} = Astro.props;
+---
+
+<div data-id={id} id={`assign-${id}`} class='assignment relative group/assign'>
+  {
+  admin && (
+    <button 
+      hx-post='/api/database/del_assignment'
+      hx-swap='delete swap:400ms'
+      hx-confirm='Are you sure?'
+      hx-target={`#assign-${id}`}
+      hx-indicator={`#assign-${id}`}
+      hx-headers={`{"assign-id":"${id}"}`}
+      type='button' class='absolute hidden right-0 top-1/2 -translate-y-1/2 group-hover/assign:block bg-red-500 text-white p-1 px-2 rounded-md'>
+      <i class="fa-solid fa-trash-can"></i>
+    </button>
+  )
+  }
+  <p class='todo'>{todo}</p>
+  <div class='imp px-4'>
+    <a class='tag' data-type='link' href={link}>Link</a>
+    <span class='tag'>{type}</span>
+    <span class='tag' data-subject={subject}>{subject}</span>
+  </div>
+  <p class='date'>{date}</p>
+</div>
+<style is:global>
+.tag {
+  @apply p-1 px-2 rounded-full text-white capitalize text-sm bg-teal-400 max-sm:text-[.7rem];
+}
+.tag[data-subject='English']{
+  @apply bg-sky-300;
+}
+.tag[data-subject='Calculus']{
+  @apply bg-orange-300;
+}
+.tag[data-subject='Islamiyat']{
+  @apply bg-purple-300;
+}
+.assignment {
+  display:grid;
+  grid-template-columns: 1fr max-content max-content;
+  @apply p-1 border border-slate-300 rounded-md items-center justify-center;
+}
+.assignment.htmx-swapping{
+  animation:disappear 400ms ease-out;
+}
+@keyframes disappear {
+0% {
+  opacity:1;
+}
+85% {
+  opacity:0;
+}
+100% {
+  opacity:0;
+  display:none;
+}
+}
+.assignment .todo{
+  @apply max-sm:text-sm;
+}
+.assignment:hover {
+  @apply bg-slate-100;
+}
+.assignment .date{
+  @apply border-l border-l-slate-300 px-2 max-sm:text-[.7rem];
+}
+</style>

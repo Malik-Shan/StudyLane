@@ -13,7 +13,7 @@ if(Astro.cookies.has('session')){
 }
 ---
 {user ? 
-	(<h2>{user.displayName}</h2>)
+	(<img class='max-w-[50px]' src={user.photoURL} />)
 	: 
 	( <a href='/login' class='loginBtn lowPrimaryBtn border-2 text-lg max-sm:text-base py-1 
 		px-4 max-sm:px-2 rounded-full font-semibold transition-all' 
