@@ -7,6 +7,8 @@
 	:root {
 		--clr-primary:#6D6AF6;
 		--clr-secondary:#FF9533;
+		--nav-height:60px;
+		--nav-bottom:20px;
 	}
 	*, *::before, *::after {
 		margin:0;
@@ -98,5 +100,8 @@
 	}
 	.fill-secondary {
 		fill: var(--clr-secondary);
+	}
+	.section-nav-pb {
+		@apply pb-[calc(var(--nav-height)_+_var(--nav-bottom)+10px)] max-sm:pb-[calc(var(--nav-height)_+_10px)];
 	}
 }

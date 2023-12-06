@@ -44,7 +44,7 @@ const assignments = assignmentsSnap.docs.reverse().map((u) => ({
 })) as Assignment[]
 ---
 <DefaultLayout title='Assignments'>
-	<section class='container mx-auto px-6 max-sm:px-2 pt-4 pb-[70px]'>
+	<section class='container mx-auto px-6 section-nav-pb pt-4'>
 		{
 		user.customClaims.admin && 
 			(
@@ -78,7 +78,7 @@ const assignments = assignmentsSnap.docs.reverse().map((u) => ({
 		}
 		<div class='allAssignments'>
 			<div class='heading items-center max-sm:text-lg max-sm:text-center max-sm:mb-2'>
-				<h2>Assignments</h2>
+				<h2 class='max-sm:text-2xl max-sm:text-slate-500'>Assignments</h2>
 				<h2 class='p-2 px-8 max-sm:hidden'>Date</h2>
 			</div>
 

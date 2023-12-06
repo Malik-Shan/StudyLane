@@ -2,7 +2,7 @@
 const pathname = new URL( Astro.request.url).pathname
 const activeLink = pathname.split('/')[1];
 ---
-<nav class='fixed w-max h-[60px] bottom-[20px] left-1/2 -translate-x-1/2 border-2 border-slate-300 rounded-full bg-white p-2 flex flex-row justify-center gap-4 max-sm:w-full max-sm:rounded-none max-sm:bottom-0 max-sm:border-l-0 max-sm:border-r-0 max-sm:border-b-0'>
+<nav class='fixed w-max h-[var(--nav-height)] bottom-[var(--nav-bottom)] left-1/2 -translate-x-1/2 border-2 border-slate-300 rounded-full bg-white p-2 flex flex-row justify-center gap-4 max-sm:w-full max-sm:rounded-none max-sm:bottom-0 max-sm:border-l-0 max-sm:border-r-0 max-sm:border-b-0'>
   <a href='/'
     class={`${activeLink === '' ? 'active' : ''} lowSecondaryBtn border rounded-full p-1 px-3 max-sm:p-2 flex flex-row justify-center items-center gap-2 max-sm:text-xl`}
   > 
