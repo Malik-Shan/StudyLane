@@ -41,7 +41,7 @@ const {id , todo, link , subject, type, date, admin} = Astro.props;
 .assignment {
   display:grid;
   grid-template-columns: 1fr max-content max-content;
-  @apply p-1 border border-slate-300 rounded-md items-center justify-center;
+  @apply p-1 border border-slate-300 rounded-md items-center justify-center max-sm:grid-cols-1 max-sm:text-center max-sm:gap-2;
 }
 .assignment.htmx-swapping{
   animation:disappear 400ms ease-out;

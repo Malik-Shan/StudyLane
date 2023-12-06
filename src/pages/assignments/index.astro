@@ -44,13 +44,13 @@ const assignments = assignmentsSnap.docs.reverse().map((u) => ({
 })) as Assignment[]
 ---
 <DefaultLayout title='Assignments'>
-	<section class='container mx-auto px-6 max-sm:px-2 pt-4'>
+	<section class='container mx-auto px-6 max-sm:px-2 pt-4 pb-[70px]'>
 		{
 		user.customClaims.admin && 
 			(
 				<div>
 					<h2 class='text-center text-xl font-bold text-slate-400 mb-2'>Add New Assignment</h2>
-					<form class='addAssignment'
+					<form class='addAssignment pb-4'
 						hx-post='/api/database/assignment'
 						hx-swap='afterbegin'
 						hx-target='#assignments'
@@ -77,9 +77,9 @@ const assignments = assignmentsSnap.docs.reverse().map((u) => ({
 			)
 		}
 		<div class='allAssignments'>
-			<div class='heading items-center'>
-				<h2>Assignment</h2>
-				<h2 class='p-2 px-8'>Date</h2>
+			<div class='heading items-center max-sm:text-lg max-sm:text-center max-sm:mb-2'>
+				<h2>Assignments</h2>
+				<h2 class='p-2 px-8 max-sm:hidden'>Date</h2>
 			</div>
 
 			<div id='assignments' class='space-y-2'>
@@ -94,11 +94,11 @@ const assignments = assignmentsSnap.docs.reverse().map((u) => ({
 </DefaultLayout>
 <style is:global>
 .addAssignment{
-	@apply flex flex-row gap-2;
+	@apply flex flex-row gap-2 max-sm:flex-col;
 }
 .addAssignment input,
 .addAssignment select{
-	@apply border block w-full px-2 border-slate-300 rounded-md max-sm:text-sm;
+	@apply border block w-full px-2 border-slate-300 p-1 rounded-md max-sm:text-sm;
 }
 .heading {
 	display:grid;
