@@ -1,0 +1,42 @@
+---
+export const prerender = false;
+import {getEntry} from 'astro:content';
+import DefaultLayout from '../../layouts/DefaultLayout.astro';
+import {app} from '../../firebase/server';
+import {getFirestore} from 'firebase-admin/firestore';
+import {getAuth} from 'firebase-admin/auth';
+
+const {subject} = Astro.params;
+const subjectEntry = await getEntry('subjects',`${subject}`);
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+if(subjectEntry === undefined || subjectEntry === null){
+	return Astro.redirect('/404');
+}
+if(!Astro.cookies.has('session')){
+	return Astro.redirect('/login');
+}
+const sessionCookie = Astro.cookies.get('session').value;
+let decodedCookie;
+try {
+	decodedCookie = await auth.verifySessionCookie(sessionCookie);
+}catch(err){
+	Astro.cookies.set('session','', {expires : new Date(0)});
+	return Astro.redirect('/login');
+}
+let user; 
+try {
+	user = await auth.getUser(decodedCookie.uid);
+} catch(err){
+	Astro.cookies.set('session','', {expires : new Date(0)});
+	return Astro.redirect('/login');
+}
+const subjectRef = db.collection('subjects').doc(`${subject}`);
+const subjectSnap = await subjectRef.get();
+const subjectData = subjectSnap.data();
+---
+<DefaultLayout title={subjectEntry.data.title}>
+	<h2>{subjectEntry.data.title}</h2>
+</DefaultLayout>

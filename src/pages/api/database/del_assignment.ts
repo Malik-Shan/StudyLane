@@ -25,7 +25,7 @@ export const DELETE: APIRoute = async ({request}) => {
 
   const id = request.headers.get('assign-id');
   try{
-    await db.collection('assignments').doc(id).delete()
+    await db.collection('assignments').doc(id).delete();
   }catch(err){
     return new Response("Something went wrong",{
       status:400,
