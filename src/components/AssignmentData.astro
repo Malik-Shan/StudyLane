@@ -21,7 +21,9 @@ const {id , todo, link , subject, type, date, admin} = Astro.props;
   <div class='imp px-4'>
     <span class='tag' data-type={`${type}`}>{type}</span>
     <span class='tag' data-subject={subject}>{subject}</span>
-    <a class='tag' data-type='link' href={link}>Link</a>
+    {
+    link !== '/' &&     <a class='tag' data-type='link' href={link}>Link</a>
+    }
   </div>
   <p class='date'>{date}</p>
 </div>

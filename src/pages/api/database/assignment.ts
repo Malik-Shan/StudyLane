@@ -51,25 +51,28 @@ export const POST: APIRoute = async ({request}) => {
     })
   }
   const html = `
-  <div data-id='${id.id}' id='assign-${id.id}' class='assignment relative group/assign'>
-    ${decodedCookie.admin && 
-    `<button 
-    hx-post='/api/database/del_assignment'
-    hx-swap='delete swap:400ms'
-    hx-confirm='Are you sure?'
-    hx-target='#assign-${id.id}'
-    hx-indicator='#assign-${id.id}'
-    hx-headers='{"assign-id":"${id.id}"}'
-    type='button' class='absolute hidden right-0 top-1/2 -translate-y-1/2 group-hover/assign:block bg-red-500 text-white p-1 px-2 rounded-md'>
-      <i class="fa-solid fa-trash-can"></i>
-    </button>`
+  <div data-id='${id}' id='assign-${id}' class='assignment relative group/assign'>
+    ${
+    decodedCookie.admin && (
+      `<button 
+        hx-delete='/api/database/del_assignment'
+        hx-swap='delete swap:400ms'
+        hx-confirm='Are you sure?'
+        hx-target='#assign-${id}'
+        hx-indicator='#assign-${id}'
+        hx-headers='{"assign-id":"${id}"}'
+        type='button' class='absolute hidden right-0 top-1/2 -translate-y-1/2 group-hover/assign:block bg-red-500 text-white p-1 px-2 rounded-md max-sm:block max-sm:right-2 max-sm:top-[calc(100%_-_25px)]'>
+        <i class="fa-solid fa-trash-can"></i>
+      </button>`
+    )
     }
-
     <p class='todo'>${assignment}</p>
     <div class='imp px-4'>
-      <a class='tag' data-type='link' href='${link}'>Link</a>
-      <span class='tag'>${type}</span>
+      <span class='tag' data-type='${type}'>${type}</span>
       <span class='tag' data-subject='${subject}'>${subject}</span>
+      ${
+      link !== '/' &&     `<a class='tag' data-type='link' href=${link}>Link</a>`
+      }
     </div>
     <p class='date'>${date}</p>
   </div>
