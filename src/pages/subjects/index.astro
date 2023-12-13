@@ -45,7 +45,7 @@ const allSubjects = await getCollection('subjects');
 .subjects{
 	display:grid;
 	grid-template-columns:repeat(auto-fit, minmax(400px, 1fr));
-	@apply gap-2;
+	@apply gap-2 max-sm:auto-cols-fr;
 }
 .sub_card[data-id='0']{
 	@apply border-sky-800 bg-sky-200 text-sky-800;
