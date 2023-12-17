@@ -13,4 +13,14 @@ books:
         edition: '6th'
         author: 'Peter Norton'
         link: 'https://drive.google.com/file/d/1bOHovKchEDNKfCScvWuoEdc5-v_st_MT/view'
+    - book:
+        name: 'Computer Science An Overview'
+        edition: '11th'
+        author: 'Glenn Brookshear'
+        link: 'https://drive.google.com/file/d/1HNZEy5cryhbBfSEqRczh0McuyCDLLRw4/view'
+    - book:
+        name: 'Computer Information Technology In Perspective'
+        edition: '9th'
+        author: 'Larry Long, Nancy Long'
+        link: 'https://drive.google.com/file/d/1xjTCkFaAqcnQTRhmqhMj1MyhooTt2ood/view'
 ---

@@ -15,16 +15,17 @@ if(Astro.cookies.has('session')){
 {user ? 
 	(<div class='userMenu max-w-[50px] relative z-30'>
 		<button id='menuBtn' class='rounded-full w-full h-full overflow-hidden border-2 border-slate-300 peer/menu menuHidden'><img class='w-full aspect-square object-cover' src={user.photoURL} /></button>
-		<div id='userMenu' class=' absolute right-0 top-full bg-white p-2 w-[200px] rounded-md shadow-sm shadow-slate-400 space-y-2 hidden peer-[.showMenu]/menu:block'>
-			<a href='/subjects' type='button'
-				class='block w-full p-1 py-2 text-center text-slate-500 font-bold bg-slate-100 hover:bg-slate-200 rounded-md'
+		<div id='userMenu' class=' absolute right-0 top-full bg-white p-2 w-[200px] border border-slate-300 rounded-md shadow-sm shadow-slate-400 space-y-2 hidden peer-[.showMenu]/menu:block'>
+			<a href='/user/profile' class='userMenuBtn'>Profile</a>
+			<a href='/subjects'
+				class='userMenuBtn'
 				>Subjects</a>
 			<button type='button'
 				hx-post='/api/auth/logout'
 				hx-swap='none'
 				hx-trigger='click'
 				class='block w-full p-1 py-2 text-center text-white bg-red-400 hover:bg-red-600 rounded-md'
-				>Logout</button>
+				>Logout<i class="fa-solid fa-right-from-bracket ml-2"></i></button>
 		</div>
 	</div>)
 	: 

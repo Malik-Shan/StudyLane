@@ -23,6 +23,9 @@
 	}
 }
 @layer components {
+	.userMenuBtn {
+		@apply block w-full p-1 py-2 text-center text-slate-500 font-bold bg-slate-100 hover:bg-slate-200 rounded-md;
+	}
 	.primaryBtn , 
 	.lowPrimaryBtn,
 	.secondaryBtn,
