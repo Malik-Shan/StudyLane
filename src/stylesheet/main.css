@@ -76,6 +76,9 @@
 	.dangerBtn:active{
 		@apply bg-white text-red-400 fill-red-400;
 	}
+	.tag {
+		@apply p-1 px-2 rounded-full text-white capitalize text-sm bg-teal-400 max-sm:text-[.8rem];
+	}
 }
 @layer utilities {
 	.bg-primary {
@@ -106,5 +109,38 @@
 	}
 	.section-nav-pb {
 		@apply pb-[calc(var(--nav-height)_+_var(--nav-bottom)+10px)] max-sm:pb-[calc(var(--nav-height)_+_10px)];
+	}
+	.tag[data-type='blog']{
+		@apply bg-lime-400 text-lime-800 font-bold;
+	}
+	.tag[data-type='snippet']{
+		@apply bg-yellow-400 text-yellow-800 font-bold;
+	}
+	.tag[data-type='article']{
+		@apply bg-violet-400 text-violet-900 font-bold;
+	}
+	.tag[data-subject='english-s1']{
+		@apply bg-red-400;
+	}
+	.tag[data-subject='calculus-s1']{
+		@apply bg-orange-400;
+	}
+	.tag[data-subject='programming-s1']{
+		@apply bg-green-500;
+	}
+	.tag[data-subject='islamiat-s1']{
+		@apply bg-purple-400;
+	}
+	.tag[data-subject='computer-s1']{
+		@apply bg-blue-400;
+	}
+	.tag[data-type='presentation']{
+		@apply bg-lime-400 text-lime-800 font-bold;
+	}
+	.tag[data-type='quiz']{
+		@apply bg-yellow-400 text-yellow-800 font-bold;
+	}
+	.tag[data-type='written']{
+		@apply bg-violet-400 text-violet-900 font-bold;
 	}
 }

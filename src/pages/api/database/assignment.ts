@@ -68,8 +68,8 @@ export const POST: APIRoute = async ({request}) => {
     }
     <p class='todo'>${assignment}</p>
     <div class='imp px-4'>
-      <span class='tag' data-type='${type}'>${type}</span>
-      <span class='tag' data-subject='${subject}'>${subject}</span>
+      <span class='tag' data-type='${type.toLowerCase()}'>${type}</span>
+      <span class='tag' data-subject='${subject.toLowerCase()}'>${subject}</span>
       ${
       link !== '/' &&     `<a class='tag' data-type='link' href=${link}>Link</a>`
       }

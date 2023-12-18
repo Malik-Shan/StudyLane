@@ -19,8 +19,8 @@ const {id , todo, link , subject, type, date, admin} = Astro.props;
   }
   <p class='todo'>{todo}</p>
   <div class='imp px-4'>
-    <span class='tag' data-type={`${type}`}>{type}</span>
-    <span class='tag' data-subject={subject}>{subject}</span>
+    <span class='tag' data-type={`${type.toLowerCase()}`}>{type}</span>
+    <span class='tag' data-subject={subject.toLowerCase()}>{subject}</span>
     {
     link !== '/' &&     <a class='tag' data-type='link' href={link}>Link</a>
     }
@@ -28,33 +28,6 @@ const {id , todo, link , subject, type, date, admin} = Astro.props;
   <p class='date'>{date}</p>
 </div>
 <style is:global>
-.tag {
-  @apply p-1 px-2 rounded-full text-white capitalize text-sm bg-teal-400 max-sm:text-[.8rem];
-}
-.tag[data-type='Presentation']{
-  @apply bg-lime-400 text-lime-800 font-bold;
-}
-.tag[data-type='Quiz']{
-  @apply bg-yellow-400 text-yellow-800 font-bold;
-}
-.tag[data-type='Written']{
-  @apply bg-violet-400 text-violet-900 font-bold;
-}
-.tag[data-subject='English']{
-  @apply bg-red-400;
-}
-.tag[data-subject='Calculus']{
-  @apply bg-orange-400;
-}
-.tag[data-subject='Programming']{
-  @apply bg-green-500;
-}
-.tag[data-subject='Islamiat']{
-  @apply bg-purple-400;
-}
-.tag[data-subject='Computer']{
-  @apply bg-blue-400;
-}
 .assignment {
   display:grid;
   grid-template-columns: 1fr max-content 110px;

@@ -1,0 +1,46 @@
+---
+const {title, link , subject, type, date} = Astro.props;
+---
+
+<div class='blog relative group/assign'>
+  <p class='title'>{title}</p>
+  <div class='imp px-4'>
+    <span class='tag' data-type={`${type}`}>{type}</span>
+    <span class='tag' data-subject={`${subject}`}>{subject}</span>
+    {
+    link !== '/' &&     <a class='tag' data-type='link' href={link}>Link</a>
+    }
+  </div>
+  <p class='date'>{date}</p>
+</div>
+<style is:global>
+.blog {
+  display:grid;
+  grid-template-columns: 1fr max-content 110px;
+  @apply p-1 border border-slate-300 rounded-md items-center justify-center max-sm:grid-cols-1 max-sm:text-center max-sm:gap-2;
+}
+.blog.htmx-swapping{
+  animation:disappear 400ms ease-out;
+}
+@keyframes disappear {
+0% {
+  opacity:1;
+}
+85% {
+  opacity:0;
+}
+100% {
+  opacity:0;
+  display:none;
+}
+}
+.blog .title{
+  @apply max-sm:text-sm;
+}
+.blog:hover {
+  @apply bg-slate-100;
+}
+.blog .date{
+  @apply border-l border-l-slate-300 px-2 max-sm:text-[.7rem] max-sm:font-bold max-sm:bg-slate-300 max-sm:rounded-sm;
+}
+</style>

@@ -37,14 +37,16 @@ try {
 	<section class='container mx-auto px-2 pt-4 section-nav-pb'>
 		<h2 class='text-slate-400 font-bold text-3xl text-center mb-4'>{subjectEntry.data.title}</h2>
 		<h2 class='text-secondary font-bold text-3xl text-center mb-4 underline underline-offset-4'>Recommended</h2>
-		<div class='pdf grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 mb-4 gap-2'>
-			{
-			subjectEntry.data.books.map((s) => (
-				s.book.link === '' ? ('') : (
-					<a target='_blank' href={s.book.link} class='bookPDF'>{s.book.name} - {s.book.author} (E{s.book.edition})</a>
-				)
-			))
-			}
+		<div class=' grid pb-4'>
+			<ul>
+				{
+				subjectEntry.data.recommended_books.map((s) => (
+					s.book.link === '' ? ('') : (
+						<li><i class="fa-solid fa-book mr-2"></i>{s.book.name} - {s.book.edition}E - {s.book.author}</li>
+					)
+				))
+				}
+			</ul>
 		</div>
 		<hr/>
 		<h2 class='text-secondary font-bold text-3xl text-center mb-4 underline underline-offset-4 pt-4'>PDF</h2>

@@ -2,6 +2,7 @@
 export const prerender = false;
 import {getEntry} from 'astro:content';
 import DefaultLayout from '../../../layouts/DefaultLayout.astro';
+import SubjectBlog from '../../../components/SubjectBlog.astro';
 import {app} from '../../../firebase/server';
 import {getFirestore} from 'firebase-admin/firestore';
 import {getAuth} from 'firebase-admin/auth';
@@ -42,7 +43,7 @@ try {
 		<h2 class='text-slate-400 font-bold text-3xl text-center mb-4'>{subjectEntry.data.title}</h2>
 		<div class='impLinks text-center mb-4 space-x-2'>
 			{
-				subjectEntry.data.books.length === 0 ? ('') : (
+				(subjectEntry.data.books.length === 0 || subjectEntry.data.recommended_books.length === 0) ? ('') : (
 					<a class='theLink lowPrimaryBtn' href={`/subjects/${subject}/books`}>Books</a>
 				)
 			}
@@ -55,13 +56,10 @@ try {
 			}
 		</div>
 		<h2 class='text-secondary font-bold text-2xl text-center mb-4 underline underline-offset-4'>Lectures & Important Info</h2>
-		<div class='impInfo grid auto-cols-fr'>
-			<h2>test</h2>
-			<h2>test</h2>
-			<h2>test</h2>
-			<h2>test</h2>
-			<h2>test</h2>
-		</div>
+		<ul class='impInfo grid auto-cols-fr gap-2'>
+			<SubjectBlog subject='calculus-s1' title='This is the title' type='blog' link='/test' date='01/12/2001' />
+			<SubjectBlog subject='programming-s1' title='This is the title' type='blog' link='/test' date='01/12/2001' />
+		</ul>
 	</section>
 </DefaultLayout>
 <style is:global>
