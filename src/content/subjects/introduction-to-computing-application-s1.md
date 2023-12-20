@@ -1,5 +1,5 @@
 ---
-title: 'Introduction to Computing Applications'
+title: 'Introduction to Computing Applications S1'
 outline:
     - 'https://media.discordapp.net/attachments/1182217078883754044/1182239645384314960/Intro_To_Computing_Applications.jpg?ex=6583f978&is=65718478&hm=57d4ee4e2de269e5a93877f4157c89faf4d264fa2303bc4bf31e5d4f5192c52f&=&format=webp&width=656&height=676'
 recommended_books:

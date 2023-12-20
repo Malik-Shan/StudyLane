@@ -1,5 +1,5 @@
 ---
-title: 'Programming Fundamentals'
+title: 'Programming Fundamentals S1'
 outline:
     - 'https://media.discordapp.net/attachments/1182217064195293274/1182239517634207804/Programming.jpg?ex=6583f959&is=65718459&hm=e8b74a042cdd2464e52f2ddba70767d6a9e274d9cc3d5cd12afd4f6a8fef7846&=&format=webp&width=725&height=409'
 recommended_books:

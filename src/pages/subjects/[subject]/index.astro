@@ -1,6 +1,6 @@
 ---
 export const prerender = false;
-import {getEntry} from 'astro:content';
+import {getEntry, getCollection} from 'astro:content';
 import DefaultLayout from '../../../layouts/DefaultLayout.astro';
 import SubjectBlog from '../../../components/SubjectBlog.astro';
 import {app} from '../../../firebase/server';
@@ -9,6 +9,7 @@ import {getAuth} from 'firebase-admin/auth';
 
 const {subject} = Astro.params;
 const subjectEntry = await getEntry('subjects',`${subject}`);
+const lec_info = await getCollection(subject);
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -57,8 +58,11 @@ try {
 		</div>
 		<h2 class='text-secondary font-bold text-2xl text-center mb-4 underline underline-offset-4'>Lectures & Important Info</h2>
 		<ul class='impInfo grid auto-cols-fr gap-2'>
-			<SubjectBlog subject='calculus-s1' title='This is the title' type='blog' link='/test' date='01/12/2001' />
-			<SubjectBlog subject='programming-s1' title='This is the title' type='blog' link='/test' date='01/12/2001' />
+			{
+			lec_info.map(l => (
+				<SubjectBlog subject={`${l.data.subject}`} title={`${l.data.title}`} type={`${l.data.type[0]}`} link={`/subjects/${subject}/${l.slug}`} date={`${l.data.date}`} />
+			))
+			}
 		</ul>
 	</section>
 </DefaultLayout>
