@@ -7,9 +7,7 @@ import {getFirestore} from 'firebase-admin/firestore';
 import {getAuth} from 'firebase-admin/auth';
 
 const {subject, infoid} = Astro.params;
-const infoEntry = await getEntry('subjects',(id) => {
-	return id.startsWith(`${subject}/`)
-});
+const infoEntry = await getEntry('subjects',`${subject}/${infoid}`);
 
 const db = getFirestore(app);
 const auth = getAuth(app);
