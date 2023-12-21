@@ -22,6 +22,18 @@ const {title, link , subject, type, date} = Astro.props;
 .blog.htmx-swapping{
   animation:disappear 400ms ease-out;
 }
+.tag[data-type='lecture']{
+  @apply bg-lime-400 text-lime-800 font-bold;
+}
+.tag[data-type='notes']{
+  @apply bg-yellow-400 text-yellow-800 font-bold;
+}
+.tag[data-type='blog']{
+  @apply bg-red-400 text-red-800 font-bold;
+}
+.tag[data-type='link']{
+  @apply bg-sky-300 text-sky-800 font-bold;
+}
 @keyframes disappear {
 0% {
   opacity:1;

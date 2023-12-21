@@ -26,7 +26,9 @@ try {
 	return Astro.redirect('/login');
 }
 
-const allSubjects = await getCollection('subjects');
+const allSubjects = await getCollection('subjects', ({id}) =>{
+	return id.startsWith('guide/');
+});
 ---
 <DefaultLayout title='Subjects'>
 	<section class='container mx-auto px-2 section-nav-pb pt-8 max-sm:pt-4'>
@@ -34,7 +36,7 @@ const allSubjects = await getCollection('subjects');
 			{
 			allSubjects.map((s, ind) => (
 				<a class='sub_card w-full bg-slate-300 p-4 py-16 rounded-md text-center font-bold lg:hover:scale-110 transition-all border-2 text-xl' data-id={ind}
-					href={`/subjects/${s.slug}`}
+					href={`/subjects/${s.slug.split('/')[1]}`}
 					>{s.data.title}</a>
 			))
 			}
