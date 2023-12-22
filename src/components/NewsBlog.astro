@@ -1,0 +1,39 @@
+---
+const {date, title, category, link, position} = Astro.props;
+const d = new Date(date);
+const month = new Intl.DateTimeFormat('en-uk',{month:'short',}).format(d);
+const day = new Intl.DateTimeFormat('en-uk', {day:'numeric'}).format(d);
+---
+<div class='news p-2 pr-4 shadow shadow-slate-200 border border-slate-300 rounded-md flex flex-row gap-4'>
+  <div class='date min-w-[100px] flex flex-col justify-center items-center border-r border-r-slate-300 p-3'>
+    <h2>{day}</h2>
+    <h4>{month}</h4>
+  </div>
+  <div class='rightSide flex flex-col justify-between items-start w-full'>
+    <h2 class='text-2xl font-bold text-secondary'>{title}</h2>
+    <div class='category mb-2'>
+      <span class='text-slate-500 text-[.85rem]'>Category:</span>
+      {
+      category.map((c) => (
+        <span class='catName text-[.85rem] underline underline-offset-2 ml-1' >{c}</span>
+      ))
+      }
+    </div>
+    <div class='wrapper flex flex-row justify-between w-full'>
+      <a class='primaryBtn inline-block p-1.5 rounded-md text-[.8rem] border-2 font-mdium' href={`${link}`}>Read More</a>
+      <span class='self-end text-slate-400 text-sm font-bold'>{position}</span>
+    </div>
+  </div>
+</div>
+<style>
+.date h2,
+.date h4{
+  @apply text-slate-600;
+}
+.date h2{
+  @apply text-4xl font-bold;
+}
+.date h4{
+  @apply text-2xl font-bold;
+}
+</style>
