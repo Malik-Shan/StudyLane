@@ -6,6 +6,7 @@ import DefaultLayout from '../../layouts/DefaultLayout.astro';
 import NewsBlog from '../../components/NewsBlog.astro';
 import {app} from '../../firebase/server';
 import {getAuth} from 'firebase-admin/auth';
+import {formatAllPosts} from '../../js/util';
 
 const auth = getAuth(app);
 
@@ -28,12 +29,17 @@ try {
 	return Astro.redirect('/login');
 }
 const news = await getCollection('news');
+const formatedNews = await formatAllPosts(news,{
+	filterOutDraft : true,
+	sortByDate : true,
+	limit : undefined,
+})
 ---
 <DefaultLayout title='News'>
 	<section class='newsSection container p-2 section-nav-pb pt-8 mx-auto'>
 		<div class='newsCollection grid grid-cols-2 max-lg:grid-cols-1 gap-2'>
 			{
-			news.map((n) => (
+			formatedNews.map((n) => (
 				<NewsBlog title={n.data.title} link={`/news/${n.slug}`} date={n.data.date} category={n.data.category} position={n.data.position}/>
 			))
 			}

@@ -14,10 +14,10 @@ export function formatAllPosts(posts, {
     limit = undefined,
 } = {}){
     const filteredPosts = posts.reduce((acc, post) => {
-        const {Draft} = post.data;
+        const {draft} = post.data;
         
         //filterOutDrafts if true
-        if(filterOutDraft && Draft) return acc;
+        if(filterOutDraft && draft) return acc;
 
         //add game to acc
         acc.push(post)

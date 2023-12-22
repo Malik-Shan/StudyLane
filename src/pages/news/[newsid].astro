@@ -33,7 +33,10 @@ const news = await getEntry('news', newsid);
 const {Content} = await news.render();
 ---
 <DefaultLayout title='News'>
-	<section class='blog container p-2 section-nav-pb pt-8 mx-auto'>
+	<section class='blog max-w-[1000px] max-lg:max-w-[750px] max-md:max-w-[500px] p-2 section-nav-pb pt-8 mx-auto'>
+		<img src={news.data.bannerImg} alt='banner' />
 		<Content/>
 	</section>
 </DefaultLayout>
+<style is:global>
+</style>
