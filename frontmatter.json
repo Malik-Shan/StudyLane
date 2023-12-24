@@ -1,0 +1,40 @@
+{
+  "$schema": "https://frontmatter.codes/frontmatter.schema.json",
+  "frontMatter.framework.id": "astro",
+  "frontMatter.preview.host": "http://localhost:4321",
+  "frontMatter.content.publicFolder": {
+    "path": "src/assets",
+    "relative": true
+  },
+  "frontMatter.content.pageFolders": [
+    {
+      "title": "subjects",
+      "path": "[[workspace]]/src/content/subjects",
+      "contentTypes": ["subjects"]
+    },
+    {
+      "title": "news",
+      "path": "[[workspace]]/src/content/news",
+      "contentTypes": ["news"]
+    },
+    {
+      "path": "[[workspace]]/d:/Coding Stuff/Github/cibt-student-portal/src/content"
+    }
+  ],
+  "frontMatter.taxonomy.contentTypes": [
+    {
+      "name": "subjects",
+      "previewPath": "'subjects'",
+      "pageBundle": false,
+      "clearEmpty": true,
+      "fields": []
+    },
+    {
+      "name": "news",
+      "previewPath": "'news'",
+      "pageBundle": false,
+      "clearEmpty": true,
+      "fields": []
+    }
+  ]
+}

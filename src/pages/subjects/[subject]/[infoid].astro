@@ -1,15 +1,13 @@
 ---
 export const prerender = false;
 import {getEntry} from 'astro:content';
-import DefaultLayout from '../../../layouts/DefaultLayout.astro';
+import Blog from '../../../layouts/Blog.astro';
 import {app} from '../../../firebase/server';
-import {getFirestore} from 'firebase-admin/firestore';
 import {getAuth} from 'firebase-admin/auth';
 
 const {subject, infoid} = Astro.params;
 const infoEntry = await getEntry('subjects',`${subject}/${infoid}`);
 
-const db = getFirestore(app);
 const auth = getAuth(app);
 
 if(infoEntry === undefined || infoEntry === null){
@@ -35,6 +33,6 @@ try {
 }
 const {Content} = await infoEntry.render();
 ---
-<DefaultLayout title='test'>
+<Blog title={infoEntry.data.title} imgSrc={infoEntry.data.bannerImg}>
 	<Content/>
-</DefaultLayout>
+</Blog>
