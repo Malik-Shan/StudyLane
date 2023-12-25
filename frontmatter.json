@@ -8,17 +8,37 @@
   },
   "frontMatter.content.pageFolders": [
     {
-      "title": "subjects",
-      "path": "[[workspace]]/src/content/subjects",
+      "title": "Calculus",
+      "path": "[[workspace]]/src/content/subjects/calculus-&-analytic-geometry-s1",
+      "filePrefix": "",
+      "contentTypes": ["subjects"]
+    },
+    {
+      "title": "English",
+      "path": "[[workspace]]/src/content/subjects/english-composition-&-comprehension-s1",
+      "filePrefix": "",
+      "contentTypes": ["subjects"]
+    },
+    {
+      "title": "IT",
+      "path": "[[workspace]]/src/content/subjects/introduction-to-computing-application-s1",
+      "filePrefix": "",
+      "contentTypes": ["subjects"]
+    },
+    {
+      "title": "Programming",
+      "path": "[[workspace]]/src/content/subjects/programming-fundamentals-s1",
+      "filePrefix": "",
       "contentTypes": ["subjects"]
     },
     {
       "title": "news",
       "path": "[[workspace]]/src/content/news",
+      "filePrefix": "",
       "contentTypes": ["news"]
     },
     {
-      "path": "[[workspace]]/d:/Coding Stuff/Github/cibt-student-portal/src/content"
+      "path": "[[workspace]]/d:/Coding Stuff/Github/cibt-student-portal"
     }
   ],
   "frontMatter.taxonomy.contentTypes": [
@@ -27,7 +47,82 @@
       "previewPath": "'subjects'",
       "pageBundle": false,
       "clearEmpty": true,
-      "fields": []
+      "fields": [
+        {
+          "title": "Draft",
+          "name": "draft",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "title": "Title",
+          "name": "title",
+          "required": true,
+          "default": "",
+          "type": "string",
+          "single": true
+        },
+        {
+          "title": "Banner URL",
+          "name": "bannerImg",
+          "required": true,
+          "default": "",
+          "type": "string",
+          "single": true
+        },
+        {
+          "title": "Banner Preview",
+          "name": "bannerImg",
+          "type": "image",
+          "default": "",
+          "isPreviewImage": true
+        },
+        {
+          "title": "Date",
+          "name": "date",
+          "required": true,
+          "default": "{{now}}",
+          "type": "datetime"
+        },
+        {
+          "title": "Tags",
+          "name": "tag",
+          "required": true,
+          "default": [],
+          "type": "tags"
+        },
+        {
+          "title": "Subject",
+          "name": "subject",
+          "required": true,
+          "type": "choice",
+          "default": "",
+          "choices": [
+            "",
+            "Calculus & Analytic Geometry",
+            "English Composition & Comprehension",
+            "Introduction To Computing Application",
+            "Islamic Studies & Ethics",
+            "Programming Fundamentals"
+          ]
+        },
+        {
+          "title": "Semester",
+          "name": "semester",
+          "required": true,
+          "type": "choice",
+          "default": "",
+          "choices": ["", "S1", "S2", "S3", "S4", "S5"]
+        },
+        {
+          "title": "Info Type",
+          "name": "infoType",
+          "required": true,
+          "default": "",
+          "type": "choice",
+          "choices": ["", "lecture", "notes", "blog"]
+        }
+      ]
     },
     {
       "name": "news",

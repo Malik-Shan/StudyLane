@@ -1,81 +1,101 @@
 ---
 export const prerender = false;
-import {getEntry, getCollection} from 'astro:content';
-import DefaultLayout from '../../../layouts/DefaultLayout.astro';
-import SubjectBlog from '../../../components/SubjectBlog.astro';
-import {formatAllPosts} from '../../../js/util';
-import {app} from '../../../firebase/server';
-import {getFirestore} from 'firebase-admin/firestore';
-import {getAuth} from 'firebase-admin/auth';
+import { getEntry, getCollection } from "astro:content";
+import DefaultLayout from "../../../layouts/DefaultLayout.astro";
+import SubjectBlog from "../../../components/SubjectBlog.astro";
+import { formatAllPosts } from "../../../js/util";
+import { app } from "../../../firebase/server";
+import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 
-const {subject} = Astro.params;
-const subjectEntry = await getEntry('subjects', `guide/${subject}`);
-const lec_info = await getCollection('subjects' , ({id}) => {
-	return id.startsWith(subject);
+const { subject } = Astro.params;
+const subjectEntry = await getEntry("subjects", `guide/${subject}`);
+const lec_info = await getCollection("subjects", ({ id }) => {
+  return id.startsWith(subject);
 });
 const formatedPosts = await formatAllPosts(lec_info, {
-	filterOutDraft:true,
-	sortByDate:true,
-	limit:undefined,
+  filterOutDraft: true,
+  sortByDate: true,
+  limit: undefined,
 });
 
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-if(subjectEntry === undefined || subjectEntry === null){
-	return Astro.redirect('/404');
+if (subjectEntry === undefined || subjectEntry === null) {
+  return Astro.redirect("/404");
 }
-if(!Astro.cookies.has('session')){
-	return Astro.redirect('/login');
+if (!Astro.cookies.has("session")) {
+  return Astro.redirect("/login");
 }
-const sessionCookie = Astro.cookies.get('session').value;
+const sessionCookie = Astro.cookies.get("session").value;
 let decodedCookie;
 try {
-	decodedCookie = await auth.verifySessionCookie(sessionCookie);
-}catch(err){
-	Astro.cookies.set('session','', {expires : new Date(0)});
-	return Astro.redirect('/login');
+  decodedCookie = await auth.verifySessionCookie(sessionCookie);
+} catch (err) {
+  Astro.cookies.set("session", "", { expires: new Date(0) });
+  return Astro.redirect("/login");
 }
-let user; 
+let user;
 try {
-	user = await auth.getUser(decodedCookie.uid);
-} catch(err){
-	Astro.cookies.set('session','', {expires : new Date(0)});
-	return Astro.redirect('/login');
+  user = await auth.getUser(decodedCookie.uid);
+} catch (err) {
+  Astro.cookies.set("session", "", { expires: new Date(0) });
+  return Astro.redirect("/login");
 }
 //const subjectRef = db.collection('subjects').doc(`${subject}`);
 //const subjectSnap = await subjectRef.get();
 //const subjectData = subjectSnap.data();
 ---
-<DefaultLayout title='Subject Info'>
-	<section class='container mx-auto px-2 pt-4 section-nav-pb'>
-		<h2 class='text-slate-400 font-bold text-3xl text-center mb-4'>{subjectEntry.data.title}</h2>
-		<div class='impLinks text-center mb-4 space-x-2'>
-			{
-				(subjectEntry.data.books.length === 0 || subjectEntry.data.recommended_books.length === 0) ? ('') : (
-					<a class='theLink lowPrimaryBtn' href={`/subjects/${subject}/books`}>Books</a>
-				)
-			}
-			{
-				subjectEntry.data.outline.length === 0 ? ('') : (
-					subjectEntry.data.outline.map((s, ind) => (
-						<a class='theLink lowPrimaryBtn' target='_blank' href={s}>Outline-{ind+1}</a>
-					))
-				)
-			}
-		</div>
-		<h2 class='text-secondary font-bold text-2xl text-center mb-4 underline underline-offset-4'>Lectures & Important Info</h2>
-		<ul class='impInfo grid auto-cols-fr gap-2'>
-			{
-			formatedPosts.map(l => (
-				<SubjectBlog subject={`${l.data.subject}`} title={`${l.data.title}`} type={`${l.data.type}`} link={`/subjects/${l.slug}`} date={`${l.data.date}`} />
-			))
-			}
-		</ul>
-	</section>
+
+<DefaultLayout title="Subject Info">
+  <section class="container mx-auto px-2 pt-4 section-nav-pb">
+    <h2 class="text-slate-400 font-bold text-3xl text-center mb-4">
+      {subjectEntry.data.title}
+    </h2>
+    <div class="impLinks text-center mb-4 space-x-2">
+      {
+        subjectEntry.data.books.length === 0 ||
+        subjectEntry.data.recommended_books.length === 0 ? (
+          ""
+        ) : (
+          <a class="theLink lowPrimaryBtn" href={`/subjects/${subject}/books`}>
+            Books
+          </a>
+        )
+      }
+      {
+        subjectEntry.data.outline.length === 0
+          ? ""
+          : subjectEntry.data.outline.map((s, ind) => (
+              <a class="theLink lowPrimaryBtn" target="_blank" href={s}>
+                Outline-{ind + 1}
+              </a>
+            ))
+      }
+    </div>
+    <h2
+      class="text-secondary font-bold text-2xl text-center mb-4 underline underline-offset-4"
+    >
+      Lectures & Important Info
+    </h2>
+    <ul class="impInfo grid auto-cols-fr gap-2">
+      {
+        formatedPosts.map((l) => (
+          <SubjectBlog
+            subject={`${l.data.subject}`}
+            title={`${l.data.title}`}
+            type={`${l.data.infoType}`}
+            link={`/subjects/${l.slug}`}
+            date={`${l.data.date}`}
+          />
+        ))
+      }
+    </ul>
+  </section>
 </DefaultLayout>
 <style is:global>
-.theLink{
-@apply inline-block border-2 p-3 px-8 text-xl font-bold text-center rounded-full transition-all max-sm:text-base max-sm:p-2 max-sm:px-4;
-}
+  .theLink {
+    @apply inline-block border-2 p-3 px-8 text-xl font-bold text-center rounded-full transition-all max-sm:text-base max-sm:p-2 max-sm:px-4;
+  }
 </style>

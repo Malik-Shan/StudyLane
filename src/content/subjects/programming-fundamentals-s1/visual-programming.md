@@ -1,18 +1,19 @@
 ---
-title: "Visual Programming"
-bannerImg: "https://i.postimg.cc/brcXqpvQ/visual-programming.webp"
-date: "2023/12/22"
+title: Visual Programming
+date: 2023-12-05T12:28:52.000Z
 tag:
-  - "lecture"
-  - "blog"
-subject: "Programming Fundamentals"
-semester: "S1"
-type: "lecture"
+  - lecture
+  - blog
+subject: Programming Fundamentals
+type: subjects
+bannerImg: https://i.postimg.cc/brcXqpvQ/visual-programming.webp
+semester: S1
+infoType: blog
 ---
 
 # Visual Programming
 
-Visual programming is an approach to software development that uses visual elements, such as graphical user interfaces (GUIs) or visual metaphors, to create and manipulate code. Instead of writing code using text-based programming languages, visual programming allows developers to design and build applications by manipulating visual elements on a canvas.
+Visual programming is an approach to software development that uses visual elements, such as graphical user interfaces (GUIs) or visual metaphors, to create and manipulate code. Instead of writing code using text-based programming languages, visual programming allows developers to design and build applications by manipulating visual elements on a canvas.# #
 
 Here are key aspects of visual programming and how it typically works:
 
