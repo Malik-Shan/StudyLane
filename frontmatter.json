@@ -9,13 +9,13 @@
   "frontMatter.content.pageFolders": [
     {
       "title": "Calculus",
-      "path": "[[workspace]]/src/content/subjects/calculus-&-analytic-geometry-s1",
+      "path": "[[workspace]]/src/content/subjects/calculus-and-analytic-geometry-s1",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
     {
       "title": "English",
-      "path": "[[workspace]]/src/content/subjects/english-composition-&-comprehension-s1",
+      "path": "[[workspace]]/src/content/subjects/english-composition-and-comprehension-s1",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
@@ -28,6 +28,12 @@
     {
       "title": "Programming",
       "path": "[[workspace]]/src/content/subjects/programming-fundamentals-s1",
+      "filePrefix": "",
+      "contentTypes": ["subjects"]
+    },
+    {
+      "title": "Islamiat",
+      "path": "[[workspace]]/src/content/subjects/islamic-studies-and-ethics-s1",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
