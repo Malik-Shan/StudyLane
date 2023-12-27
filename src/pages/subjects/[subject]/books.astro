@@ -7,7 +7,7 @@ import {getFirestore} from 'firebase-admin/firestore';
 import {getAuth} from 'firebase-admin/auth';
 
 const {subject} = Astro.params;
-const subjectEntry = await getEntry('subjects',`${subject}`);
+const subjectEntry = await getEntry('subjects',`guide/${subject}`);
 
 const auth = getAuth(app);
 
