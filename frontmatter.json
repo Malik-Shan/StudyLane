@@ -38,6 +38,12 @@
       "contentTypes": ["subjects"]
     },
     {
+      "title": "Guide",
+      "path": "[[workspace]]/src/content/subjects/guide",
+      "filePrefix": "",
+      "contentTypes": ["guide"]
+    },
+    {
       "title": "news",
       "path": "[[workspace]]/src/content/news",
       "filePrefix": "",
@@ -47,12 +53,94 @@
       "path": "[[workspace]]/d:/Coding Stuff/Github/cibt-student-portal"
     }
   ],
+  "frontMatter.taxonomy.fieldGroups": [
+    {
+      "id": "book",
+      "labelField": "name",
+      "fields": [
+        {
+          "title": "Book",
+          "name": "book",
+          "type": "fields",
+          "fields": [
+            {
+              "title": "Name",
+              "name": "name",
+              "type": "string",
+              "single": true,
+              "default": "",
+              "required": true
+            },
+            {
+              "title": "Edition",
+              "name": "edition",
+              "type": "string",
+              "single": true,
+              "default": "",
+              "required": true
+            },
+            {
+              "title": "Author",
+              "name": "author",
+              "type": "string",
+              "default": "",
+              "required": true
+            },
+            {
+              "title": "Link",
+              "name": "link",
+              "type": "string",
+              "single": true,
+              "default": "",
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recommendedbook",
+      "labelField": "name",
+      "fields": [
+        {
+          "title": "Book",
+          "name": "book",
+          "type": "fields",
+          "fields": [
+            {
+              "title": "Name",
+              "name": "name",
+              "type": "string",
+              "single": true,
+              "default": "",
+              "required": true
+            },
+            {
+              "title": "Edition",
+              "name": "edition",
+              "type": "string",
+              "single": true,
+              "default": "",
+              "required": true
+            },
+            {
+              "title": "Author",
+              "name": "author",
+              "type": "string",
+              "default": "",
+              "required": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "frontMatter.taxonomy.contentTypes": [
     {
       "name": "subjects",
       "previewPath": "'subjects'",
       "pageBundle": false,
-      "clearEmpty": true,
+      "clearEmpty": false,
       "fields": [
         {
           "title": "Draft",
@@ -131,10 +219,47 @@
       ]
     },
     {
+      "name": "guide",
+      "previewPath": "'guide'",
+      "pageBundle": false,
+      "clearEmpty": false,
+      "fields": [
+        {
+          "title": "Title",
+          "name": "title",
+          "type": "string",
+          "single": true,
+          "default": "",
+          "required": true
+        },
+        {
+          "title": "Outline",
+          "name": "outline",
+          "type": "list",
+          "required": true,
+          "default": []
+        },
+        {
+          "title": "Recommended Books",
+          "name": "recommended",
+          "type": "block",
+          "fieldGroup": ["recommendedbook"],
+          "default": []
+        },
+        {
+          "title": "Books PDF",
+          "name": "books",
+          "type": "block",
+          "default": [],
+          "fieldGroup": ["book"]
+        }
+      ]
+    },
+    {
       "name": "news",
       "previewPath": "'news'",
       "pageBundle": false,
-      "clearEmpty": true,
+      "clearEmpty": false,
       "fields": []
     }
   ]

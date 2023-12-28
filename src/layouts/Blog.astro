@@ -1,10 +1,13 @@
 ---
-const {title, imgSrc} = Astro.props;
-import DefaultLayout from './DefaultLayout.astro';
+const { title, imgSrc } = Astro.props;
+import DefaultLayout from "./DefaultLayout.astro";
 ---
+
 <DefaultLayout title={title}>
-	<section class='blog max-w-[1000px] max-lg:max-w-[750px] max-md:max-w-[500px] p-2 section-nav-pb pt-8 mx-auto'>
-		<img src={imgSrc} alt='Blog Banner Image' />
-		<slot/>
-	</section>
+  <section
+    class="blog max-w-[1000px] max-lg:max-w-[750px] max-md:max-w-[500px] p-2 section-nav-pb pt-8 mx-auto"
+  >
+    <img id="banner" src={imgSrc} alt="Blog Banner Image" />
+    <slot />
+  </section>
 </DefaultLayout>

@@ -46,6 +46,7 @@ try {
 //const subjectRef = db.collection('subjects').doc(`${subject}`);
 //const subjectSnap = await subjectRef.get();
 //const subjectData = subjectSnap.data();
+console.log(subjectEntry.data.books.length);
 ---
 
 <DefaultLayout title="Subject Info">
@@ -55,7 +56,7 @@ try {
     </h2>
     <div class="impLinks text-center mb-4 space-x-2">
       {
-        subjectEntry.data.books.length === 0 ||
+        subjectEntry.data.books.length === 0 &&
         subjectEntry.data.recommended_books.length === 0 ? (
           ""
         ) : (
