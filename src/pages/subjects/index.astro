@@ -35,9 +35,8 @@ const allSubjects = await getCollection('subjects', ({id}) =>{
 		<div class='wrapper subjects w-full'>
 			{
 			allSubjects.map((s, ind) => (
-				<a class='sub_card w-full bg-slate-300 p-4 py-16 rounded-md text-center font-bold lg:hover:scale-110 transition-all border-2 text-xl' data-id={ind}
-					href={`/subjects/${s.slug.split('/')[1]}`}
-					>{s.data.title}</a>
+				<a class='sub_card w-full bg-slate-300 p-4 py-16 rounded-md text-center font-bold transition-all border-2 text-xl' data-id={ind}
+					href={`/subjects/${s.slug.split('/')[1]}`}><span class='sub_bg' style={`background-image:url('${s.data.image}'); background-image:cover; background-position:center;)`}></span>{s.data.title}</a>
 			))
 			}
 		</div>
@@ -48,21 +47,24 @@ const allSubjects = await getCollection('subjects', ({id}) =>{
 	@apply grid grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1 gap-2;
 }
 .subjects .sub_card{
-	@apply flex-shrink-0;
+	@apply flex-shrink-0 relative overflow-hidden;
+}
+.sub_card .sub_bg{
+	@apply absolute inset-0 -z-10;
 }
 .sub_card[data-id='0']{
-	@apply border-sky-800 bg-sky-200 text-sky-800;
+	@apply border-sky-800 bg-sky-200/80 text-sky-800;
 }
 .sub_card[data-id='1']{
-	@apply border-lime-800 bg-lime-200 text-lime-800;
+	@apply border-lime-800 bg-lime-200/80 text-lime-800;
 }
 .sub_card[data-id='2']{
-	@apply border-yellow-800 bg-yellow-200 text-yellow-800;
+	@apply border-yellow-800 bg-yellow-200/80 text-yellow-800;
 }
 .sub_card[data-id='3']{
-	@apply border-orange-800 bg-orange-200 text-orange-800;
+	@apply border-orange-800 bg-orange-200/80 text-orange-800;
 }
 .sub_card[data-id='4']{
-	@apply border-red-800 bg-red-200 text-red-800;
+	@apply border-red-800 bg-red-200/80 text-red-800;
 }
 </style>

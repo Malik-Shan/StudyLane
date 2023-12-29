@@ -23,4 +23,5 @@ books:
       link: https://drive.google.com/file/d/1tYHP7-QDQnpuxLK7fyIfh78tNkWRWpEt/view?usp=drive_link
     fieldGroup: book
 type: guide
+image: https://i.postimg.cc/J460JnW4/hand-drawn-english-book-background-23-2149483336.jpg
 ---

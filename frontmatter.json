@@ -233,6 +233,19 @@
           "required": true
         },
         {
+          "title": "Image",
+          "name": "image",
+          "type": "string",
+          "single": true,
+          "default": "",
+          "required": true
+        },
+        {
+          "title": "Preview",
+          "name": "image",
+          "type": "image"
+        },
+        {
           "title": "Outline",
           "name": "outline",
           "type": "list",
