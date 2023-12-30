@@ -1,35 +1,32 @@
 ---
-const { title, link, subject, type, date } = Astro.props;
+const { title, link, tags, type, date,banner } = Astro.props;
 const givenDate = new Date(date);
 const formatedDate = new Intl.DateTimeFormat("en-uk", {
   day: "numeric",
-  month: "short",
-  year: "2-digit",
 })
   .format(givenDate)
-  .replace(/ /g, "-");
+const formatedMonth = new Intl.DateTimeFormat("en-uk", {
+  month:"short",
+})
+  .format(givenDate)
 ---
 
 <div class="blogTab relative group/assign">
-  <p class="title">{title}</p>
-  <div class="imp px-4">
-    <span class="tag" data-type={`${type}`}>{type}</span>
-    <span class="tag" data-subject={`${subject}`}>{subject}</span>
-    {
-      link !== "/" && (
-        <a class="tag" data-type="link" href={link}>
-          Link
-        </a>
-      )
-    }
+  <img class='block w-full h-[250px] object-cover object-center' src={banner} />
+  <div class='wrapper p-2'>
+    <p class="title font-bold mb-2 line-clamp-1">{title}</p>
+    <div class="imp mb-2">
+      { tags.map((t) => (
+        <span class="tag mr-1">{t}</span>
+      ))}
+    </div>
+    <a class='inline-block primaryBtn border-2 p-1 px-4 font-bold rounded-md' href={link}>Read</a>
   </div>
-  <p class="date">{formatedDate}</p>
+  <span class='flex flex-col items-center date absolute left-4 top-4 p-2 px-4 font-bold rounded-md bg-white shadow-sm border border-black/10 shadow-black/40 text-slate-600'><span class='text-2xl'>{formatedDate}</span><span>{formatedMonth}</span></span>
 </div>
 <style is:global>
   .blogTab {
-    display: grid;
-    grid-template-columns: 1fr max-content 110px;
-    @apply p-2 border border-slate-300 rounded-md items-center justify-center max-sm:grid-cols-1 max-sm:text-center max-sm:gap-2;
+    @apply flex flex-col border border-slate-300 rounded-md;
   }
   .blogTab.htmx-swapping {
     animation: disappear 400ms ease-out;
@@ -57,14 +54,5 @@ const formatedDate = new Intl.DateTimeFormat("en-uk", {
       opacity: 0;
       display: none;
     }
-  }
-  .blogTab .title {
-    @apply max-sm:text-sm;
-  }
-  .blogTab:hover {
-    @apply bg-slate-100;
-  }
-  .blogTab .date {
-    @apply border-l border-l-slate-300 px-2 max-sm:text-[.7rem] max-sm:font-bold max-sm:bg-slate-300 max-sm:rounded-sm text-center;
   }
 </style>
