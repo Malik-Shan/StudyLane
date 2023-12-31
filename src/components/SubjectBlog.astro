@@ -1,35 +1,43 @@
 ---
-const { title, link, tags, type, date,banner } = Astro.props;
+const { title, link, tags, type, date, banner } = Astro.props;
 const givenDate = new Date(date);
 const formatedDate = new Intl.DateTimeFormat("en-uk", {
   day: "numeric",
-})
-  .format(givenDate)
+}).format(givenDate);
 const formatedMonth = new Intl.DateTimeFormat("en-uk", {
-  month:"short",
-})
-  .format(givenDate)
+  month: "short",
+}).format(givenDate);
 ---
 
-<div class="blogTab relative group/assign">
-  <img class='block w-full h-[250px] object-cover object-center' src={banner} />
-  <div class='wrapper p-2'>
+<div
+  class="blogTab relative group/assign bg-slate-200 shadow-lg shadow-black/20"
+>
+  <img class="block w-full h-[250px] object-cover object-center" src={banner} />
+  <div class="wrapper p-2 border-t border-slate-400/40">
     <p class="title font-bold mb-2 line-clamp-1">{title}</p>
     <div class="imp mb-2">
-      { tags.map((t) => (
-        <span class="tag mr-1">{t}</span>
-      ))}
+      {tags.map((t) => <span class="tag mr-1">{t.toLowerCase()}</span>)}
     </div>
-    <a class='inline-block primaryBtn border-2 p-1 px-4 font-bold rounded-md' href={link}>Read</a>
+    <a
+      class="inline-block primaryBtn border-2 p-1 px-4 font-bold rounded-md"
+      href={link}>Read</a
+    >
   </div>
-  <span class='flex flex-col items-center date absolute left-4 top-4 p-2 px-4 font-bold rounded-md bg-white shadow-sm border border-black/10 shadow-black/40 text-slate-600'><span class='text-2xl'>{formatedDate}</span><span>{formatedMonth}</span></span>
+  <span
+    class="flex flex-col items-center date absolute left-4 top-4 p-2 px-4 font-bold rounded-md bg-white shadow-sm border border-black/10 shadow-black/40 text-slate-600"
+    ><span class="text-2xl">{formatedDate}</span><span>{formatedMonth}</span
+    ></span
+  >
 </div>
 <style is:global>
   .blogTab {
-    @apply flex flex-col border border-slate-300 rounded-md;
+    @apply flex flex-col border border-slate-400/40 rounded-md overflow-hidden;
   }
   .blogTab.htmx-swapping {
     animation: disappear 400ms ease-out;
+  }
+  .blogTab .tag {
+    @apply bg-slate-400 text-slate-700 lowercase font-medium;
   }
   .tag[data-type="lecture"] {
     @apply bg-lime-400 text-lime-800 font-bold;

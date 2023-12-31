@@ -19,7 +19,6 @@ const formatedPosts = await formatAllPosts(lec_info, {
   limit: undefined,
 });
 
-const db = getFirestore(app);
 const auth = getAuth(app);
 
 if (subjectEntry === undefined || subjectEntry === null) {
@@ -50,7 +49,10 @@ try {
 
 <DefaultLayout title="Subject Info">
   <section class="container mx-auto px-2 pt-4 section-nav-pb">
-    <img class='block w-full max-h-[200px] object-cover rounded-md mb-4' src={subjectEntry.data.image} />
+    <img
+      class="block w-full max-h-[200px] object-cover rounded-md mb-4"
+      src={subjectEntry.data.image}
+    />
     <h2 class="text-slate-400 font-bold text-3xl text-center mb-4">
       {subjectEntry.data.title}
     </h2>
@@ -76,11 +78,13 @@ try {
       }
     </div>
     <h2
-      class="text-secondary font-bold text-2xl text-center mb-4 underline underline-offset-4"
+      class="text-secondary font-bold text-2xl text-center mb-6 underline underline-offset-4"
     >
       Lectures & Important Info
     </h2>
-    <ul class="impInfo grid grid-cols-4 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1 gap-2">
+    <ul
+      class="impInfo grid grid-cols-4 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1 gap-2"
+    >
       {
         formatedPosts.map((l) => (
           <SubjectBlog
@@ -93,8 +97,12 @@ try {
           />
         ))
       }
-{
-      formatedPosts.length === 0 && (<h1 class='text-4xl font-black text-center text-slate-300 mt-8'>Not Found</h1>)
+      {
+        formatedPosts.length === 0 && (
+          <h1 class="text-4xl font-black text-center text-slate-300 mt-8">
+            Not Found
+          </h1>
+        )
       }
     </ul>
   </section>
