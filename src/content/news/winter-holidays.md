@@ -16,6 +16,8 @@ I trust this message finds you all in good health. I am writing to inform you th
 
 Classes will resume on **January 1st , 2024**. Should you have any queries or concerns, please feel free to discuss them with me. Your understanding and cooperation are highly appreciated.
 
-**Warm regards,**  
-**Kanwal Malik**  
+**Warm regards,**
+
+**Kanwal Malik**
+
 **Admin Manager**
