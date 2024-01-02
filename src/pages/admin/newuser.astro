@@ -44,7 +44,7 @@ const users = usersSnap.docs.reverse().map((u) => ({
 })) as User[]
 ---
 <DefaultLayout title='Add User'>
-	<section class='adduserSection container mx-auto px-3'>
+	<section class='adduserSection section-nav-pb container mx-auto px-3'>
 		<form 
 			hx-post='/api/auth/registerUser'
 			hx-swap='afterbegin'
@@ -52,20 +52,24 @@ const users = usersSnap.docs.reverse().map((u) => ({
 			hx-trigger='submit'
 			hx-on::after-request=" if(event.detail.successful) this.reset()"
 			method='post'
-			class='newUser flex flex-row gap-2 justify-center mt-4'>
+			class='newUser flex flex-row gap-2 justify-center mt-4 max-lg:flex-col'>
 			<input type='text' name='name' placeholder='Name' />
 			<input type="email" name='email' placeholder='Email'/>
 			<input type="password" name='password' placeholder='Password'/>
 			<input type="text" name='roles' placeholder='Roles1,Roles2 etc'/>
-			<button class='primaryBtn p-1 rounded-sm border-2' type='submit'>Add</button>
+			<button class='primaryBtn p-1 rounded-md border-2' type='submit'>Add</button>
 		</form>
-		<div id='allUsers' class='mt-6 space-y-2'>
+		<div id='allUsers' class='grid grid-cols-4 mt-6 gap-2 max-2xl:grid-cols-3 max-xl:grid-cols-2 max-lg:grid-cols-1'>
 			{
 			users.map((u) => (
 				<div class='user' data-id={u.uid} id={`uid-${u.uid}`}>
-					<p>{u.name}</p>
-					<p>{u.email}</p>
-					<p>{u.roles}</p>
+					<div class='roles'>
+						{u.roles.split(',').map((r) => (
+							<span class='role'>{r}</span>
+						))}
+					</div>
+					<p class='name'><i class="fa-solid fa-user"></i>{u.name}</p>
+					<p class='email'><i class="fa-solid fa-envelope"></i>{u.email}</p>
 					<button class='secondaryBtn p-1 px-2 rounded-md border'><i class="fa-solid fa-pen-to-square"></i></button>
 					<button class='dangerBtn p-1 px-2 rounded-md border'
 						hx-delete='/api/auth/del_user'
@@ -82,15 +86,27 @@ const users = usersSnap.docs.reverse().map((u) => ({
 </DefaultLayout>
 <style is:global>
 .newUser input {
-	@apply border border-slate-300 px-2 rounded-sm text-base w-full;
+	@apply border border-slate-300 p-1 px-2 rounded-md text-base w-full;
 }
 .user {
-	display:grid;
-	grid-template-columns: 3fr 3fr 3fr max-content max-content;
-	@apply items-center gap-2;
+	@apply flex flex-col gap-2 bg-slate-200 border border-slate-300 p-2 rounded-md;
+}
+.user .roles {
+	@apply flex flex-row gap-1;
+}
+.user .roles .role{
+	@apply bg-sky-500 rounded-full px-3 text-white;
 }
 .user.htmx-swapping{
 	animation:disappear 400ms ease-out;
+	filter: grayscale(.5);
+	pointer-events:none;
+}
+.user p {
+	@apply text-slate-500;
+}
+.user p i{
+	@apply mr-2 w-4;
 }
 @keyframes disappear {
 0% {
@@ -103,8 +119,5 @@ const users = usersSnap.docs.reverse().map((u) => ({
 	opacity:0;
 	display:none;
 }
-}
-.user p{
-	@apply flex justify-center items-center bg-slate-300 h-full w-full text-sm rounded-sm px-2;
 }
 </style>
