@@ -9,31 +9,31 @@
   "frontMatter.content.pageFolders": [
     {
       "title": "Calculus",
-      "path": "[[workspace]]/src/content/subjects/calculus-and-analytic-geometry-s1",
+      "path": "[[workspace]]/src/content/subjects/calculus-and-analytic-geometry",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
     {
       "title": "English",
-      "path": "[[workspace]]/src/content/subjects/english-composition-and-comprehension-s1",
+      "path": "[[workspace]]/src/content/subjects/english-composition-and-comprehension",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
     {
       "title": "IT",
-      "path": "[[workspace]]/src/content/subjects/introduction-to-computing-application-s1",
+      "path": "[[workspace]]/src/content/subjects/introduction-to-computing-application",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
     {
       "title": "Programming",
-      "path": "[[workspace]]/src/content/subjects/programming-fundamentals-s1",
+      "path": "[[workspace]]/src/content/subjects/programming-fundamentals",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
     {
       "title": "Islamiat",
-      "path": "[[workspace]]/src/content/subjects/islamic-studies-and-ethics-s1",
+      "path": "[[workspace]]/src/content/subjects/islamic-studies-and-ethics",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
@@ -44,7 +44,7 @@
       "contentTypes": ["guide"]
     },
     {
-      "title": "news",
+      "title": "News",
       "path": "[[workspace]]/src/content/news",
       "filePrefix": "",
       "contentTypes": ["news"]
