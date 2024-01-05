@@ -36,7 +36,7 @@ const {data} = await res.json()
 		<div class='student-cards grid grid-cols-4 gap-2 max-xl:grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1'>
 			{
 			data.map((d) => (
-				<StudentPaymentCard id={d.id} name={d.name} course={d.course} f_inst={d.first_inst} s_inst={d.sec_inst} t_inst={d.third_inst} fth_inst={d.fourth_inst} total_fee={d.total_fee} />
+				<StudentPaymentCard id={d.id} name={d.name} course={d.course} f_inst={d.first_inst} s_inst={d.sec_inst} t_inst={d.third_inst} fth_inst={d.fourth_inst} total_fee={d.total_fee} f_due={d.first_due} s_due={d.sec_due} t_due={d.third_due} fth_due={d.fourth_due} />
 			))
 			}
 		</div>

@@ -1,5 +1,5 @@
 ---
-const {id,name,f_inst,s_inst,t_inst,fth_inst,total_fee,course} = Astro.props;
+const {id,name,f_inst,f_due,s_inst,s_due,t_inst,t_due,fth_inst,fth_due,total_fee,course} = Astro.props;
 const first = f_inst.split('/');
 const second = s_inst.split('/');
 const third = t_inst.split('/');
@@ -17,13 +17,13 @@ const fourth = fth_inst.split('/');
     <h3 id='name'>{name}</h3>
   </div>
   <div class='installments flex flex-col w-full items-center gap-1 p-1 bg-slate-200 rounded-md'>
-    <span class='info-title'>1st Installment</span>
+    <span class='info-title'>1st Installment ({f_due})</span>
     <span class='installment' data-type={first[0] !== first[1] ? ('unpaid') : ('')}>{f_inst}</span>
-    <span class='info-title'>2nd Installment</span>
+    <span class='info-title'>2nd Installment ({s_due})</span>
     <span class='installment' data-type={second[0] !== second[1] ? ('unpaid') : ('')}>{s_inst}</span>
-    <span class='info-title'>3rd Installment</span>
+    <span class='info-title'>3rd Installment ({t_due})</span>
     <span class='installment' data-type={third[0] !== third[1] ? ('unpaid') : ('')}>{t_inst}</span>
-    <span class='info-title'>4th Installment</span>
+    <span class='info-title'>4th Installment ({fth_due})</span>
     <span class='installment' data-type={fourth[0] !== fourth[1] ? ('unpaid') : ('')}>{fth_inst}</span>
     <span class='info-title'>Total Fee</span>
     <span class='total w-full p-1 rounded-md text-center bg-sky-800 text-sky-200'>{total_fee}</span>
