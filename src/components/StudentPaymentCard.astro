@@ -1,0 +1,54 @@
+---
+const {id,name,f_inst,s_inst,t_inst,fth_inst,total_fee,course} = Astro.props;
+const first = f_inst.split('/');
+const second = s_inst.split('/');
+const third = t_inst.split('/');
+const fourth = fth_inst.split('/');
+---
+<div class='info-card bg-slate-100 border border-slate-300 shadow-md shadow-slate-400 rounded-md p-2'>
+  <div class='tags flex flex-row gap-1 mb-2 justify-center'>
+  <span>{course}</span>
+    {
+    (first[0] === first[1] && second[0] === second[1] && third[0] === third[1] && fourth[0] === fourth[1]) ? (<span class='complete-payment'>Complete</span>) : ('')
+    }
+  </div>
+  <div class='student-info bg-slate-200 p-1 rounded-md mb-2'>
+    <h3 id='id'>#{id}</h3>
+    <h3 id='name'>{name}</h3>
+  </div>
+  <div class='installments flex flex-col w-full items-center gap-1 p-1 bg-slate-200 rounded-md'>
+    <span class='info-title'>1st Installment</span>
+    <span class='installment' data-type={first[0] !== first[1] ? ('unpaid') : ('')}>{f_inst}</span>
+    <span class='info-title'>2nd Installment</span>
+    <span class='installment' data-type={second[0] !== second[1] ? ('unpaid') : ('')}>{s_inst}</span>
+    <span class='info-title'>3rd Installment</span>
+    <span class='installment' data-type={third[0] !== third[1] ? ('unpaid') : ('')}>{t_inst}</span>
+    <span class='info-title'>4th Installment</span>
+    <span class='installment' data-type={fourth[0] !== fourth[1] ? ('unpaid') : ('')}>{fth_inst}</span>
+    <span class='info-title'>Total Fee</span>
+    <span class='total w-full p-1 rounded-md text-center bg-sky-800 text-sky-200'>{total_fee}</span>
+  </div>
+</div>
+<style>
+.tags span{
+	@apply inline-block bg-sky-300 text-sky-800 text-sm px-2 rounded-full font-bold;
+}
+.tags span.complete-payment{
+	@apply bg-green-300 text-green-800;
+}
+.info-card #id{
+	@apply font-bold text-center;
+}
+.info-card #name{
+	@apply text-center;
+}
+.installments .installment{
+	@apply w-full text-center bg-green-400 rounded-md text-green-900 p-1 font-bold;
+}
+.installments .installment[data-type='unpaid']{
+	@apply bg-red-400 text-red-900;
+}
+.info-title{
+	@apply text-sm;
+}
+</style>
