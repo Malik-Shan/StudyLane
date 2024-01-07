@@ -37,7 +37,8 @@ try {
 	return Astro.redirect('/login');
 }
 const appscript_url = import.meta.env.APPSCRIPT_URL;
-const res = await fetch(`${appscript_url}?page=${currentPage}&show=16`);
+const g_url = `${appscript_url}?page=${currentPage}&show=16`;
+const res = await fetch(g_url);
 const {data,pagination} = await res.json()
 const pages = [];
 for(let i=0;i<pagination.pages;i++){
