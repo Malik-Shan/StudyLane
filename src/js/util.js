@@ -37,3 +37,8 @@ export function formatAllPosts(posts, {
     }
     return filteredPosts;
 }
+export function formatDate(date){
+    const d = new Date(date);
+    const f = new Intl.DateTimeFormat('en-PK',{day: '2-digit',month:'short',year:'2-digit'}).format(d);
+    return f
+}

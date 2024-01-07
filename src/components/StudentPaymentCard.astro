@@ -1,4 +1,5 @@
 ---
+import {formatDate} from '../js/util';
 const {id,name,f_inst,f_due,s_inst,s_due,t_inst,t_due,fth_inst,fth_due,total_fee,course,rowIndex} = Astro.props;
 const first = f_inst.split('/');
 const second = s_inst.split('/');
@@ -14,26 +15,26 @@ const fourth = fth_inst.split('/');
   </div>
   <div class='student-info bg-slate-200 p-1 rounded-md mb-2'>
     <h3 id='id'>#{id}</h3>
-    <h3 id='name'>{name}-{rowIndex}</h3>
+    <h3 id='name'>{name}</h3>
   </div>
   <div class='installments flex flex-col w-full items-center gap-1 p-1 bg-slate-200 rounded-md'>
-    <span class='info-title'>1st Installment ({f_due})</span>
+    <span class='info-title'>1st Installment ({formatDate(f_due)})</span>
     <span class='installment' data-type={first[0] !== first[1] ? ('unpaid') : ('')}>{f_inst}</span>
-    <span class='info-title'>2nd Installment ({s_due})</span>
+    <span class='info-title'>2nd Installment ({formatDate(s_due)})</span>
     <span class='installment' data-type={second[0] !== second[1] ? ('unpaid') : ('')}>{s_inst}</span>
-    <span class='info-title'>3rd Installment ({t_due})</span>
+    <span class='info-title'>3rd Installment ({formatDate(t_due)})</span>
     <span class='installment' data-type={third[0] !== third[1] ? ('unpaid') : ('')}>{t_inst}</span>
-    <span class='info-title'>4th Installment ({fth_due})</span>
+    <span class='info-title'>4th Installment ({formatDate(fth_due)})</span>
     <span class='installment' data-type={fourth[0] !== fourth[1] ? ('unpaid') : ('')}>{fth_inst}</span>
     <span class='info-title'>Total Fee</span>
     <span class='total w-full p-1 rounded-md text-center bg-sky-800 text-sky-200'>{total_fee}</span>
   </div>
 </div>
-<style>
-.tags span{
+<style is:global>
+.info-card .tags span{
 	@apply inline-block bg-sky-300 text-sky-800 text-sm px-2 rounded-full font-bold;
 }
-.tags span.complete-payment{
+.info-card .tags span.complete-payment{
 	@apply bg-green-300 text-green-800;
 }
 .info-card #id{
