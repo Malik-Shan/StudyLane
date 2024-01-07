@@ -1,5 +1,5 @@
 ---
-const {id,name,f_inst,f_due,s_inst,s_due,t_inst,t_due,fth_inst,fth_due,total_fee,course} = Astro.props;
+const {id,name,f_inst,f_due,s_inst,s_due,t_inst,t_due,fth_inst,fth_due,total_fee,course,rowIndex} = Astro.props;
 const first = f_inst.split('/');
 const second = s_inst.split('/');
 const third = t_inst.split('/');
@@ -14,7 +14,7 @@ const fourth = fth_inst.split('/');
   </div>
   <div class='student-info bg-slate-200 p-1 rounded-md mb-2'>
     <h3 id='id'>#{id}</h3>
-    <h3 id='name'>{name}</h3>
+    <h3 id='name'>{name}-{rowIndex}</h3>
   </div>
   <div class='installments flex flex-col w-full items-center gap-1 p-1 bg-slate-200 rounded-md'>
     <span class='info-title'>1st Installment ({f_due})</span>

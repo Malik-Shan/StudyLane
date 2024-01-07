@@ -1,0 +1,102 @@
+---
+---
+<!-- Main modal -->
+<dialog id="newEntry" tabindex="-1" aria-hidden="true" class="overflow-x-hidden overflow-y-auto fixed inset-0 z-50 w-full h-full max-h-full max-w-full bg-black/70">
+  <div class="relative flex justify-center items-start p-4 w-full h-full">
+    <!-- Modal content -->
+    <div class="relative bg-white rounded-lg shadow">
+      <!-- Modal header -->
+      <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+        <h3 class="text-lg font-semibold text-gray-900">
+          Create New Entry
+        </h3>
+        <button type="button" onclick='newEntry.close()' class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="crud-modal">
+          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+          </svg>
+          <span class="sr-only">Close modal</span>
+        </button>
+      </div>
+      <!-- Modal body -->
+      <form
+        hx-post='/api/database/spreadsheet/entry'
+        hx-on::after-request=" if(event.detail.successful) this.reset()"
+        hx-swap='none'
+        hx-swap-oob='true'
+        class="p-4 md:p-5">
+        <span id='formRes'></span>
+        <div class="grid gap-4 mb-4 grid-cols-2">
+
+          <div class="col-span-2 sm:col-span-1">
+            <label for="id" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-address-card mr-1"></i>ID</label>
+            <input type="number" name="id" id="id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Enter the ID" required>
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            <label for="name" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-user mr-1"></i>Name</label>
+            <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Name" required>
+          </div>
+
+          <div class="col-span-2">
+            <label for="course" class="block mb-2 font-medium text-gray-900">Category</label>
+            <select id="course" name='course' class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 ">
+              <option value="BS-IT">BS-IT</option>
+              <option value="BS-CS">BS-CS</option>
+              <option value="BS-SE">BS-SE</option>
+              <option value="LLB">LLB</option>
+              <option value="IOSH">IOSH</option>
+              <option value="NEBOSH">NEBOSH</option>
+              <option value="OSHA">OSHA</option>
+            </select>
+          </div>
+
+          <div class="col-span-2">
+            <label for="totalfee" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-file-invoice-dollar mr-1"></i>Total Fee</label>
+            <input type="number" name="totalfee" id="totalfee" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Rs.100,000" required>
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            <label for="f_inst" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-file-invoice-dollar mr-1"></i>1st Installment</label>
+            <input type="text" name="f_inst" id="f_inst" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Rs.10,000" required>
+          </div>
+          <div class="col-span-2 sm:col-span-1">
+            <label for="f_due" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-calendar mr-1"></i>Due Date</label>
+            <input type="date" name="f_due" id="f_due" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="00/00/00" required>
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            <label for="s_inst" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-file-invoice-dollar mr-1"></i>2nd Installment</label>
+            <input type="text" name="s_inst" id="s_inst" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Rs.10,000" required>
+          </div>
+          <div class="col-span-2 sm:col-span-1">
+            <label for="s_due" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-calendar mr-1"></i>Due Date</label>
+            <input type="date" name="s_due" id="s_due" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="00/00/00" required>
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            <label for="t_inst" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-file-invoice-dollar mr-1"></i>3rd Installment</label>
+            <input type="text" name="t_inst" id="t_inst" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Rs.10,000" required>
+          </div>
+          <div class="col-span-2 sm:col-span-1">
+            <label for="t_due" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-calendar mr-1"></i>Due Date</label>
+            <input type="date" name="t_due" id="t_due" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="00/00/00" required>
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            <label for="fth_inst" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-file-invoice-dollar mr-1"></i>4th Installment</label>
+            <input type="text" name="fth_inst" id="fth_inst" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="Rs.10,000" required>
+          </div>
+          <div class="col-span-2 sm:col-span-1">
+            <label for="fth_due" class="block mb-2 font-medium text-gray-900"><i class="fa-solid fa-calendar mr-1"></i>Due Date</label>
+            <input type="date" name="fth_due" id="fth_due" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="00/00/00" required>
+          </div>
+
+        </div>
+        <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ">
+          <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+          Add new product
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog> 
