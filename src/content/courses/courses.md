@@ -1,0 +1,12 @@
+---
+course:
+    - 'AOSH'
+    - 'BS-IT'
+    - 'BS-CS'
+    - 'BS-SE'
+    - 'IOSH'
+    - 'LLB'
+    - 'NEBOSH'
+    - 'OSHA'
+    - 'OTHM'
+---

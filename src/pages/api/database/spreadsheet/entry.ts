@@ -10,7 +10,6 @@ export const POST: APIRoute = async ({request}) => {
   const appscript = `${url}?type=newentry`;
 
   const formData = await request.formData();
-  const id = formData.get('id')?.toString();
   const name = formData.get('name')?.toString();
   const course = formData.get('course')?.toString();
   const totalfee = formData.get('totalfee')?.toString();
@@ -24,7 +23,7 @@ export const POST: APIRoute = async ({request}) => {
   const fth_due = formData.get('fth_due')?.toString();
 
 
-  if(!id || !name || !course || !totalfee || !f_inst || !f_due || !s_inst || !s_due || !t_inst || !t_due || !fth_inst || !fth_due){
+  if(!name || !course || !totalfee || !f_inst || !f_due || !s_inst || !s_due || !t_inst || !t_due || !fth_inst || !fth_due){
     return new Response(showError('Missing Input'), {
       status:200,
     })
@@ -46,46 +45,54 @@ export const POST: APIRoute = async ({request}) => {
   }
 
   let d;
+  let res
   try{
     d = await fetch(appscript,{
       method:'POST',
       body:formData,
     })
+    res = await d.json();
   }catch(err){
     return new Response(showError("Entry failed"),{
       status:200,
     })
   }
-  const {res_data} = await d.json()
+  const rowIndex = res.response.newIndex;
   const first = f_inst.split('/');
   const second = s_inst.split('/');
   const third = t_inst.split('/');
   const fourth = fth_inst.split('/');
 
   const cardHTML = `
-      <div class='info-card bg-slate-100 border border-slate-300 shadow-sm shadow-slate-400 rounded-md p-2'> <div class='tags flex flex-row gap-1 mb-2 justify-center'>
-	<span>${course}</span>
-	  ${
-	  (first[0] === first[1] && second[0] === second[1] && third[0] === third[1] && fourth[0] === fourth[1]) ? ("<span class='complete-payment'>Complete</span>") : ('')
-	  }
-	</div>
-	<div class='student-info bg-slate-200 p-1 rounded-md mb-2'>
-	  <h3 id='id'>#${id}</h3>
-	  <h3 id='name'>${name}</h3>
-	</div>
-	<div class='installments flex flex-col w-full items-center gap-1 p-1 bg-slate-200 rounded-md'>
-	  <span class='info-title'>1st Installment (${formatDate(f_due)})</span>
-	  <span class='installment' data-type='${first[0] !== first[1] ? ('unpaid') : ('')}'>${f_inst}</span>
-	  <span class='info-title'>2nd Installment (${formatDate(s_due)})</span>
-	  <span class='installment' data-type='${second[0] !== second[1] ? ('unpaid') : ('')}'>${s_inst}</span>
-	  <span class='info-title'>3rd Installment (${formatDate(t_due)})</span>
-	  <span class='installment' data-type='${third[0] !== third[1] ? ('unpaid') : ('')}'>${t_inst}</span>
-	  <span class='info-title'>4th Installment (${formatDate(fth_due)})</span>
-	  <span class='installment' data-type='${fourth[0] !== fourth[1] ? ('unpaid') : ('')}'>${fth_inst}</span>
-	  <span class='info-title'>Total Fee</span>
-	  <span class='total w-full p-1 rounded-md text-center bg-sky-800 text-sky-200'>${totalfee}</span>
-	</div>
+    <div id='card-${rowIndex}' class='info-card bg-slate-100 border border-slate-300 shadow-sm shadow-slate-400 rounded-md p-2'>
+      <div class='btnsGroup flex flex-row gap-1'>
+	<a href='/admin/fees-payment/${rowIndex}' class='inline-block primaryBtn border p-1 px-2 rounded-md'>
+	  <i class="fa-solid fa-pen-to-square"></i>
+	</a>
       </div>
+      <div class='tags flex flex-row gap-1 mb-2 justify-center'>
+      <span>${course}</span>
+	${
+	(first[0] === first[1] && second[0] === second[1] && third[0] === third[1] && fourth[0] === fourth[1]) ? ("<span class='complete-payment'>Complete</span>") : ('')
+	}
+      </div>
+      <div class='student-info bg-slate-200 p-1 rounded-md mb-2 text-center'>
+	<h3 id='id-${rowIndex}' class='font-bold'>#${rowIndex}</h3>
+	<h3 id='name-${rowIndex}' class='font-bold'>${name}</h3>
+      </div>
+      <div class='installments flex flex-col w-full items-center gap-1 p-1 bg-slate-200 rounded-md'>
+	<span class='info-title'>1st Installment (${formatDate(f_due)})</span>
+	<span class='installment' data-type=${first[0] !== first[1] ? ('unpaid') : ('')}>${f_inst}</span>
+	<span class='info-title'>2nd Installment (${formatDate(s_due)})</span>
+	<span class='installment' data-type=${second[0] !== second[1] ? ('unpaid') : ('')}>${s_inst}</span>
+	<span class='info-title'>3rd Installment (${formatDate(t_due)})</span>
+	<span class='installment' data-type=${third[0] !== third[1] ? ('unpaid') : ('')}>${t_inst}</span>
+	<span class='info-title'>4th Installment (${formatDate(fth_due)})</span>
+	<span class='installment' data-type=${fourth[0] !== fourth[1] ? ('unpaid') : ('')}>${fth_inst}</span>
+	<span class='info-title'>Total Fee</span>
+	<span class='total w-full p-1 rounded-md text-center bg-sky-800 text-sky-200'>${totalfee}</span>
+      </div>
+    </div>
   `
 
   return new Response( cardHTML ,{

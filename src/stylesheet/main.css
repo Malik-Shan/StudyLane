@@ -56,6 +56,32 @@
 	.blog p{
 		@apply text-lg mb-2;
 	}
+	#formRes {
+		scale:1 0%;
+		opacity:0;
+		animation: popup 4s forwards ease-in-out;
+	}
+	@keyframes popup{
+	0% {
+		scale: 1 0%;
+		opacity:0;
+	}
+	12%{
+		scale:1 100%;
+		opacity:1;
+	}
+	87%{
+		scale: 1 100%;
+		opacity:1;
+		height:100%;
+		margin-bottom:.5rem;
+	}
+	100%{
+		scale: 1 0%;
+		opacity:0;
+		display:none;
+	}
+	}
 }
 @layer components {
 	.userMenuBtn {

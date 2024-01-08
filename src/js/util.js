@@ -42,3 +42,8 @@ export function formatDate(date){
     const f = new Intl.DateTimeFormat('en-PK',{day: '2-digit',month:'short',year:'2-digit'}).format(d);
     return f
 }
+export function formDate(date){
+    const d = new Date(date);
+    const f = new Intl.DateTimeFormat('en-PK').format(d).split('/').reverse().join('-');
+    return f;
+}
