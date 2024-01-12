@@ -39,13 +39,14 @@ const entry = result[0];
 <DefaultLayout title={`ID-#${id}`}>
 	<section class='entrySection section-nav-pb container mx-auto pt-4 px-3'>
 		<form
+			id={`entry-${id}`}
 			hx-post='/api/database/spreadsheet/update'
 			hx-headers={`{"rowIndex": "${entry.rowIndex}"}`}
 			hx-swap='none'
 			hx-swap-oob='true'
 			hx-indicator='#submitIndicator'
 			class="p-4 md:p-5">
-			<NewEntryForm type='update' name={entry.name} course={entry.course}f_inst={entry.first_inst} f_due={entry.first_due} s_inst={entry.sec_inst} s_due={entry.sec_due} t_inst={entry.third_inst} t_due={entry.third_due} fth_inst={entry.fourth_inst} fth_due={entry.fourth_due} totalfee={entry.total_fee}/>
+			<NewEntryForm type='update' name={entry.name} course={entry.course}f_inst={entry.first_inst} f_due={entry.first_due} s_inst={entry.sec_inst} s_due={entry.sec_due} t_inst={entry.third_inst} t_due={entry.third_due} fth_inst={entry.fourth_inst} fth_due={entry.fourth_due} totalfee={entry.total_fee} rowIndex={id}/>
 		</form>
 	</section>
 </DefaultLayout>

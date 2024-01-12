@@ -46,6 +46,9 @@ export const POST: APIRoute = async ({request}) => {
 
   return new Response( showSuccess(res.response.message) ,{
     status:200,
+    headers:{
+      'HX-Redirect': '/admin/fees-payment',
+    }
   })
 
   function showError(msg:string){
