@@ -6,11 +6,17 @@ const second = s_inst.split('/');
 const third = t_inst.split('/');
 const fourth = fth_inst.split('/');
 ---
-<div id={`card-${rowIndex}`} class='info-card bg-slate-100 border border-slate-300 shadow-sm shadow-slate-400 rounded-md p-2'>
+<div id={`card-${rowIndex}`} class='info-card [&.htmx-request]:opacity-50 bg-slate-100 border border-slate-300 shadow-sm shadow-slate-400 rounded-md p-2'>
   <div class='btnsGroup flex flex-row gap-1'>
     <a href={`${href}/${rowIndex}`} class='inline-block primaryBtn border p-1 px-2 rounded-md'>
       <i class="fa-solid fa-pen-to-square"></i>
     </a>
+    <button hx-post='/api/database/spreadsheet/delete' hx-confirm='Are you sure?'
+      hx-trigger='click' hx-target={`#card-${rowIndex}`} hx-indicator={`#card-${rowIndex}`}
+      hx-swap='delete' hx-swap-oob='true' hx-headers={`{"id": "${rowIndex}"}`}
+      class='inline-block dangerBtn border p-1 px-2 rounded-md'>
+      <i class="fa-solid fa-trash"></i>
+    </button>
   </div>
   <div class='tags flex flex-row gap-1 mb-2 justify-center'>
   <span>{course}</span>

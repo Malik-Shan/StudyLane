@@ -50,6 +50,9 @@ for(let i=0;i<pagination.pages;i++){
 const isSinglePaged = pages.length <= 1;
 ---
 <DefaultLayout title={`Fees Payment P-${currentPage}`}>
+	<div class='fixed right-2 top-2'>
+		<span id='toast'></span>
+	</div>
 	<section class='student-fees-section section-nav-pb container mx-auto pt-4 px-3'>
 		<div class='input-section flex flex-row justify-between'>
 			<div class='btnsArea'>

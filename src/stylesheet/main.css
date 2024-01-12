@@ -56,7 +56,7 @@
 	.blog p{
 		@apply text-lg mb-2;
 	}
-	#formRes {
+	#formRes,#toast {
 		scale:1 0%;
 		opacity:0;
 		animation: popup 4s forwards ease-in-out;
