@@ -8,20 +8,20 @@
   },
   "frontMatter.content.pageFolders": [
     {
-      "title": "Calculus",
-      "path": "[[workspace]]/src/content/subjects/calculus-and-analytic-geometry",
+      "title": "Discrete Structures",
+      "path": "[[workspace]]/src/content/subjects/discrete-structures",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
     {
       "title": "English",
-      "path": "[[workspace]]/src/content/subjects/english-composition-and-comprehension",
+      "path": "[[workspace]]/src/content/subjects/functional-english",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
     {
       "title": "IT",
-      "path": "[[workspace]]/src/content/subjects/introduction-to-computing-application",
+      "path": "[[workspace]]/src/content/subjects/application-of-information-and-communication-technologies",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
@@ -33,7 +33,7 @@
     },
     {
       "title": "Islamiat",
-      "path": "[[workspace]]/src/content/subjects/islamic-studies-and-ethics",
+      "path": "[[workspace]]/src/content/subjects/islamic-studies",
       "filePrefix": "",
       "contentTypes": ["subjects"]
     },
@@ -48,9 +48,6 @@
       "path": "[[workspace]]/src/content/news",
       "filePrefix": "",
       "contentTypes": ["news"]
-    },
-    {
-      "path": "[[workspace]]/d:/Coding Stuff/Github/cibt-student-portal"
     }
   ],
   "frontMatter.taxonomy.fieldGroups": [
@@ -254,7 +251,7 @@
         },
         {
           "title": "Recommended Books",
-          "name": "recommended",
+          "name": "recommended_books",
           "type": "block",
           "fieldGroup": ["recommendedbook"],
           "default": []

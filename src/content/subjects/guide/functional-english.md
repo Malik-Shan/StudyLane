@@ -1,7 +1,7 @@
 ---
-title: English Composition and Comprehension
+title: Functional English
 outline:
-  - https://media.discordapp.net/attachments/1182217027084111914/1182239300109217823/English.jpg?ex=6583f926&is=65718426&hm=5f704487ad2b64251f3d654cf1686e630b4f425893543403b1a4d550bdddf03c&=&format=webp&width=530&height=675
+  - https://media.discordapp.net/attachments/1182217027084111914/1196398615703339109/functional_english.webp?ex=65b77c09&is=65a50709&hm=28738d4b25d3b3d612dea034f72d9817e72b0f6ff7e16c24b779da464b0a3609&=&format=webp
 recommended_books: []
 books:
   - book:

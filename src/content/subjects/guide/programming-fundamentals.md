@@ -1,7 +1,7 @@
 ---
 title: Programming Fundamentals
 outline:
-  - https://media.discordapp.net/attachments/1182217064195293274/1182239517634207804/Programming.jpg?ex=6583f959&is=65718459&hm=e8b74a042cdd2464e52f2ddba70767d6a9e274d9cc3d5cd12afd4f6a8fef7846&=&format=webp&width=725&height=409
+  - https://media.discordapp.net/attachments/1182217064195293274/1196398885145428051/programming_fundamentals.webp?ex=65b77c4a&is=65a5074a&hm=24060e557593e20d7cbfb7183e34ed4de0fd1093f9b8f3fe795e53ed0c31bf67&=&format=webp
 recommended_books:
   - book:
       name: C How To Program

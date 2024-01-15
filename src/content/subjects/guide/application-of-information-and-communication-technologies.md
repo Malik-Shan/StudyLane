@@ -1,7 +1,7 @@
 ---
 title: Introduction To Computing Applications
 outline:
-  - https://media.discordapp.net/attachments/1182217078883754044/1182239645384314960/Intro_To_Computing_Applications.jpg?ex=6583f978&is=65718478&hm=57d4ee4e2de269e5a93877f4157c89faf4d264fa2303bc4bf31e5d4f5192c52f&=&format=webp&width=656&height=676
+  - https://media.discordapp.net/attachments/1182217078883754044/1196399208253636629/application_of_info_and_comm_tech.webp?ex=65b77c97&is=65a50797&hm=5c30d2092ab5128a1ea793f966cc5157e658a65be97e96c67038b1a806142965&=&format=webp
 recommended_books:
   - book:
       name: The Concepts Of Information Technology
