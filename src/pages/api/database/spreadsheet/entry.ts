@@ -8,8 +8,10 @@ export const POST: APIRoute = async ({request}) => {
   const auth = getAuth(app);
   const url = import.meta.env.APPSCRIPT_URL;
   const appscript = `${url}?type=newentry`;
+  const uniqueID = new Date().getTime().toString();
 
   const formData = await request.formData();
+  const id = formData.append('id',uniqueID);
   const name = formData.get('name')?.toString();
   const course = formData.get('course')?.toString();
   const totalfee = formData.get('totalfee')?.toString();
@@ -64,7 +66,7 @@ export const POST: APIRoute = async ({request}) => {
   const fourth = fth_inst.split('/');
 
   const cardHTML = `
-    <div id='card-${rowIndex}' class='info-card bg-slate-100 border border-slate-300 shadow-sm shadow-slate-400 rounded-md p-2'>
+    <div id='card-${id}' class='info-card bg-slate-100 border border-slate-300 shadow-sm shadow-slate-400 rounded-md p-2'>
       <div class='btnsGroup flex flex-row gap-1'>
 	<a href='/admin/fees-payment/${rowIndex}' class='inline-block primaryBtn border p-1 px-2 rounded-md'>
 	  <i class="fa-solid fa-pen-to-square"></i>
@@ -77,8 +79,8 @@ export const POST: APIRoute = async ({request}) => {
 	}
       </div>
       <div class='student-info bg-slate-200 p-1 rounded-md mb-2 text-center'>
-	<h3 id='id-${rowIndex}' class='font-bold'>#${rowIndex}</h3>
-	<h3 id='name-${rowIndex}' class='font-bold'>${name}</h3>
+	<h3 id='id-${id}' class='font-bold'>#${id}</h3>
+	<h3 id='name-${id}' class='font-bold'>${name}</h3>
       </div>
       <div class='installments flex flex-col w-full items-center gap-1 p-1 bg-slate-200 rounded-md'>
 	<span class='info-title'>1st Installment (${formatDate(f_due)})</span>

@@ -78,7 +78,7 @@ const isSinglePaged = pages.length <= 1;
 		<div id='feeCards' class='student-cards mt-4 grid grid-cols-4 gap-4 max-xl:grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1'>
 			{
 			result.map((d) => (
-				<StudentPaymentCard name={d.name} course={d.course} f_inst={d.first_inst} s_inst={d.sec_inst} t_inst={d.third_inst} fth_inst={d.fourth_inst} total_fee={d.total_fee} f_due={d.first_due} s_due={d.sec_due} t_due={d.third_due} fth_due={d.fourth_due} rowIndex={d.rowIndex} href={pathname} />
+				<StudentPaymentCard id={d.id} name={d.name} course={d.course} f_inst={d.first_inst} s_inst={d.sec_inst} t_inst={d.third_inst} fth_inst={d.fourth_inst} total_fee={d.total_fee} f_due={d.first_due} s_due={d.sec_due} t_due={d.third_due} fth_due={d.fourth_due} rowIndex={d.rowIndex} href={pathname}  />
 			))
 			}
 		</div>
