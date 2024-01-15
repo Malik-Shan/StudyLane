@@ -11,6 +11,15 @@ const fourth = fth_inst.split('/');
     <a href={`${href}/${rowIndex}`} class='inline-block primaryBtn border p-1 px-2 rounded-md'>
       <i class="fa-solid fa-pen-to-square"></i>
     </a>
+    <button
+      hx-post='/api/database/spreadsheet/deleteCard'
+      hx-swap='delete'
+      hx-target={`#card-${id}`}
+      hx-indicator={`#card-${id}`}
+      hx-headers={`{"id": "${id}"}`}
+      class='inline-block dangerBtn border p-1 px-2 rounded-md'>
+      <i class="fa-solid fa-trash-can"></i>
+    </button>
   </div>
   <div class='tags flex flex-row gap-1 mb-2 justify-center'>
   <span>{course}</span>
