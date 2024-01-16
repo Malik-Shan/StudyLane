@@ -11,43 +11,57 @@
       "title": "Discrete Structures",
       "path": "[[workspace]]/src/content/subjects/discrete-structures",
       "filePrefix": "",
-      "contentTypes": ["subjects"]
+      "contentTypes": [
+        "subjects"
+      ]
     },
     {
       "title": "English",
       "path": "[[workspace]]/src/content/subjects/functional-english",
       "filePrefix": "",
-      "contentTypes": ["subjects"]
+      "contentTypes": [
+        "subjects"
+      ]
     },
     {
       "title": "IT",
       "path": "[[workspace]]/src/content/subjects/application-of-information-and-communication-technologies",
       "filePrefix": "",
-      "contentTypes": ["subjects"]
+      "contentTypes": [
+        "subjects"
+      ]
     },
     {
       "title": "Programming",
       "path": "[[workspace]]/src/content/subjects/programming-fundamentals",
       "filePrefix": "",
-      "contentTypes": ["subjects"]
+      "contentTypes": [
+        "subjects"
+      ]
     },
     {
       "title": "Islamiat",
       "path": "[[workspace]]/src/content/subjects/islamic-studies",
       "filePrefix": "",
-      "contentTypes": ["subjects"]
+      "contentTypes": [
+        "subjects"
+      ]
     },
     {
       "title": "Guide",
       "path": "[[workspace]]/src/content/subjects/guide",
       "filePrefix": "",
-      "contentTypes": ["guide"]
+      "contentTypes": [
+        "guide"
+      ]
     },
     {
       "title": "News",
       "path": "[[workspace]]/src/content/news",
       "filePrefix": "",
-      "contentTypes": ["news"]
+      "contentTypes": [
+        "news"
+      ]
     }
   ],
   "frontMatter.taxonomy.fieldGroups": [
@@ -203,7 +217,14 @@
           "required": true,
           "type": "choice",
           "default": "",
-          "choices": ["", "S1", "S2", "S3", "S4", "S5"]
+          "choices": [
+            "",
+            "S1",
+            "S2",
+            "S3",
+            "S4",
+            "S5"
+          ]
         },
         {
           "title": "Info Type",
@@ -211,7 +232,12 @@
           "required": true,
           "default": "",
           "type": "choice",
-          "choices": ["", "lecture", "notes", "blog"]
+          "choices": [
+            "",
+            "lecture",
+            "notes",
+            "blog"
+          ]
         }
       ]
     },
@@ -228,6 +254,12 @@
           "single": true,
           "default": "",
           "required": true
+        },
+        {
+          "title": "Condition",
+          "name": "condition",
+          "type": "boolean",
+          "default": false
         },
         {
           "title": "Image",
@@ -253,7 +285,9 @@
           "title": "Recommended Books",
           "name": "recommended_books",
           "type": "block",
-          "fieldGroup": ["recommendedbook"],
+          "fieldGroup": [
+            "recommendedbook"
+          ],
           "default": []
         },
         {
@@ -261,7 +295,9 @@
           "name": "books",
           "type": "block",
           "default": [],
-          "fieldGroup": ["book"]
+          "fieldGroup": [
+            "book"
+          ]
         }
       ]
     },
@@ -321,5 +357,6 @@
         }
       ]
     }
-  ]
+  ],
+  "frontMatter.website.host": "https://cibt-student-portal.vercel.app"
 }

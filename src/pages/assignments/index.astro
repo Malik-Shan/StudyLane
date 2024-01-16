@@ -42,6 +42,10 @@ const assignments = assignmentsSnap.docs.reverse().map((u) => ({
 	id: u.id,
 	...u.data(),
 })) as Assignment[]
+const appscript_url = import.meta.env.ASSIGNMENTS_APPSCRIPT_URL;
+const g_url = `${appscript_url}?course=bs-it-s1&show=16&type=get`;
+const res = await fetch(g_url);
+const {result,pagination} = await res.json()
 ---
 <DefaultLayout title='Assignments'>
 	<section class='container mx-auto px-6 section-nav-pb pt-4'>
@@ -83,8 +87,8 @@ const assignments = assignmentsSnap.docs.reverse().map((u) => ({
 			</div>
 
 			<div id='assignments' class='space-y-2'>
-{
-				assignments.map((a) => (
+				{
+				result.map((a) => (
 					<AssignmentData id={a.id} todo={a.assignment} link={a.link} type={a.type} subject={a.subject} date={a.date} admin={user.customClaims.admin} />
 				))
 				}

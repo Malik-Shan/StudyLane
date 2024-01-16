@@ -18,4 +18,5 @@ books:
       link: https://drive.google.com/file/d/16C35TWAJy8obNxjYWXeJY806PD4IqT1S/view?usp=drive_link
     fieldGroup: book
 type: guide
+condition: true
 ---
