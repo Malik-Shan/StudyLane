@@ -22,6 +22,12 @@ books:
       edition: 7th
       author: Jeri R.Hanly, Elliot B.Koffman
       link: https://drive.google.com/file/d/1MO7uFPluENrcOyrP-wlUZWx3t26JZPsA/view
+  - book:
+      link: https://drive.google.com/file/d/1vc20Mfvbt85dBywu3GrjZcM3MXMbeRHe/view?usp=sharing
+      name: Starting Out With Programming Logic And Design
+      edition: 6th
+      author: Tony Gaddis
+    fieldGroup: book
 type: guide
 image: https://i.postimg.cc/7YQwM33G/Article-Page-61.png
 ---
