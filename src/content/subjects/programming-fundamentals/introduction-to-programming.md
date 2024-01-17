@@ -17,6 +17,7 @@ type: subjects
 ### Programming:
 
 **"Programming refers to a technological process for telling a computer which tasks to perform in order to solve problems."**
+
 Computer programming or coding is the composition of sequences of instructions, called programs, that computers can follow to perform tasks. It involves designing and implementing algorithms, step-by-step specifications of procedures, by writing code in one or more programming languages
 
 ### How a Program Works:
@@ -43,16 +44,16 @@ instruction. It takes a lot more than one instruction, however, for the computer
 
 ### Fetch-Decode-Execute Cycle:
 
-Programs are usually stored on a secondary storage device such as a disk drive. When
-you install a program on your computer, the program is typically downloaded from a
-Web site, or installed from an online app store.
+Programs are usually stored on a secondary storage device such as a disk drive. When you install a program on your computer, the program is typically downloaded from a Web site, or installed from an online app store.
 
 Although a program can be stored on a secondary storage device such as a disk drive, it has to be copied into main memory, or RAM, each time the CPU executes it. For example, suppose you have a word processing program on your computer’s disk. To execute the program you use the mouse to double-click the program’s icon. This causes the program to be copied from the disk into main memory. Then, the computer’s CPU executes the copy of the program that is in main memory.
 
 When a CPU executes the instructions in a program, it is engaged in a process that is known as the fetch-decode-execute cycle. This cycle, which consists of three steps, is repeated for each instruction in the program. The steps are:
 
 1. Fetch. A program is a long sequence of machine language instructions. The first step of the cycle is to fetch, or read, the next instruction from memory into the CPU.
+
 2. Decode. A machine language instruction is a binary number that represents a command that tells the CPU to perform an operation. In this step the CPU decodes the instruction that was just fetched from memory, to determine which operation it should perform.
+
 3. Execute. The last step in the cycle is to execute, or perform, the operation.
 
 ### Types of Languages:
@@ -69,9 +70,11 @@ The languages are classified into two categories or levels
 A low-level language also referred to as "computer's native language" is a programming language that deals with a computer’s hardware components and constraints. It has no (or only a minute level of) abstraction in reference to a computer and works to manage a computer’s operational semantics.
 
 - **Machine Language**
+
   Machine Language is an example of low level language because it works closer to the components. Computers can only execute programs that are written in machine language. As previously mentioned, a program can have thousands, or even a million or more binary instructions, and writing such a program would be very tedious and time consuming. Programming in machine language would also be very difficult because putting a 0 or a 1 in the wrong place will cause an error.
 
 - **Assembly Language**
+
   Although a computer’s CPU only understands machine language, it is impractical for people to write programs in machine language. For this reason, assembly language was created in the early days of computing2 as an alternative to machine language. Instead of using binary numbers for instructions, assembly language uses short words that are known as mnemonics. For example, in assembly language, the mnemonic add typically means to add numbers, mul typically means to multiply numbers, and mov typically means to move a value to a location in memory. When programmers use assembly language to write programs, they can write short mnemonics instead of binary numbers.
 
 Assembly language programs cannot be executed by the CPU, however. The CPU only understands machine language, so a special program known as an assembler is used to translate an assembly language program to a machine language program. The machine language program that is created by the assembler can then be executed by the CPU.
@@ -92,57 +95,71 @@ on the tasks they want to perform with their programs rather than the details of
 Since the 1950s, thousands of high-level languages have been created. If you are working toward a degree in computer science or a related field, you are likely to study one or more of these languages.
 
 Each high-level language has its own set of words that the programmer must learn in order to use the language. The words that make up a high-level programming language
+
 **Examples:**
 Python, JAVA,C++, C# etc
 
 ### Programming Languages
 
-- Ada
+- **Ada**
+
   Ada was created in the **1970s**, primarily for applications used by the U.S. Department of Defense. The language is named in honor of **Ada Lovelace**, a 19th century mathematician who published an algorithm that is considered by many to be the **first computer program.**
 
-- BASIC
+- **BASIC**
+
   Beginners All-purpose Symbolic Instruction Code is a **general-purpose language** that was originally designed in the early **1960s** to be simple enough for beginners to learn. Today, there are many different versions of BASIC.
 
-- FORTRAN
+- **FORTRAN**
+
   **FOR**mula **TRAN**slator was the **first high-level programming language**. It was designed in the **1950s** for performing complex mathematical calculations.
 
-- COBOL
+- **COBOL**
+
   Common Business-Oriented Language was created in the **1950s**, and was designed for business applications.
 
-- Pascal
+- **Pascal**
+
   Pascal was created in **1970**, and was originally designed for teaching programming. The language was named in honor of the mathematician, physicist, and philosopher **Blaise Pascal**.
 
-- C and C++
+- **C and C++**
+
   C and C++ (pronounced “c plus plus”) are powerful, general-purpose languages developed at Bell Laboratories. The C language was created in **1972** and the C++ language was created in **1983**.
 
-- C#
+- **C#**
+
   Pronounced “c sharp.” This language was created by Microsoft around the year **2000** for developing applications based on the Microsoft .NET platform.
 
-- JAVA
+- **JAVA**
+
   Java was created by Sun Microsystems (a company that is now owned by Oracle) in the early **1990s**. It can be used to develop programs that run on a single computer or over the Internet from a Web server.
 
-- JavaScript
+- **JavaScript**
+
   JavaScript, created in the **1990s**, can be used in Web pages. Despite its name, JavaScript is not related to Java.
 
-- Python
+- **Python**
+
   Python is a general-purpose language created in the early **1990s**. It has become popular in business and academic applications.
 
-- Ruby
+- **Ruby**
+
   Ruby is a general-purpose language that was created in the **1990s**. It is increasingly becoming a popular language for programs that run on Web servers.
 
-- Rust
+- **Rust**
+
   The Rust programming language is designed for high performance, memory safety, and concurrent execution. It was announced in **2010** by Mozilla Research.
 
-- Visual Basic
+- **Visual Basic**
+
   Visual Basic (commonly known as VB) is a Microsoft programming language and software development environment that allows programmers to create Windows®-based applications quickly. VB was originally created in the early **1990s**.
 
 ### Compilers and Interpreters:
 
-"A compiler is a program that translates a high-level language program into a separate machine language program. The machine language program can then be executed any time it is needed. Compiling and executing are two different processes."
+**"A compiler is a program that translates a high-level language program into a separate machine language program. The machine language program can then be executed any time it is needed. Compiling and executing are two different processes."**
 
 Because the CPU understands only machine language instructions, programs that are written in a high-level language must be translated into machine language. Once a program has been written in a high-level language, the programmer will use a compiler or an interpreter to make the translation.
 
-"An interpreter is a program that both translates and executes the instructions in a high-level language program. As the interpreter reads each individual instruction in the program, it converts it to a machine language instruction and then immediately executes it."
+**"An interpreter is a program that both translates and executes the instructions in a high-level language program. As the interpreter reads each individual instruction in the program, it converts it to a machine language instruction and then immediately executes it."**
 
 The statements that a programmer writes in a high-level language are called source code, or simply code. Typically, the programmer types a program’s code into a text editor and then saves the code in a file on the computer’s disk. Next, the programmer uses a compiler to translate the code into a machine language program, or an interpreter to translate and execute the code. If the code contains a syntax error, however, it cannot be translated. A
 syntax error is a mistake such as a misspelled key word, a missing punctuation character, or the incorrect use of an operator. When this happens the compiler or interpreter displays an error message indicating that the program contains a syntax error. The programmer corrects the error and then attempts once again to translate the program.
