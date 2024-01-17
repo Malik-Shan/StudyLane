@@ -2,10 +2,10 @@
 const { title, link, tags, type, date, banner } = Astro.props;
 const givenDate = new Date(date);
 const formatedDate = new Intl.DateTimeFormat("en-uk", {
-  day: "numeric",
+  day: "numeric",timeZone:'Asia/Karachi'
 }).format(givenDate);
 const formatedMonth = new Intl.DateTimeFormat("en-uk", {
-  month: "short",
+  month: "short",timeZone:'Asia/Karachi'
 }).format(givenDate);
 ---
 

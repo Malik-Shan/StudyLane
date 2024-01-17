@@ -42,9 +42,6 @@ try {
   Astro.cookies.set("session", "", { expires: new Date(0) });
   return Astro.redirect("/login");
 }
-//const subjectRef = db.collection('subjects').doc(`${subject}`);
-//const subjectSnap = await subjectRef.get();
-//const subjectData = subjectSnap.data();
 ---
 
 <DefaultLayout title="Subject Info">
