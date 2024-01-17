@@ -39,7 +39,7 @@ export function formatAllPosts(posts, {
 }
 export function formatDate(date){
     const d = new Date(date);
-    const f = new Intl.DateTimeFormat('en-PK',{day: '2-digit',month:'short',year:'2-digit'}).format(d);
+    const f = new Intl.DateTimeFormat('en-PK',{timeZone: 'Pakistan/Karachi',day: '2-digit',month:'short',year:'2-digit'}).format(d);
     return f
 }
 export function formDate(date){
