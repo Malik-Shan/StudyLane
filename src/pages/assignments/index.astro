@@ -6,16 +6,6 @@ import {getFirestore} from 'firebase-admin/firestore';
 import {app} from '../../firebase/server';
 import {getAuth} from 'firebase-admin/auth';
 
-interface Assignment {
-	id:string;
-	assignment:string;
-	link:string;
-	subject:string;
-	type:string;
-	date:string;
-}
-
-const db = getFirestore(app);
 const auth = getAuth(app);
 
 if(!Astro.cookies.has('session')){
@@ -36,16 +26,11 @@ try {
 	Astro.cookies.set('session','', {expires : new Date(0)});
 	return Astro.redirect('/login');
 }
-const assignmentsRef = db.collection('assignments');
-const assignmentsSnap = await assignmentsRef.get()
-const assignments = assignmentsSnap.docs.reverse().map((u) => ({
-	id: u.id,
-	...u.data(),
-})) as Assignment[]
 const appscript_url = import.meta.env.ASSIGNMENTS_APPSCRIPT_URL;
-const g_url = `${appscript_url}?course=bs-it-s1&show=16&type=get`;
+const g_url = `${appscript_url}?course=BS-IT-S1&type=get`;
 const res = await fetch(g_url);
-const {result,pagination} = await res.json()
+const {result} = await res.json()
+console.log(result)
 ---
 <DefaultLayout title='Assignments'>
 	<section class='container mx-auto px-6 section-nav-pb pt-4'>
@@ -87,11 +72,11 @@ const {result,pagination} = await res.json()
 			</div>
 
 			<div id='assignments' class='space-y-2'>
-				{
-				result.map((a) => (
-					<AssignmentData id={a.id} todo={a.assignment} link={a.link} type={a.type} subject={a.subject} date={a.date} admin={user.customClaims.admin} />
-				))
-				}
+				<!-- { -->
+				<!-- result.map((a) => ( -->
+				<!-- 	<AssignmentData id={a.id} todo={a.assignment} link={a.link} type={a.type} subject={a.subject} date={a.date} admin={user.customClaims.admin} /> -->
+				<!-- )) -->
+				<!-- } -->
 			</div>
 		</div>
 	</section>
