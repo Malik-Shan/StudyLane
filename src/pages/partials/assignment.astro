@@ -1,0 +1,50 @@
+---
+export const partial = true;
+export const prerender = false;
+import AssignmentData from '../../components/AssignmentData.astro';
+import {app} from '../../firebase/server';
+import {getAuth} from 'firebase-admin/auth';
+
+const auth = getAuth(app);
+
+if(!Astro.cookies.has('session')){
+	return Astro.redirect('/login');
+}
+const sessionCookie = Astro.cookies.get('session').value;
+let decodedCookie;
+try {
+	decodedCookie = await auth.verifySessionCookie(sessionCookie);
+}catch(err){
+	Astro.cookies.set('session','', {expires : new Date(0)});
+	return Astro.redirect('/login');
+}
+let user; 
+try {
+	user = await auth.getUser(decodedCookie.uid);
+} catch(err){
+	Astro.cookies.set('session','', {expires : new Date(0)});
+	return Astro.redirect('/login');
+}
+const appscript_url = import.meta.env.ASSIGN_API;
+let page = 1;
+const getPageNum = Astro.request.headers.get('page');
+getPageNum !== null && (page = parseInt(getPageNum))
+const d = await fetch(`${appscript_url}?course=bs-it-s1&type=get&page=${page}&show=18`);
+const {result,pagination} = await d.json();
+const nextPage = Math.min((page + 1), pagination.pages);
+---
+	{
+result.map((a) => (
+	<AssignmentData id={a.id} status={a.status} todo={a.assignment} link={a.link} type={a.type} subject={a.subject} date={a.date} admin={user.customClaims.admin} />
+))}
+{(!(pagination.totalItems <= pagination.showItems) && (page < pagination.pages)) ? (
+<button 
+	hx-post='/partials/assignment'
+	hx-trigger='click'
+	hx-target='#assignments'
+	hx-swap='beforeend'
+	hx-swap-oob='true'
+	hx-headers={`{"page": "${nextPage}"}`}
+	id='loadBtn'
+	class='primaryBtn block border-2 mx-auto p-2 px-8 rounded-md'>Load</button>
+) : (<div id='loadBtn' hx-swap-oob='outerHTML:#loadBtn'></div>)}

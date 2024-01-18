@@ -47,3 +47,12 @@ export function formDate(date){
     const f = new Intl.DateTimeFormat('en-PK',{timeZone:"Asia/Karachi"}).format(d).split('/').reverse().join('-');
     return f;
 }
+export function showSuccess(msg){
+    const html = `
+    <span id='toast' hx-swap-oob='true' class='relative block p-2 border-2 mb-2 border-green-600 bg-green-400 text-white rounded-md pr-8'>
+        ${msg}
+        <i class="fa-solid fa-circle-exclamation text-white absolute right-2 top-2"></i>
+    </span>
+    `
+    return html;
+}

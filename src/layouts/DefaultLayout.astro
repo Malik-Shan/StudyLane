@@ -7,7 +7,19 @@ const {title} = Astro.props;
 
 <Layout title={title}>
 	<main class='relative'>
-
+		<div 
+			hx-post='/partials/errorresponse'
+			hx-target='#toastGroup'
+			hx-swap='afterbegin'
+			hx-trigger='error from:body'></div>
+		<div 
+			hx-post='/partials/missinginput'
+			hx-target='#toastGroup'
+			hx-swap='afterbegin'
+			hx-trigger='input_error from:body'></div>
+		<div id='toastGroup' class='fixed right-2 top-2'>
+			<span id='toast'></span>
+		</div>
 		<TopHeader title={title} />
 		<slot/>
 		<Navbar />

@@ -41,6 +41,7 @@ const {result,pagination} = await d.json();
 						hx-post='/api/database/assignment'
 						hx-swap='afterbegin'
 						hx-target='#assignments'
+						hx-swap-oob='true'
 						hx-on::after-request=" if(event.detail.successful) this.reset()"
 						hx-trigger='submit'>
 						<input required placeholder='Assignment' type='text' name='assignment' />
@@ -52,7 +53,7 @@ const {result,pagination} = await d.json();
 							<option value='Islamiat-S1'>Islamiat-S1</option>
 							<option value='Calculus-S1'>Calculus-S1</option>
 						</select>
-						<select required name='type' id='type'>
+						<select required name='assign_type' id='type'>
 							<option value='Presentation'>Presentation</option>
 							<option value='Quiz'>Quiz</option>
 							<option value='Written'>Written</option>
@@ -64,18 +65,20 @@ const {result,pagination} = await d.json();
 			)
 		}
 		<div class='allAssignments'>
-			<div class='heading items-center max-sm:text-lg max-sm:text-center max-sm:mb-2'>
-				<h2 class='max-sm:text-2xl max-sm:text-slate-500'>Assignments</h2>
-				<h2 class='p-2 px-8 max-sm:hidden'>Date</h2>
+			<div
+				hx-post='/partials/assignment'
+				hx-trigger='load'
+				hx-swap='innerHTML'
+				hx-swap-oob='true'
+				id='assignments' class='grid gap-2 grid-cols-3 mb-4 max-xl:grid-cols-2 max-lg:grid-cols-1'>
+				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
 			</div>
-
-			<div id='assignments' class='space-y-2'>
-				{
-				result.map((a) => (
-					<AssignmentData id={a.id} status={a.status} todo={a.assignment} link={a.link} type={a.type} subject={a.subject} date={a.date} admin={user.customClaims.admin} />
-				))
-				}
-			</div>
+			<div id='loadBtn'></div>
 		</div>
 	</section>
 </DefaultLayout>

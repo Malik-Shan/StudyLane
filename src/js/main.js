@@ -11,3 +11,10 @@ function showMenu(){
     }
   })
 }
+
+// document.body.addEventListener('htmx:beforeOnLoad', (e) =>{
+//   if(e.detail.xhr.status === 400){
+//     e.detail.shouldSwap = true;
+//     e.detail.isError = false;
+//   }
+// })

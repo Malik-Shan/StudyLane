@@ -82,6 +82,39 @@
 		display:none;
 	}
 	}
+  .assignment {
+    @apply flex flex-col gap-2 p-2 px-4 border border-black/30 rounded-md;
+  }
+  .assignment.htmx-swapping {
+    animation: disappear 400ms ease-out;
+  }
+  @keyframes disappear {
+    0% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+      display: none;
+    }
+  }
+  .assignment .todo {
+    @apply max-sm:text-sm line-clamp-2;
+  }
+  .assignment .todo b{
+    @apply text-black;
+  }
+  .assignment .todo.link {
+    @apply text-sky-600
+  }
+  .assignment:hover {
+    @apply bg-slate-100;
+  }
+  .assignment .tag.subject{
+    @apply text-sky-900 font-bold;
+  }
 }
 @layer components {
 	.userMenuBtn {
