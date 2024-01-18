@@ -1,0 +1,70 @@
+---
+export const partial = true;
+export const prerender = false;
+import {getAuth} from 'firebase-admin/auth';
+import {app} from '../../../firebase/server';
+import AssignmentData from '../../../components/AssignmentData.astro';
+import Toast from '../../../components/Toast.astro';
+import {formatDate, showSuccess} from '../../../js/util';
+const url = import.meta.env.ASSIGN_API;
+const auth = getAuth(app);
+const appscript = `${url}?type=newentry&course=bs-it-s1`;
+
+const formData = await Astro.request.formData();
+const id = new Date().getTime().toString();
+formData.append('id', id);
+formData.append('status','open');
+const assignment = formData.get('assignment')?.toString();
+const link = formData.get('link')?.toString();
+const type = formData.get('assign_type')?.toString();
+const subject = formData.get('subject')?.toString();
+const date = formData.get('date')?.toString();
+
+const sessionCookie = Astro.cookies.get('session').value;
+let decodedCookie;
+try {
+	decodedCookie = await auth.verifySessionCookie(sessionCookie);
+}catch(err){
+	return new Response("Not Authorized",{
+		status:400,
+		headers:{
+			'HX-Trigger': 'error',
+		}
+	})
+}
+if(!decodedCookie.admin){
+	return new Response("Unauthorized",{
+		status:401,
+		headers:{
+			'HX-Trigger': 'error',
+		}
+	})
+}
+if(!assignment || !link || !subject || !date || !type){
+	return new Response("Missing Input",{
+		status:400,
+		headers:{
+			'HX-Trigger': 'input_error',
+		}
+	})
+}
+
+let d;
+let r;
+try{
+	d = await fetch(appscript,{
+		method: 'POST',
+		body: formData,
+	})
+	r = await d.json();
+}catch(err){
+	return new Response('Process Failed',{
+		status:400,
+		headers:{
+			'HX-Trigger': 'error',
+		}
+	})
+}
+---
+<AssignmentData id={id} todo={assignment} link={link} subject={subject} type={type} date={date} admin={decodedCookie.admin}  />
+<Toast type='success' msg={r.response.message} />

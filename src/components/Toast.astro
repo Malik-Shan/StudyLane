@@ -1,0 +1,15 @@
+---
+const {msg,type} = Astro.props;
+---
+{
+type === 'success' ? (
+<span id='toast' hx-swap-oob='true' class='relative block p-2 border-2 mb-2 border-green-600 bg-green-400 text-white rounded-md pr-8'>
+	{msg}
+	<i class="fa-solid fa-circle-exclamation text-white absolute right-2 top-2"></i>
+</span>
+): (
+<span id='toast' hx-swap-oob='true' class='relative block p-2 border-2 mb-2 border-red-600 bg-red-400 text-white rounded-md pr-8'>
+	{msg}
+	<i class="fa-solid fa-circle-exclamation text-white absolute right-2 top-2"></i>
+</span>
+)}
