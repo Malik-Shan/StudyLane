@@ -42,6 +42,7 @@ const {result,pagination} = await d.json();
 						hx-swap='afterbegin'
 						hx-target='#assignments'
 						hx-swap-oob='true'
+						hx-indicator='#newassign'
 						hx-on::after-request=" if(event.detail.successful) this.reset()"
 						hx-trigger='submit'>
 						<input required placeholder='Assignment' type='text' name='assignment' />
@@ -59,7 +60,7 @@ const {result,pagination} = await d.json();
 							<option value='Written'>Written</option>
 						</select>
 						<input type='date' name='date' id='date' />
-						<button class='primaryBtn p-1 px-2 rounded-md border' type='submit'>+</button>
+						<button id='newassign' class='primaryBtn group/submit flex flex-row items-center justify-center p-1 px-2 rounded-md border' type='submit'><i class="group-[.htmx-request]/submit:hidden fa-solid fa-calendar-plus"></i><i class="group-[.htmx-request]/submit:inline-block hidden fa-solid fa-spinner animate-spin"></i></button>
 					</form>
 				</div>
 			)
