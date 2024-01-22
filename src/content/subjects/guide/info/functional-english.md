@@ -1,5 +1,6 @@
 ---
 title: Functional English
+shortname: Functional English
 outline:
   - https://media.discordapp.net/attachments/1182217027084111914/1196398615703339109/functional_english.webp?ex=65b77c09&is=65a50709&hm=28738d4b25d3b3d612dea034f72d9817e72b0f6ff7e16c24b779da464b0a3609&=&format=webp
 recommended_books: []

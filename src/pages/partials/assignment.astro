@@ -37,6 +37,7 @@ const nextPage = Math.min((page + 1), pagination.pages);
 result.map((a) => (
 	<AssignmentData id={a.id} status={a.status} todo={a.assignment} link={a.link} type={a.type} subject={a.subject} date={a.date} admin={user.customClaims.admin} />
 ))}
+<!-- <div hx-post='/partials/assignment/edit' hx-trigger='load' hx-swap='outerHTML'></div> -->
 {(!(pagination.totalItems <= pagination.showItems) && (page < pagination.pages)) ? (
 <button 
 	hx-post='/partials/assignment'

@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
-import {getCollection} from 'astro:content';
+import {getCollection,getEntry} from 'astro:content';
+import {slugify} from '../../js/util';
 import DefaultLayout from '../../layouts/DefaultLayout.astro';
 import {app} from '../../firebase/server';
 import {getAuth} from 'firebase-admin/auth';
@@ -25,10 +26,13 @@ try {
 	Astro.cookies.set('session','', {expires : new Date(0)});
 	return Astro.redirect('/login');
 }
-
-const allSubjects = await getCollection('subjects', ({id}) =>{
-	return id.startsWith('guide/');
-});
+const allSubjects = [];
+const courseSubjects = await getEntry("subjects", `guide/bs-it/s1`);
+await Promise.all(
+	courseSubjects.data.subjects.map(async (s) => {
+		const r = await getEntry("subjects", `guide/info/${slugify(s)}`);
+		allSubjects.push(r);
+	}))
 ---
 <DefaultLayout title='Subjects'>
 	<section class='container mx-auto px-2 section-nav-pb pt-8 max-sm:pt-4'>
@@ -36,7 +40,7 @@ const allSubjects = await getCollection('subjects', ({id}) =>{
 			{
 			allSubjects.map((s, ind) => (
 				<a class='sub_card w-full bg-slate-300 p-4 py-16 rounded-md text-center font-bold transition-all border-2 text-xl' data-id={ind}
-					href={`/subjects/${s.slug.split('/')[1]}`}><span class='sub_bg' style={`background-image:url('${s.data.image}'); background-image:cover; background-position:center;)`}></span>{s.data.title}</a>
+					href={`/subjects/${s.slug.split('/')[2]}`}><span class='sub_bg' style={`background-image:url('${s.data.image}'); background-image:cover; background-position:center;)`}></span>{s.data.title}</a>
 			))
 			}
 		</div>

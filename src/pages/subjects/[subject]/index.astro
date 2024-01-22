@@ -9,7 +9,7 @@ import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
 
 const { subject } = Astro.params;
-const subjectEntry = await getEntry("subjects", `guide/${subject}`);
+const subjectEntry = await getEntry("subjects", `guide/info/${subject}`);
 const lec_info = await getCollection("subjects", ({ id }) => {
   return id.startsWith(subject);
 });

@@ -1,5 +1,6 @@
 ---
 title: Programming Fundamentals
+shortname: Programming Fundamentals
 outline:
   - https://media.discordapp.net/attachments/1182217064195293274/1196398885145428051/programming_fundamentals.webp?ex=65b77c4a&is=65a5074a&hm=24060e557593e20d7cbfb7183e34ed4de0fd1093f9b8f3fe795e53ed0c31bf67&=&format=webp
 recommended_books:

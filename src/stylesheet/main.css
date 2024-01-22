@@ -112,9 +112,6 @@
   .assignment:hover {
     @apply bg-slate-100;
   }
-  .assignment .tag.subject{
-    @apply text-sky-900 font-bold;
-  }
 }
 @layer components {
 	.userMenuBtn {
@@ -172,6 +169,12 @@
 	}
 	.tag {
 		@apply p-1 px-2 rounded-full text-white capitalize text-sm bg-teal-400 max-sm:text-[.8rem];
+	}
+	.tag.type{
+		@apply bg-yellow-400 text-yellow-800 font-bold;
+	}
+	.tag.subject{
+		@apply text-sky-800 font-bold;
 	}
 }
 @layer utilities {

@@ -1,4 +1,5 @@
 ---
+import {getCollection} from 'astro:content';
 export const prerender = false;
 import DefaultLayout from '../../layouts/DefaultLayout.astro';
 import AssignmentData from '../../components/AssignmentData.astro';
@@ -29,73 +30,76 @@ try {
 const appscript_url = import.meta.env.ASSIGN_API;
 const d = await fetch(`${appscript_url}?course=bs-it-s1&type=get`);
 const {result,pagination} = await d.json();
+const allSubjects = await getCollection('subjects', ({id}) =>{
+  return id.startsWith('guide/info');
+});
 ---
 <DefaultLayout title='Assignments'>
-	<section class='container mx-auto px-6 section-nav-pb pt-4'>
-		{
-		user.customClaims.admin && 
-			(
-				<div>
-					<h2 class='text-center text-xl font-bold text-slate-400 mb-2'>Add New Assignment</h2>
-					<form class='addAssignment pb-4'
-						hx-post='/partials/assignment/create'
-						hx-swap='afterbegin'
-						hx-target='#assignments'
-						hx-swap-oob='true'
-						hx-indicator='#newassign'
-						hx-on::after-request=" if(event.detail.successful) this.reset()"
-						hx-trigger='submit'>
-						<input required placeholder='Assignment' type='text' name='assignment' />
-						<input required placeholder='Link' type='text' name='link' />
-						<select required name='subject' id='subject'>
-							<option value='English-S1'>English-S1</option>
-							<option value='Computer-S1'>Computer-S1</option>
-							<option value='Programming-S1'>Programming-S1</option>
-							<option value='Islamiat-S1'>Islamiat-S1</option>
-							<option value='Calculus-S1'>Calculus-S1</option>
-						</select>
-						<select required name='assign_type' id='type'>
-							<option value='Presentation'>Presentation</option>
-							<option value='Quiz'>Quiz</option>
-							<option value='Written'>Written</option>
-						</select>
-						<input type='date' name='date' id='date' />
-						<button id='newassign' class='primaryBtn group/submit flex flex-row items-center justify-center p-1 px-2 rounded-md border' type='submit'><i class="group-[.htmx-request]/submit:hidden fa-solid fa-calendar-plus"></i><i class="group-[.htmx-request]/submit:inline-block hidden fa-solid fa-spinner animate-spin"></i></button>
-					</form>
-				</div>
-			)
-		}
-		<div class='allAssignments'>
-			<div
-				hx-post='/partials/assignment'
-				hx-trigger='load'
-				hx-swap='innerHTML'
-				hx-swap-oob='true'
-				id='assignments' class='grid gap-2 grid-cols-3 mb-4 max-xl:grid-cols-2 max-lg:grid-cols-1'>
-				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
-				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
-				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
-				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
-				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
-				<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
-			</div>
-			<div id='loadBtn'></div>
-		</div>
-	</section>
+  <section class='container mx-auto px-6 section-nav-pb pt-4'>
+    {
+    user.customClaims.admin && 
+      (
+	<div>
+	  <h2 class='text-center text-xl font-bold text-slate-400 mb-2'>Add New Assignment</h2>
+	  <form class='addAssignment pb-4'
+	    hx-post='/partials/assignment/create'
+	    hx-swap='afterbegin'
+	    hx-target='#assignments'
+	    hx-swap-oob='true'
+	    hx-indicator='#newassign'
+	    hx-on::after-request=" if(event.detail.successful) this.reset()"
+	    hx-trigger='submit'>
+	    <input required placeholder='Assignment' type='text' name='assignment' />
+	    <input required placeholder='Link' type='text' name='link' />
+	    <select class='subject' name='subject' id='subject'>
+	      {
+		allSubjects.map((s) => (
+		  <option value={s.data.shortname}>{s.data.shortname}</option>
+		))
+	      }
+	    </select>
+	    <select required name='assign_type' id='type'>
+	    <option value='Presentation'>Presentation</option>
+	      <option value='Quiz'>Quiz</option>
+	      <option value='Written'>Written</option>
+	    </select>
+	    <input type='date' name='date' id='date' />
+	    <button id='newassign' class='primaryBtn group/submit flex flex-row items-center justify-center p-1 px-2 rounded-md border' type='submit'><i class="group-[.htmx-request]/submit:hidden fa-solid fa-calendar-plus"></i><i class="group-[.htmx-request]/submit:inline-block hidden fa-solid fa-spinner animate-spin"></i></button>
+	  </form>
+	</div>
+    )
+    }
+    <div class='allAssignments'>
+      <div
+	hx-post='/partials/assignment'
+	hx-trigger='load'
+	hx-swap='innerHTML'
+	hx-swap-oob='true'
+	id='assignments' class='grid gap-2 grid-cols-3 mb-4 max-xl:grid-cols-2 max-lg:grid-cols-1'>
+	<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+	<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+	<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+	<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+	<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+	<div class='bg-slate-300 animate-pulse h-[100px] w-full'></div>
+      </div>
+      <div id='loadBtn'></div>
+    </div>
+  </section>
 </DefaultLayout>
 <style is:global>
 .addAssignment{
-	@apply flex flex-row gap-2 max-sm:flex-col;
+  @apply flex flex-row gap-2 max-sm:flex-col;
 }
 .addAssignment input,
 .addAssignment select{
-	@apply border block w-full px-2 border-slate-300 p-1 rounded-md max-sm:text-sm;
+  @apply border block w-full px-2 border-slate-300 p-1 rounded-md max-sm:text-sm;
 }
 .heading {
-	display:grid;
-	grid-template-columns: 1fr max-content;
+  display:grid;
+  grid-template-columns: 1fr max-content;
 }
 .heading h2{
-	@apply font-bold underline;
+  @apply font-bold underline;
 }
 </style>

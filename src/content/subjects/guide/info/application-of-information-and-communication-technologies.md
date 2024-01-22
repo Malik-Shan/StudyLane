@@ -1,5 +1,6 @@
 ---
 title: Application of Information and Communication Technologies
+shortname: Application of ICT
 outline:
   - https://media.discordapp.net/attachments/1182217078883754044/1196399208253636629/application_of_info_and_comm_tech.webp?ex=65b77c97&is=65a50797&hm=5c30d2092ab5128a1ea793f966cc5157e658a65be97e96c67038b1a806142965&=&format=webp
 recommended_books:
