@@ -11,57 +11,49 @@
       "title": "Discrete Structures",
       "path": "[[workspace]]/src/content/subjects/discrete-structures",
       "filePrefix": "",
-      "contentTypes": [
-        "subjects"
-      ]
+      "contentTypes": ["subjects"]
     },
     {
       "title": "English",
       "path": "[[workspace]]/src/content/subjects/functional-english",
       "filePrefix": "",
-      "contentTypes": [
-        "subjects"
-      ]
+      "contentTypes": ["subjects"]
     },
     {
       "title": "IT",
       "path": "[[workspace]]/src/content/subjects/application-of-information-and-communication-technologies",
       "filePrefix": "",
-      "contentTypes": [
-        "subjects"
-      ]
+      "contentTypes": ["subjects"]
     },
     {
       "title": "Programming",
       "path": "[[workspace]]/src/content/subjects/programming-fundamentals",
       "filePrefix": "",
-      "contentTypes": [
-        "subjects"
-      ]
+      "contentTypes": ["subjects"]
     },
     {
       "title": "Islamiat",
       "path": "[[workspace]]/src/content/subjects/islamic-studies",
       "filePrefix": "",
-      "contentTypes": [
-        "subjects"
-      ]
+      "contentTypes": ["subjects"]
+    },
+    {
+      "title": "Zero Math I",
+      "path": "[[workspace]]/src/content/subjects/zero-mathematics-i",
+      "filePrefix": "",
+      "contentTypes": ["subjects"]
     },
     {
       "title": "Guide",
-      "path": "[[workspace]]/src/content/subjects/guide",
+      "path": "[[workspace]]/src/content/subjects/guide/info",
       "filePrefix": "",
-      "contentTypes": [
-        "guide"
-      ]
+      "contentTypes": ["guide"]
     },
     {
       "title": "News",
       "path": "[[workspace]]/src/content/news",
       "filePrefix": "",
-      "contentTypes": [
-        "news"
-      ]
+      "contentTypes": ["news"]
     }
   ],
   "frontMatter.taxonomy.fieldGroups": [
@@ -217,14 +209,7 @@
           "required": true,
           "type": "choice",
           "default": "",
-          "choices": [
-            "",
-            "S1",
-            "S2",
-            "S3",
-            "S4",
-            "S5"
-          ]
+          "choices": ["", "S1", "S2", "S3", "S4", "S5"]
         },
         {
           "title": "Info Type",
@@ -232,14 +217,16 @@
           "required": true,
           "default": "",
           "type": "choice",
-          "choices": [
-            "",
-            "lecture",
-            "notes",
-            "blog"
-          ]
+          "choices": ["", "lecture", "notes", "blog"]
         }
       ]
+    },
+    {
+      "name": "Info",
+      "previewPath": "info",
+      "pageBundle": false,
+      "clearEmpty": false,
+      "fields": []
     },
     {
       "name": "guide",
@@ -256,10 +243,11 @@
           "required": true
         },
         {
-          "title": "Condition",
-          "name": "condition",
-          "type": "boolean",
-          "default": false
+          "title": "Short Name",
+          "name": "shortname",
+          "type": "string",
+          "single": true,
+          "required": true
         },
         {
           "title": "Image",
@@ -285,9 +273,7 @@
           "title": "Recommended Books",
           "name": "recommended_books",
           "type": "block",
-          "fieldGroup": [
-            "recommendedbook"
-          ],
+          "fieldGroup": ["recommendedbook"],
           "default": []
         },
         {
@@ -295,9 +281,7 @@
           "name": "books",
           "type": "block",
           "default": [],
-          "fieldGroup": [
-            "book"
-          ]
+          "fieldGroup": ["book"]
         }
       ]
     },
