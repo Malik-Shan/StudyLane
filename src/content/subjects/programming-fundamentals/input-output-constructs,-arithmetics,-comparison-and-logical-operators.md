@@ -14,8 +14,8 @@ type: subjects
 
 # Input-Output Constructs, Arithmetics, Comparison And Logical Operators
 
-<object class='w-full' data="https://firebasestorage.googleapis.com/v0/b/cibt-student-portal.appspot.com/o/blog%2Fi-o-const-operators.pdf?alt=media&token=cacc11bd-ac3f-4ee2-82d2-7dd4dd028d10" type="application/pdf" width="700px" height="500px">
-    <embed src="https://firebasestorage.googleapis.com/v0/b/cibt-student-portal.appspot.com/o/blog%2Fi-o-const-operators.pdf?alt=media&token=cacc11bd-ac3f-4ee2-82d2-7dd4dd028d10">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://firebasestorage.googleapis.com/v0/b/cibt-student-portal.appspot.com/o/blog%2Fi-o-const-operators.pdf?alt=media&token=cacc11bd-ac3f-4ee2-82d2-7dd4dd028d10">Download PDF</a>.</p>
+<object class='w-full' data="https://firebasestorage.googleapis.com/v0/b/cibt-student-portal.appspot.com/o/blog%2FINPUT_OUTPUT%20CONSTRUCTS.pdf?alt=media&token=63d75879-c4e3-4987-bb09-95838f54ec26" type="application/pdf" width="700px" height="500px">
+    <embed src="https://firebasestorage.googleapis.com/v0/b/cibt-student-portal.appspot.com/o/blog%2FINPUT_OUTPUT%20CONSTRUCTS.pdf?alt=media&token=63d75879-c4e3-4987-bb09-95838f54ec26">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://firebasestorage.googleapis.com/v0/b/cibt-student-portal.appspot.com/o/blog%2FINPUT_OUTPUT%20CONSTRUCTS.pdf?alt=media&token=63d75879-c4e3-4987-bb09-95838f54ec26">Download PDF</a>.</p>
     </embed>
 </object>
