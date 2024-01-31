@@ -45,7 +45,7 @@ Stacks can be represented using structures, pointers, arrays, or linked lists.
 
 This example implements stacks using arrays in C:
 
-```
+```c
 #include <stdio.h>
 
 #include <stdlib.h>

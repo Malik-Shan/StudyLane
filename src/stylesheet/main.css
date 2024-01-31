@@ -56,6 +56,15 @@
 	.blog p{
 		@apply text-lg mb-2;
 	}
+	.blog pre{
+		@apply p-4 rounded-md;
+	}
+	.blog ul{
+		@apply list-disc p-2 px-4;
+	}
+	.blog ol{
+		@apply list-decimal p-2 px-4;
+	}
 	#formRes,#toast {
 		scale:1 0%;
 		opacity:0;
