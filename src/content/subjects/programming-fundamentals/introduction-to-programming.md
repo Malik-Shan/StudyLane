@@ -165,3 +165,28 @@ The statements that a programmer writes in a high-level language are called sour
 syntax error is a mistake such as a misspelled key word, a missing punctuation character, or the incorrect use of an operator. When this happens the compiler or interpreter displays an error message indicating that the program contains a syntax error. The programmer corrects the error and then attempts once again to translate the program.
 
 Programs that are compiled generally execute faster than programs that are interpreted because a compiled program is already translated entirely to machine language when it is executed. A program that is interpreted must be translated at the time it is executed.
+
+### Introduction:
+
+Linkers are essential tools in software development that play a crucial role in the process of converting source code into executable programs. They act as the bridge between various source code modules and libraries, integrating them into a single executable file that can be run by a computer system.
+
+### Functionality
+
+**Symbol Resolution:** Linkers resolve symbolic references between different modules by matching symbols defined in one module with their corresponding references in another module. This process ensures that all references are properly linked to their respective definitions.
+
+**Address Binding:** Linkers assign final memory addresses to program variables and functions, a process known as address binding. This step involves resolving relative addresses and ensuring that each symbol is assigned a unique memory location within the executable file.
+
+**Code Optimization:** Some linkers perform code optimization techniques such as dead code elimination, function inlining, and code rearrangement to improve the efficiency and performance of the final executable.
+
+**Dynamic Linking:** Linkers also support dynamic linking, where certain libraries or modules are linked at runtime rather than at compile time. This allows for more flexible and efficient memory usage, as shared libraries can be loaded into memory only when needed.
+
+**Executable Generation**: The final output of the linking process is an executable file that can be directly executed by the operating system. This file contains all the necessary code and resources required to run the program.
+
+### Importance
+
+Linkers play a critical role in software development for several reasons:
+
+- They enable modular programming by allowing developers to break down large programs into smaller, manageable modules.
+- Linkers facilitate code reuse by linking external libraries and modules into multiple programs.
+- They ensure the correctness and integrity of the executable by resolving dependencies and verifying symbol references.
+- Linkers contribute to the efficiency and performance of the final executable through optimization techniques.
