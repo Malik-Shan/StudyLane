@@ -11,6 +11,6 @@ infoType: notes
 type: subjects
 ---
 
-<a href="ecf0c21f7cbc8436e1a5da959a1d19b40ca6c99d">Link</a>
-<a href="ecf0c21f7cbc8436e1a5da959a1d19b40ca6c99d">Link 2</a>
-<a href="ecf0c21f7cbc8436e1a5da959a1d19b40ca6c99d">Link 3</a>
+<a href="https://www.baeldung.com/cs/centralized-vs-distributed-computing">Link</a>
+<a href="https://www.geeksforgeeks.org/comparison-centralized-decentralized-and-distributed-systems/">Link 2</a>
+<a href="https://www.educative.io/answers/what-are-centralized-decentralized-and-distributed-systems">Link 3</a>
