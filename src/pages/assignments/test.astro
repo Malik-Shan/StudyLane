@@ -25,17 +25,17 @@ try {
 	Astro.cookies.set('session','', {expires : new Date(0)});
 	return Astro.redirect('/login');
 }
-// if (Astro.request.method === 'POST') {
-//   // parse form data
-//   const formData = await Astro.request.formData();
-//   const a = formData.get('assignment');
-//   const s = formData.get('subject');
-//   if (typeof a === 'string' && typeof s === 'string') {
-//     // insert form data into the Comment table
-//     await db.insert(Data).values({ a, s });
-//   }
-// }
-// const data = await db.select().from(Data);
+<!-- if (Astro.request.method === 'POST') { -->
+<!--   // parse form data -->
+<!--   const formData = await Astro.request.formData(); -->
+<!--   const a = formData.get('assignment'); -->
+<!--   const s = formData.get('subject'); -->
+<!--   if (typeof a === 'string' && typeof s === 'string') { -->
+<!--     // insert form data into the Comment table -->
+<!--     await db.insert(Data).values({ a, s }); -->
+<!--   } -->
+<!-- } -->
+<!-- const data = await db.select().from(Data); -->
 ---
 <DefaultLayout title='Test Area'>
 
