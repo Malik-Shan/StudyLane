@@ -36,11 +36,64 @@ await Promise.all(
 ---
 <DefaultLayout title='Subjects'>
 	<section class='container mx-auto px-2 section-nav-pb pt-8 max-sm:pt-4'>
+
+		<div class='flex flex-row justify-between p-2 border-2 border-slate-200 rounded-md mb-4'>
+			<div class='sig'>
+				<h3 class='font-bold text-slate-500'>Arslan Akbar</h3>
+				<h4 class='font-bold text-slate-500 text-sm'>Course: BS-IT</h4>
+				<h4 class='font-bold text-slate-500 text-sm'>Semester: 2</h4>
+			</div>
+			<div class='flex flex-row gap-2 items-center flex-wrap'>
+				<div class='td flex flex-col'>
+					<h4 class='text-white bg-green-400 text-center text-sm block p-1 px-4 rounded-t-md'>Today</h4>
+					<div class='stg text-white text-sm flex flex-row gap-1 bg-green-800 p-1 px-4 rounded-b-md'>
+						<h5>FE</h5>
+						<h5>PF</h5>
+						<h5>AICT</h5>
+					</div>
+				</div>
+
+				<div class='tm flex flex-col'>
+					<h4 class='text-white bg-yellow-400 text-center text-sm block p-1 px-4 rounded-t-md'>Tomorrow</h4>
+					<div class='stg text-white text-sm flex flex-row gap-1 bg-yellow-600 p-1 px-4 rounded-b-md'>
+						<h5>FE</h5>
+						<h5>FE</h5>
+						<h5>FE</h5>
+						<h5>FE</h5>
+					</div>
+				</div>
+
+			</div>
+		</div>
 		<div class='wrapper subjects w-full'>
+				<!-- <a class='sub_card w-full bg-slate-300 p-4 py-16 rounded-md text-center font-bold transition-all border-2 text-xl' data-id={ind} -->
+				<!-- 	href={`/subjects/${s.slug.split('/')[2]}`}><span class='sub_bg' style={`background-image:url('${s.data.image}'); background-image:cover; background-position:center;)`}></span>{s.data.title}</a> -->
 			{
 			allSubjects.map((s, ind) => (
-				<a class='sub_card w-full bg-slate-300 p-4 py-16 rounded-md text-center font-bold transition-all border-2 text-xl' data-id={ind}
-					href={`/subjects/${s.slug.split('/')[2]}`}><span class='sub_bg' style={`background-image:url('${s.data.image}'); background-image:cover; background-position:center;)`}></span>{s.data.title}</a>
+				<a class='sub_card group/card' data-id={ind}
+					href={`/subjects/${s.slug.split('/')[2]}`}><span class='sub_bg' style={`background-image:url('${s.data.image}'); background-image:cover; background-position:center;)`}></span>
+					<h2 class='font-bold mb-2'><span class='bg-secondary text-white p-1 mr-1 rounded-sm aspect-square'>PF</span>{s.data.title}</h2>
+
+					<div class='ig mb-2 flex flex-row gap-2'>
+
+						<div class='sp flex flex-row'>
+							<span class='bg-sky-700 text-white text-sm p-1 px-2 rounded-l-md'>Topics</span>
+							<span class='bg-sky-400 text-white text-sm p-1 px-2 rounded-r-md'>0 / 30</span>
+						</div>
+
+						<div class='sp flex flex-row'>
+							<span class='bg-red-700 text-white text-sm p-1 px-2 rounded-l-md'>Assignments</span>
+							<span class='bg-red-400 text-white text-sm p-1 px-2 rounded-r-md'>0</span>
+						</div>
+
+					</div>
+
+					<div class="block w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+						<div class="bg-blue-600 h-1.5 rounded-full dark:bg-blue-500" style="width: 45%"></div>
+					</div>
+
+					<span class='w-2 h-full bg-secondary absolute left-0 top-0 opacity-0 group-hover/card:opacity-100 transition-opacity'></span>
+				</a>
 			))
 			}
 		</div>
@@ -48,30 +101,34 @@ await Promise.all(
 </DefaultLayout>
 <style>
 .subjects{
-	@apply grid grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1 gap-2;
+	@apply grid grid-cols-1 gap-2;
 }
 .subjects .sub_card{
-	@apply flex-shrink-0 relative overflow-hidden;
+	/* @apply flex-shrink-0 relative overflow-hidden; */
+	@apply p-2 py-4 pl-4 rounded-md border relative overflow-hidden;
 }
 .sub_card .sub_bg{
-	@apply absolute inset-0 -z-10;
+	@apply absolute w-full inset-0 -z-10;
 }
 .sub_card[data-id='0']{
-	@apply border-sky-800 bg-sky-200/80 text-sky-800;
+	@apply border-sky-800 bg-sky-200/90 text-sky-800;
 }
 .sub_card[data-id='1']{
-	@apply border-lime-800 bg-lime-200/80 text-lime-800;
+	@apply border-lime-800 bg-lime-200/90 text-lime-800;
 }
 .sub_card[data-id='2']{
-	@apply border-yellow-800 bg-yellow-200/80 text-yellow-800;
+	@apply border-yellow-800 bg-yellow-200/90 text-yellow-800;
 }
 .sub_card[data-id='3']{
-	@apply border-orange-800 bg-orange-200/80 text-orange-800;
+	@apply border-orange-800 bg-orange-200/90 text-orange-800;
 }
 .sub_card[data-id='4']{
-	@apply border-red-800 bg-red-200/80 text-red-800;
+	@apply border-red-800 bg-red-200/90 text-red-800;
 }
 .sub_card[data-id='5']{
-	@apply border-yellow-800 bg-yellow-200/80 text-yellow-800;
+	@apply border-pink-800 bg-pink-200/90 text-pink-800;
+}
+.sub_card[data-id='6']{
+	@apply border-purple-800 bg-purple-200/90 text-purple-800;
 }
 </style>

@@ -57,7 +57,10 @@
 		@apply text-lg mb-2;
 	}
 	.blog pre{
-		@apply p-4 rounded-md;
+		  @apply min-w-[150px] w-auto max-w-full p-4 rounded-md whitespace-pre break-words;
+	}
+	.blog pre code {
+		@apply w-full;
 	}
 	.blog ul{
 		@apply list-disc p-2 px-4;
