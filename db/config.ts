@@ -12,6 +12,7 @@ const Courses = defineTable({
     id: column.number({primaryKey: true}),
     name: column.text(),
     duration: column.number(),
+    subject: column.text(),
   }
 })
 
