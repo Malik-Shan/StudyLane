@@ -35,7 +35,7 @@ if (Astro.request.method === 'POST') {
     await db.insert(Data).values({ a, s });
   }
 }
-const data = await db.select().from(Data);
+<!-- const data = await db.select().from(Data); -->
 ---
 <DefaultLayout title='Test Area'>
 
@@ -51,6 +51,6 @@ const data = await db.select().from(Data);
     </label>
     <button class='bg-primary p-2 rounded-md text-white' type='submit'>Submit</button>
   </form>
-  {data.map(d => <div class='bg-slate-200 mb-2'><h2><b>Assignment :</b>{d.a}</h2><h2><b>Subject :</b>{d.s}</h2></div>)}
+  <!-- {data.map(d => <div class='bg-slate-200 mb-2'><h2><b>Assignment :</b>{d.a}</h2><h2><b>Subject :</b>{d.s}</h2></div>)} -->
 
 </DefaultLayout>
