@@ -1,6 +1,6 @@
 ---
 export const prerender = false;
-// import {db,Data} from 'astro:db';
+import {db,Data} from 'astro:db';
 import DefaultLayout from '../../layouts/DefaultLayout.astro';
 import {app} from '../../firebase/server';
 import {getAuth} from 'firebase-admin/auth';
@@ -25,17 +25,17 @@ try {
 	Astro.cookies.set('session','', {expires : new Date(0)});
 	return Astro.redirect('/login');
 }
-// if (Astro.request.method === 'POST') {
-//   // parse form data
-//   const formData = await Astro.request.formData();
-//   const a = formData.get('assignment');
-//   const s = formData.get('subject');
-//   if (typeof a === 'string' && typeof s === 'string') {
-//     // insert form data into the Comment table
-//     await db.insert(Data).values({ a, s });
-//   }
-// }
-// const data = await db.select().from(Data); 
+if (Astro.request.method === 'POST') {
+  // parse form data
+  const formData = await Astro.request.formData();
+  const a = formData.get('assignment');
+  const s = formData.get('subject');
+  if (typeof a === 'string' && typeof s === 'string') {
+    // insert form data into the Comment table
+    await db.insert(Data).values({ a, s });
+  }
+}
+const data = await db.select().from(Data); 
 ---
 <DefaultLayout title='Test Area'>
 
@@ -51,6 +51,6 @@ try {
     </label>
     <button class='bg-primary p-2 rounded-md text-white' type='submit'>Submit</button>
   </form>
-  <!-- {data.map(d => <div class='bg-slate-200 mb-2'><h2><b>Assignment :</b>{d.a}</h2><h2><b>Subject :</b>{d.s}</h2></div>)} -->
+  {data.map(d => <div class='bg-slate-200 mb-2'><h2><b>Assignment :</b>{d.a}</h2><h2><b>Subject :</b>{d.s}</h2></div>)}
 
 </DefaultLayout>
