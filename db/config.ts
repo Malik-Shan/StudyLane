@@ -20,11 +20,13 @@ const Data = defineTable({
 })
 const Courses = defineTable({
   columns: {
-    id: column.number({primaryKey: true}),
-    name: column.text(),
+    cid: column.text({primaryKey: true}),
     duration: column.number(),
-    subject: column.text({references: () => Subjects.columns.sid}),
-  }
+    data: column.json(),
+  },
+  indexes: [
+    {on: ["cid"], unique: true},
+  ]
 })
 
 export default defineDb({

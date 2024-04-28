@@ -36,13 +36,14 @@ export const POST: APIRoute = async ({request}) => {
     })
   }
 
-  const customClaims = {};
+  const customClaims = {roles: [],courses:[]};
   const rolesMap = roles.split(',');
   let rolesHTML = ''
   rolesMap.map((r) => {
     rolesHTML += `<span class='role'>${r}</span>`;
-    customClaims[r] = true;
+    customClaims.roles.push(r)
   })
+  customClaims.courses.push('bs-it')
   let uid;
   try {
     const user = await auth.createUser({
