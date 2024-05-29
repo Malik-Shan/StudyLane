@@ -124,6 +124,37 @@
   .assignment:hover {
     @apply bg-slate-100;
   }
+  .subjects{
+    @apply grid grid-cols-1 gap-2;
+  }
+  .sub_card{
+    /* @apply flex-shrink-0 relative overflow-hidden; */
+    @apply block p-2 py-4 pl-4 rounded-md border relative overflow-hidden;
+  }
+  .sub_card .sub_bg{
+    @apply absolute w-full inset-0 -z-10;
+  }
+  .sub_card[data-id='0']{
+    @apply border-sky-800 bg-sky-200/90 text-sky-800;
+  }
+  .sub_card[data-id='1']{
+    @apply border-lime-800 bg-lime-200/90 text-lime-800;
+  }
+  .sub_card[data-id='2']{
+    @apply border-yellow-800 bg-yellow-200/90 text-yellow-800;
+  }
+  .sub_card[data-id='3']{
+    @apply border-orange-800 bg-orange-200/90 text-orange-800;
+  }
+  .sub_card[data-id='4']{
+    @apply border-red-800 bg-red-200/90 text-red-800;
+  }
+  .sub_card[data-id='5']{
+    @apply border-pink-800 bg-pink-200/90 text-pink-800;
+  }
+  .sub_card[data-id='6']{
+    @apply border-purple-800 bg-purple-200/90 text-purple-800;
+  }
 }
 @layer components {
 	.userMenuBtn {

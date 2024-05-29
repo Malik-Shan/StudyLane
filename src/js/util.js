@@ -56,3 +56,12 @@ export function showSuccess(msg){
     `
     return html;
 }
+export function ImgToBit(img){
+    const reader = new FileReader();
+    reader.readAsDataURL(img);
+    let bit;
+    reader.onload = function(){
+        bit = reader.result;
+    }
+    return bit;
+}

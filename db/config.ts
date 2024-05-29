@@ -1,28 +1,26 @@
+import { optional } from 'astro/zod';
 import { column, defineDb, defineTable } from 'astro:db';
 
 const Subjects = defineTable({
   columns: {
-    sid: column.text({primaryKey: true}),
+    id: column.text({primaryKey: true,unique:true}),
+    name: column.text({optional: false}),
     sname: column.text({optional: false}),
-    ssname: column.text({optional: false}),
     simg: column.text({optional: false}),
+    outline: column.json({optional: false}),
+    assignments: column.number({default:0}),
+    t_topics: column.number({default:0,optional:false}),
+    c_topics: column.number({default:0,optional:false}),
   },
   indexes: [
-    {on: ["sid"], unique: true},
+    {on: ["id"], unique: true},
   ]
-})
-const Data = defineTable({
-  columns: {
-    id: column.number({primaryKey: true}),
-    a: column.text(),
-    s: column.text(),
-  }
 })
 const Courses = defineTable({
   columns: {
-    cid: column.text({primaryKey: true}),
-    duration: column.number(),
-    data: column.json(),
+    cid: column.text({primaryKey: true, unique: true}),
+    duration: column.number({optional:false}),
+    data: column.json({optional: false}),
   },
   indexes: [
     {on: ["cid"], unique: true},
@@ -30,5 +28,5 @@ const Courses = defineTable({
 })
 
 export default defineDb({
-  tables: {Subjects, Data, Courses},
+  tables: {Subjects,Courses},
 })

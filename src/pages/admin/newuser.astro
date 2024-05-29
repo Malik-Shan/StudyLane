@@ -24,7 +24,7 @@ try {
 	Astro.cookies.set('session','', {expires : new Date(0)});
 	return Astro.redirect('/login');
 }
-if(!decodedCookie.admin){
+if(!decodedCookie.roles.includes("admin")){
 	return Astro.redirect('/404')
 }
 let user; 

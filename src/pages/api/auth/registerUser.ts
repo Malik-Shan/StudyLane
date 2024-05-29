@@ -43,7 +43,7 @@ export const POST: APIRoute = async ({request}) => {
     rolesHTML += `<span class='role'>${r}</span>`;
     customClaims.roles.push(r)
   })
-  customClaims.courses.push('bs-it')
+  customClaims.courses.push('bs-it/2')
   let uid;
   try {
     const user = await auth.createUser({
