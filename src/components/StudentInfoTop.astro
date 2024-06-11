@@ -1,0 +1,26 @@
+---
+const {name, course, part, partname, today, tomorrow} = Astro.props;
+---
+<div class='flex flex-row justify-between p-4 bg-gradient-to-r from-orange-500 to-orange-400 rounded-md mb-4'>
+  <div class='sig text-white'>
+    <h3 class='font-bold'>{name}</h3>
+    <h4 class='font-bold text-sm'>Course: {course}</h4>
+    <h4 class='font-bold text-sm'>{partname}: {part}</h4>
+  </div>
+  <div class='flex flex-row gap-2 items-center flex-wrap'>
+    <div class='td flex flex-col'>
+      <h4 class='text-white bg-green-800 text-center text-sm block p-1 px-4 rounded-t-md'>Today</h4>
+      <div class='stg text-green-800 text-sm flex justfiy-center flex-row gap-1 bg-green-400 p-1 px-4 rounded-b-md'>
+        {today.map((t) => (<h2>{t}</h2>))}
+      </div>
+    </div>
+
+    <div class='tm flex flex-col'>
+      <h4 class='text-white bg-yellow-600 text-center text-sm block p-1 px-4 rounded-t-md'>Tomorrow</h4>
+      <div class='stg text-yellow-800 text-sm flex justify-center flex-row gap-1 bg-yellow-400 p-1 px-4 rounded-b-md'>
+        {tomorrow.map((t) => (<h2>{t}</h2>))}
+      </div>
+    </div>
+
+  </div>
+</div>

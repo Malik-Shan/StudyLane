@@ -1,0 +1,40 @@
+---
+import {slugify} from '../js/util';
+let {index,img,name,sname,assignments,ct,tt} = Astro.props;
+if(index === undefined || index === null){
+  index = 0;
+};
+if(assignments === undefined || assignments === null){
+  assignments = 0;
+};
+if(ct === undefined || ct === null){
+  ct = 0;
+};
+if(tt === undefined || tt === null){
+  tt = 0;
+};
+---
+<a class='sub_card group/card' data-id={index}
+  href={`/subjects/${slugify(name)}`}><span class='sub_bg' style={`background-image:url('${img}'); background-image:cover; background-position:center;)`}></span>
+  <h2 class='font-bold mb-2'><span class='bg-secondary text-white p-1 mr-1 rounded-sm aspect-square'>{sname.toUpperCase()}</span>{name}</h2>
+
+  <div class='ig mb-2 flex flex-row gap-2'>
+
+    <div class='sp flex flex-row'>
+      <span class='bg-sky-700 text-white text-sm p-1 px-2 rounded-l-md'>Topics</span>
+      <span class='bg-sky-400 text-white text-sm p-1 px-2 rounded-r-md'>{ct} / {tt}</span>
+    </div>
+
+    <div class='sp flex flex-row'>
+      <span class='bg-red-700 text-white text-sm p-1 px-2 rounded-l-md'>Assignments</span>
+      <span class='bg-red-400 text-white text-sm p-1 px-2 rounded-r-md'>{assignments}</span>
+    </div>
+
+  </div>
+
+  <div class="block w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+    <div class="bg-blue-600 h-1.5 rounded-full dark:bg-blue-500" style="width: 45%"></div>
+  </div>
+
+  <span class='w-2 h-full bg-secondary absolute left-0 top-0 opacity-0 group-hover/card:opacity-100 transition-opacity'></span>
+</a>
