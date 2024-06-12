@@ -1,6 +1,6 @@
 ---
 export const prerender = false;
-import {db,Data} from 'astro:db';
+import {db} from 'astro:db';
 import DefaultLayout from '../../layouts/DefaultLayout.astro';
 import {app} from '../../firebase/server';
 import {getAuth} from 'firebase-admin/auth';
@@ -32,10 +32,10 @@ if (Astro.request.method === 'POST') {
   const s = formData.get('subject');
   if (typeof a === 'string' && typeof s === 'string') {
     // insert form data into the Comment table
-    await db.insert(Data).values({ a, s });
+    // await db.insert(Data).values({ a, s });
   }
 }
-const data = await db.select().from(Data); 
+// const data = await db.select().from(Data); 
 ---
 <DefaultLayout title='Test Area'>
 
