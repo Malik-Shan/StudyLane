@@ -3,100 +3,100 @@ export const prerender = false;
 import DefaultLayout from '../../../layouts/DefaultLayout.astro';
 import {app} from '../../../firebase/server';
 import {getAuth} from 'firebase-admin/auth';
-import {db,Subjects,Courses,eq} from 'astro:db';
+import {db,Courses,eq} from 'astro:db';
 
-const courses = await db.select()
-  .from(Courses)
-  .innerJoin(Subjects, eq(Courses.cid, Subjects.id));
-console.log(courses);
+// const courses = await db.select()
+//   .from(Courses)
+//   .innerJoin(Subjects, eq(Courses.cid, Subjects.id));
+// console.log(courses);
 
 const auth = getAuth(app)
 
 if(!Astro.cookies.has('session')){
-	return Astro.redirect('/login');
+  return Astro.redirect('/login');
 }
 const sessionCookie = Astro.cookies.get('session').value;
 let decodedCookie;
 try {
-	decodedCookie = await auth.verifySessionCookie(sessionCookie);
+  decodedCookie = await auth.verifySessionCookie(sessionCookie);
 }catch(err){
-	Astro.cookies.set('session','', {expires : new Date(0)});
-	return Astro.redirect('/login');
+  Astro.cookies.set('session','', {expires : new Date(0)});
+  return Astro.redirect('/login');
 }
 if(!decodedCookie.roles.includes("admin")){
-	return Astro.redirect('/404')
+  return Astro.redirect('/404')
 }
 let user; 
 try {
-	user = await auth.getUser(decodedCookie.uid);
+  user = await auth.getUser(decodedCookie.uid);
 } catch(err){
-	Astro.cookies.set('session','', {expires : new Date(0)});
-	return Astro.redirect('/login');
+  Astro.cookies.set('session','', {expires : new Date(0)});
+  return Astro.redirect('/login');
 }
 ---
 <DefaultLayout title='Add Subjects'>
-	<section class='adduserSection section-nav-pb container mx-auto px-3'>
-		<form  id="subjects_form"
-			hx-trigger="submit"
-			hx-post="/partials/admin/subjects"
-			hx-swap="innerHTML"
-			hx-target="#sub_res"
-			enctype="multipart/form-data"
-			class='newUser flex flex-col gap-2 justify-center my-4'>
-			<input type='text' name='id' placeholder='ID' />
-			<input type="text" name='name' placeholder='Name'/>
-			<input type="text" name='sname' placeholder='Short Name'/>
-			<input type='file' id='subImg' name='subjectImg' />
-			<input type='file' id="outline" name='outline' multiple />
-			<button class='primaryBtn p-1 rounded-md border-2' type='submit'>Add</button>
-		</form>
-		<div id='sub_res'></div>
-	</section>
-	<script>
-		
-		document.body.addEventListener('htmx:confirm', async (evt) => {
-			if (evt.detail.path !== '/partials/admin/subjects') return;
-			evt.preventDefault();
+  <section class='adduserSection section-nav-pb container mx-auto px-3'>
+    <form  id="subjects_form"
+      hx-trigger="submit"
+      hx-post="/partials/admin/subjects"
+      hx-swap="innerHTML"
+      hx-target="#sub_res"
+      enctype="multipart/form-data"
+      class='newUser flex flex-col gap-2 justify-center my-4'>
+      <input type='text' name='id' placeholder='ID' />
+      <input type="text" name='name' placeholder='Name'/>
+      <input type="text" name='sname' placeholder='Short Name'/>
+      <input type='file' id='subImg' name='subjectImg' />
+      <input type='file' id="outline" name='outline' multiple />
+      <button class='primaryBtn p-1 rounded-md border-2' type='submit'>Add</button>
+    </form>
+    <div id='sub_res'></div>
+  </section>
+  <script is:inline>
 
-			const subFile = document.querySelector("#subImg").files[0];
-			const outline = document.querySelector("#outline").files;
-			let outline_array = [];
-			for(let i=0;i<outline.length;i++){
-				const base64 = await convertToBase64(outline[i]);
-				outline_array.push(base64);
-			};
-			const sub64 = await convertToBase64(subFile);
+  document.body.addEventListener('htmx:confirm', async (evt) => {
+    if (evt.detail.path !== '/partials/admin/subjects') return;
+    evt.preventDefault();
+
+    const subFile = document.querySelector("#subImg").files[0];
+    const outline = document.querySelector("#outline").files;
+    let outline_array = [];
+    for(let i=0;i<outline.length;i++){
+      const base64 = await convertToBase64(outline[i]);
+      outline_array.push(base64);
+    };
+    const sub64 = await convertToBase64(subFile);
 
 
-			evt.detail.elt.sub64 = sub64;
-			evt.detail.elt.outline_array = outline_array;
-			evt.detail.issueRequest();
-		});
-		document.body.addEventListener('htmx:configRequest', async (evt) => {
-			if (evt.detail.headers['HX-Trigger'] !== 'subjects_form') return;
+    evt.detail.elt.sub64 = sub64;
+    evt.detail.elt.outline_array = outline_array;
+    evt.detail.issueRequest();
+  });
+  document.body.addEventListener('htmx:configRequest', async (evt) => {
+    if (evt.detail.headers['HX-Trigger'] !== 'subjects_form') return;
 
-			evt.detail.parameters["subImg"] = evt.detail.elt.sub64;
-			evt.detail.parameters["outline_array"] = evt.detail.elt.outline_array;
-			evt.detail.parameters["outline"] = "";
-			evt.detail.parameters["subjectImg"] = "";
-		});
+    evt.detail.parameters["subImg"] = evt.detail.elt.sub64;
+    evt.detail.parameters["outline_array"] = evt.detail.elt.outline_array;
+    evt.detail.parameters["outline"] = "";
+    evt.detail.parameters["subjectImg"] = "";
+  });
 
-		const convertToBase64 = (file) => {
-			return new Promise((resolve, reject) => {
-				const fileReader = new FileReader();
-				fileReader.readAsDataURL(file);
-				fileReader.onload = () => {
-					resolve(fileReader.result);
-				};
-				fileReader.onerror = (error) => {
-					reject(error);
-				};
-			});
-		};
-	</script>
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+    fileReader.onload = () => {
+	resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+	reject(error);
+      };
+    });
+  };
+  </script>
 </DefaultLayout>
 <style>
 #subjects_form input{
-	@apply border border-slate-200 p-2 rounded-md;
+  @apply border border-slate-200 p-2 rounded-md;
 }
 </style>
