@@ -1,5 +1,13 @@
 import { optional } from 'astro/zod';
-import { column, defineDb, defineTable } from 'astro:db';
+import { column, defineDb, defineTable,NOW } from 'astro:db';
+
+const Audits = defineTable({
+  columns:{
+    id:column.number({primaryKey:true}),
+    links:column.text({optional:true,default:""}),
+    date: column.date({ default: NOW }),
+  }
+})
 
 const Subjects = defineTable({
   columns: {
@@ -28,5 +36,5 @@ const Courses = defineTable({
 })
 
 export default defineDb({
-  tables: {Subjects,Courses},
+  tables: {Subjects,Courses,Audits},
 })

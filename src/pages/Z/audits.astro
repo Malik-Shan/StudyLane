@@ -1,0 +1,54 @@
+---
+const prerender = false;
+import {db,eq,Audits} from 'astro:db';
+const audits = await db.select().from(Audits);
+if (Astro.request.method === 'POST') {
+  // parse form data
+  const formData = await Astro.request.formData();
+  const a = formData.get('assignment');
+  const s = formData.get('subject');
+  if (typeof a === 'string' && typeof s === 'string') {
+    // insert form data into the Comment table
+    // await db.insert(Data).values({ a, s });
+  }
+}
+---
+<!DOCTYPE html>
+<html>
+<head>
+<title>Percentage Tool</title>
+</head>
+<body>
+		<form method="POST">
+			<input type='text' id='links' name='links'/>
+			<button type='submit'>Post</button>
+		</form>
+		{
+audits.map((a) => (
+
+		<div class="card">
+			<h2>{a.date}</h2>
+			<p>{a.links}</p>
+		</div>
+))
+		}
+</body>
+</html>
+<style>
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+/*
+2. Remove default margin
+*/
+* {
+	margin: 0;
+}
+.card{
+	display:block;
+	border:1px solid black;
+	border-radius:15px;
+	padding:.5rem;
+	margin-bottom:15px;
+}
+</style>
