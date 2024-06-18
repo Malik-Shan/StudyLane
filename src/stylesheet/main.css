@@ -10,6 +10,9 @@
 		--nav-height:60px;
 		--nav-bottom:20px;
 	}
+	@view-transition{
+		navigation:auto;
+	}
 	*, *::before, *::after {
 		margin:0;
 		padding:0;
