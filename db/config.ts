@@ -5,7 +5,7 @@ const Audits = defineTable({
   columns:{
     id:column.number({primaryKey:true}),
     links:column.text({optional:true,default:""}),
-    date: column.date({ default: NOW }),
+    date: column.number({optional:false}),
   }
 })
 
@@ -36,5 +36,5 @@ const Courses = defineTable({
 })
 
 export default defineDb({
-  tables: {Subjects,Courses,Audits},
+  tables: {Audits,Subjects ,Courses},
 })

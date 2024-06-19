@@ -1,54 +1,54 @@
 ---
-const prerender = false;
-import {db,eq,Audits} from 'astro:db';
-const audits = await db.select().from(Audits);
+export const prerender = false;
+import {db,eq, Audits as zAudits,desc,NOW} from 'astro:db';
+import {toUTC} from '../../js/util';
+const audits = await db.select().from(zAudits).orderBy(desc(zAudits.id));
 if (Astro.request.method === 'POST') {
-  // parse form data
   const formData = await Astro.request.formData();
-  const a = formData.get('assignment');
-  const s = formData.get('subject');
-  if (typeof a === 'string' && typeof s === 'string') {
-    // insert form data into the Comment table
-    // await db.insert(Data).values({ a, s });
-  }
-}
+  const l = formData.get("links")?.toString().replace(/\r?\n/g, '\\n');
+  const d = new Date().getTime();
+  const r = await db.insert(zAudits).values({date:d,links:l});
+  console.log(r)
+  Astro.redirect(Astro.request.url);
+};
 ---
 <!DOCTYPE html>
 <html>
-<head>
-<title>Percentage Tool</title>
-</head>
-<body>
-		<form method="POST">
-			<input type='text' id='links' name='links'/>
-			<button type='submit'>Post</button>
-		</form>
-		{
-audits.map((a) => (
+  <head>
+    <title>Percentage Tool</title>
+  </head>
+  <body>
+    <form method="POST">
+      <textarea id='links' name='links' cols='60' rows='50'></textarea>
+    <button type='submit'>Post</button>
+    </form>
+    {
+      audits.map((a) => (
 
-		<div class="card">
-			<h2>{a.date}</h2>
-			<p>{a.links}</p>
-		</div>
-))
-		}
-</body>
+          <div class="card">
+            <button hx-delete="/api/db/delete">Delete</button>
+            <h2>{new Date(a.date).toLocaleString('en-US',{timeZone:'Asia/Karachi'})}</h2>
+            <p set:html={a.links.replace(/\\n/g, '<br>')}></p>
+          </div>
+      ))
+    }
+  </body>
 </html>
 <style>
 *, *::before, *::after {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 /*
 2. Remove default margin
 */
 * {
-	margin: 0;
+  margin: 0;
 }
 .card{
-	display:block;
-	border:1px solid black;
-	border-radius:15px;
-	padding:.5rem;
-	margin-bottom:15px;
+  display:block;
+  border:1px solid black;
+  border-radius:15px;
+  padding:.5rem;
+  margin-bottom:15px;
 }
 </style>

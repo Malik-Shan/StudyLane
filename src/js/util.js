@@ -65,3 +65,8 @@ export function ImgToBit(img){
     }
     return bit;
 }
+export function toUTC(d){
+    const s = new Date(d);
+    const u = s.toUTCString();
+    return u;
+};

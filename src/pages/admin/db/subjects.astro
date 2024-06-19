@@ -3,10 +3,10 @@ export const prerender = false;
 import DefaultLayout from '../../../layouts/DefaultLayout.astro';
 import {app} from '../../../firebase/server';
 import {getAuth} from 'firebase-admin/auth';
-// import {db,eq,Subjects,Courses} from 'astro:db';
-//
-// const courses = await db.select().from(Courses).innerJoin(Subjects, eq(Courses.cid, Subjects.id));
-// console.log(courses);
+import {db,eq,Subjects as allSubjects,Courses} from 'astro:db';
+
+const courses = await db.select().from(Courses).innerJoin(allSubjects, eq(Courses.cid, allSubjects.id));
+console.log(courses);
 
 const auth = getAuth(app)
 
