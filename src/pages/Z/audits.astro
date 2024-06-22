@@ -6,7 +6,7 @@ if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
   const l = formData.get("links")?.toString().replace(/\r?\n/g, '\\n');
   const d = new Date().getTime();
-  await db.insert(zAudits).values({date:d,links:l});
+  const r = await db.insert(zAudits).values({date:d,links:l});
 };
 ---
 <!DOCTYPE html>
@@ -17,14 +17,14 @@ if (Astro.request.method === 'POST') {
   </head>
   <body>
     <form method="POST">
-      <textarea id='links' name='links' cols='60' rows='50'></textarea>
+      <textarea id='links' name='links' style="width:100%;" rows='20'></textarea>
     <button type='submit'>Post</button>
     </form>
     {
       audits.map((a) => (
 
           <div class="card" id={`card-${a.id}`}>
-            <button hx-delete={`/api/db/delete?id=${a.id}`} hx-target={`#card-${a.id}`}>Delete</button>
+          <button hx-delete={`/api/db/delete/${a.id}`} hx-swap="outerHTML" hx-target={`#card-${a.id}`}>Delete</button>
             <h2>{new Date(a.date).toLocaleString('en-US',{timeZone:'Asia/Karachi'})}</h2>
             <p set:html={a.links.replace(/\\n/g, '<br>')}></p>
           </div>
