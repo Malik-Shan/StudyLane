@@ -13,6 +13,7 @@ if (Astro.request.method === 'POST') {
 <html>
   <head>
     <title>Percentage Tool</title>
+    <script src="https://unpkg.com/htmx.org@2.0.0" integrity="sha384-wS5l5IKJBvK6sPTKa2WZ1js3d947pvWXbPJ1OmWfEuxLgeHcEbjUUA5i9V5ZkpCw" crossorigin="anonymous"></script>
   </head>
   <body>
     <form method="POST">
@@ -22,8 +23,8 @@ if (Astro.request.method === 'POST') {
     {
       audits.map((a) => (
 
-          <div class="card">
-            <button hx-delete="/api/db/delete">Delete</button>
+          <div class="card" id={`card-${a.id}`}>
+            <button hx-delete={`/api/db/delete?id=${a.id}`} hx-target={`#card-${a.id}`}>Delete</button>
             <h2>{new Date(a.date).toLocaleString('en-US',{timeZone:'Asia/Karachi'})}</h2>
             <p set:html={a.links.replace(/\\n/g, '<br>')}></p>
           </div>
