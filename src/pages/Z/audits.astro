@@ -2,12 +2,6 @@
 export const prerender = false;
 import {db,Audits as zAudits,desc} from 'astro:db';
 const audits = await db.select().from(zAudits).orderBy(desc(zAudits.id));
-if (Astro.request.method === 'POST') {
-  const formData = await Astro.request.formData();
-  const l = formData.get("links")?.toString().replace(/\r?\n/g, '\\n');
-  const d = new Date().getTime();
-  const r = await db.insert(zAudits).values({date:d,links:l});
-};
 ---
 <!DOCTYPE html>
 <html>
@@ -16,20 +10,22 @@ if (Astro.request.method === 'POST') {
     <script src="https://unpkg.com/htmx.org@2.0.0" integrity="sha384-wS5l5IKJBvK6sPTKa2WZ1js3d947pvWXbPJ1OmWfEuxLgeHcEbjUUA5i9V5ZkpCw" crossorigin="anonymous"></script>
   </head>
   <body>
-    <form method="POST">
+    <form hx-post="/api/db/create" hx-swap="afterbegin" hx-target="#cards">
       <textarea id='links' name='links' style="width:100%;" rows='20'></textarea>
     <button type='submit'>Post</button>
     </form>
-    {
+    <div id='cards'>
+      {
       audits.map((a) => (
 
-          <div class="card" id={`card-${a.id}`}>
+        <div class="card" id={`card-${a.id}`}>
           <button hx-delete={`/api/db/delete/${a.id}`} hx-swap="outerHTML" hx-target={`#card-${a.id}`}>Delete</button>
-            <h2>{new Date(a.date).toLocaleString('en-US',{timeZone:'Asia/Karachi'})}</h2>
-            <p set:html={a.links.replace(/\\n/g, '<br>')}></p>
-          </div>
+          <h2>{new Date(a.date).toLocaleString('en-US',{timeZone:'Asia/Karachi'})}</h2>
+          <p set:html={a.links.replace(/\\n/g, '<br>')}></p>
+        </div>
       ))
-    }
+      }
+    </div>
   </body>
 </html>
 <style>
