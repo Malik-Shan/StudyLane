@@ -11,15 +11,15 @@ const audits = await db.select().from(zAudits).orderBy(desc(zAudits.id));
   </head>
   <body>
     <form hx-post="/api/db/create" hx-swap="afterbegin" hx-target="#cards">
-      <textarea id='links' name='links' style="width:100%;" rows='20'></textarea>
-    <button type='submit'>Post</button>
+      <textarea id='links' name='links' style="width:100%;" rows='10'></textarea>
+    <button class='submit' type='submit'>Post</button>
     </form>
     <div id='cards'>
       {
       audits.map((a) => (
 
         <div class="card" id={`card-${a.id}`}>
-          <button hx-delete={`/api/db/delete/${a.id}`} hx-swap="outerHTML" hx-target={`#card-${a.id}`}>Delete</button>
+        <button id='del-btn' hx-delete={`/api/db/delete/${a.id}`} hx-swap="outerHTML" hx-indicator={`#card-${a.id}`} hx-target={`#card-${a.id}`}>Delete</button>
           <h2>{new Date(a.date).toLocaleString('en-US',{timeZone:'Asia/Karachi'})}</h2>
           <p set:html={a.links.replace(/\\n/g, '<br>')}></p>
         </div>
@@ -28,7 +28,7 @@ const audits = await db.select().from(zAudits).orderBy(desc(zAudits.id));
     </div>
   </body>
 </html>
-<style>
+<style is:global>
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -38,11 +38,54 @@ const audits = await db.select().from(zAudits).orderBy(desc(zAudits.id));
 * {
   margin: 0;
 }
+form{
+  padding:2rem;
+}
+form textarea{
+  border-radius:15px;
+  margin-bottom:.4rem;
+  padding:.45rem;
+  font-size:1.125rem;
+}
+form button.submit{
+  width:100%;
+  background-color:#46cfcf;
+  color: white;
+  font-size:1.125rem;
+  padding:.3rem .6rem;
+  border:0px;
+  border-radius:5px;
+}
+form button.submit:hover{
+  background-color:teal;
+  cursor:pointer;
+}
 .card{
   display:block;
   border:1px solid black;
   border-radius:15px;
   padding:.5rem;
   margin-bottom:15px;
+  overflow-x:auto;
+}
+.card.htmx-request{
+  opacity:.7;
+  background-color:gray;
+}
+#cards{
+  margin-inline:.5rem;
+}
+#del-btn{
+  background-color:red;
+  color: white;
+  font-size:1.125rem;
+  padding:.3rem .6rem;
+  margin-bottom:.2rem;
+  border:0px;
+  border-radius:5px;
+}
+#del-btn:hover{
+  cursor:pointer;
+  background-color:#910d0d;
 }
 </style>
