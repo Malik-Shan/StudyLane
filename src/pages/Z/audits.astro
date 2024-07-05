@@ -21,7 +21,7 @@ const audits = await db.select().from(zAudits).orderBy(desc(zAudits.id));
         <div class="card" id={`card-${a.id}`}>
         <button id='del-btn' hx-delete={`/api/db/delete/${a.id}`} hx-swap="outerHTML" hx-indicator={`#card-${a.id}`} hx-target={`#card-${a.id}`}>Delete</button>
           <h2>{new Date(a.date).toLocaleString('en-US',{timeZone:'Asia/Karachi'})}</h2>
-          <p set:html={a.links.replace(/\\n/g, '<br>').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')}></p>
+          <p set:html={a.links.replace(/\\n/g, '<br>').replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>')}></p>
         </div>
       ))
       }
