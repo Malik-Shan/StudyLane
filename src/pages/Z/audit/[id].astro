@@ -1,6 +1,6 @@
 ---
 export const prerender = false;
-import {db,Audits as zAudits,eq} from 'astro:db';
+import {db,eq,Audits as zAudits} from 'astro:db';
 import Note from '../../../components/Note.astro';
 const id = parseInt(Astro.params.id);
 const audits = await db.select().from(zAudits).where(eq(zAudits.id,id));
