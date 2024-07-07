@@ -1,5 +1,4 @@
-import { optional } from 'astro/zod';
-import { column, defineDb, defineTable,NOW } from 'astro:db';
+import { column, defineDb, defineTable } from 'astro:db';
 
 const Audits = defineTable({
   columns:{

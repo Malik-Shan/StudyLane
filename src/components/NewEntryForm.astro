@@ -1,7 +1,7 @@
 ---
 const {type,name,course,f_inst,f_due,s_inst,s_due,t_inst,t_due,fth_inst,fth_due,totalfee,id} = Astro.props;
 import {formDate} from '../js/util';
-let update;
+let update:Boolean;
 if(type){
   update = type === 'update';
 }
