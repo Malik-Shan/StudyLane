@@ -1,30 +1,3 @@
----
-export const prerender = false;
-import {db,Audits as zAudits,desc} from 'astro:db';
-import Note from '../../components/Note.astro';
-const audits = await db.select().from(zAudits).orderBy(desc(zAudits.id));
----
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Note Pad Online</title>
-    <script src="https://unpkg.com/htmx.org@2.0.0" integrity="sha384-wS5l5IKJBvK6sPTKa2WZ1js3d947pvWXbPJ1OmWfEuxLgeHcEbjUUA5i9V5ZkpCw" crossorigin="anonymous"></script>
-  </head>
-  <body>
-    <form hx-post="/partials/notes/create" hx-swap="afterbegin" hx-target="#cards">
-      <textarea id='links' name='links' style="width:100%;" rows='10'></textarea>
-    <button class='submit' type='submit'>Post</button>
-    </form>
-    <div id='cards'>
-      {
-      audits.map((a) => (
-        <Note id={a.id} date={a.date} data={a.links} />
-      ))
-      }
-    </div>
-  </body>
-</html>
-<style is:global>
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -106,4 +79,3 @@ form button.submit:hover{
 #edited[data-edited="true"]{
   display:block;
 }
-</style>
