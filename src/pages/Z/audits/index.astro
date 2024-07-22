@@ -10,10 +10,11 @@ import '../../../stylesheet/z.css';
   <head>
     <title>Note Pad Online</title>
     <script src="https://unpkg.com/htmx.org@2.0.0" integrity="sha384-wS5l5IKJBvK6sPTKa2WZ1js3d947pvWXbPJ1OmWfEuxLgeHcEbjUUA5i9V5ZkpCw" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/42.0.1/ckeditor5.css" />
   </head>
   <body>
     <form hx-post="/partials/notes/create" hx-swap="afterbegin" hx-target="#cards">
-      <textarea id='links' name='links' style="width:100%;" rows='10'></textarea>
+      <textarea id='editor' name='links' style="width:100%;" rows='10'></textarea>
     <button class='submit' type='submit'>Post</button>
     </form>
     <div id='cards'>
@@ -23,5 +24,15 @@ import '../../../stylesheet/z.css';
       ))
       }
     </div>
+    <script>
+
+    import { ClassicEditor, Essentials,Paragraph,Bold,Italic } from 'ckeditor5';
+
+    ClassicEditor
+      .create( document.querySelector( '#editor') as HTMLTextAreaElement, {
+        plugins: [ Essentials, Paragraph, Bold, Italic ],
+        toolbar: [ 'bold', 'italic' ]
+      } )
+    </script>
   </body>
 </html>
