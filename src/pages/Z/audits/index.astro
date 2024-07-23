@@ -14,7 +14,7 @@ import '../../../stylesheet/z.css';
   </head>
   <body>
     <form hx-post="/partials/notes/create" hx-swap="afterbegin" hx-target="#cards">
-      <textarea id='links' name='links' style="width:100%;" rows='10'></textarea>
+      <textarea id='links' class='note-textarea' name='links' style="width:100%;" rows='10'></textarea>
     <button class='submit' type='submit'>Post</button>
     </form>
     <div id='cards'>
@@ -25,14 +25,27 @@ import '../../../stylesheet/z.css';
       }
     </div>
     <script>
+    import { ClassicEditor,List, Essentials,Paragraph,Bold,Italic } from 'ckeditor5';
 
-    import { ClassicEditor, Essentials,Paragraph,Bold,Italic } from 'ckeditor5';
+    function swapEditor(el:HTMLTextAreaElement){
+      ClassicEditor
+        .create( el , {
+          plugins: [List,Essentials,Paragraph,Bold, Italic],
+          toolbar:
+          ["selectAll","paragraph", "undo", "redo", "bold", "italic","bulletedList","numberedList" ]
 
-    ClassicEditor
-      .create( document.querySelector( '#links') as HTMLTextAreaElement, {
-        plugins: [ Essentials, Paragraph, Bold, Italic ],
-        toolbar: [ 'bold', 'italic' ]
-      } )
+        } )
+    }
+    const mainEditor = document.querySelector("#links") as HTMLTextAreaElement;
+    swapEditor(mainEditor);
+    document.body.addEventListener("htmx:afterSwap", (e:CustomEvent) => {
+      console.log(e)
+      if(e.detail.target.id === 'update-btn'){
+        const t = e.detail.elt.firstElementChild;
+        swapEditor(t);
+      }
+    })
+
     </script>
   </body>
 </html>

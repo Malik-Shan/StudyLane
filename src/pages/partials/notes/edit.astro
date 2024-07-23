@@ -2,7 +2,7 @@
 export const prerender = false;
 export  const partial = true;
 import {db,Audits as zAudits,eq} from 'astro:db';
-const Id = parseInt(Astro.request.headers.get('id'));
+const Id = parseInt(Astro.request.headers.get('id')) as number;
 const r = await db.select().from(zAudits).where(eq(zAudits.id,Id));
 const d = r[0];
 if(r.length === 0){
@@ -10,8 +10,9 @@ if(r.length === 0){
 		status:400,
 	})
 }
+Astro.response.headers.set("HX-Trigger","editNote");
 ---
-<form id={`text-${d.id}`} method="post" hx-headers={`{"id":"${Id}","nDate":"${d.date}"}`} hx-post='/partials/notes/update' hx-swap='outerHTML' hx-target={`#card-${d.id}`} hx-swap-oob="true">
-	<textarea name='text' style="width:100%;" rows='10'>{d.links.replace(/\\n/g,'\n')}</textarea>
+<form id={`text-${d.id}`} method="post" hx-headers={`{"id":"${Id}","nDate":"${d.date}"}`} hx-post='/partials/notes/update' hx-target={`#card-${d.id}`} hx-swap='outerHTML' hx-swap-oob="true">
+	<textarea id={`note-${d.id}`} class='note-textarea' name='text' style="width:100%;" rows='10'>{d.links}</textarea>
 	<button class='submit' type='submit'>Update</button>
 </form>
