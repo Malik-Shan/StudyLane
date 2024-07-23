@@ -45,12 +45,12 @@ const users = usersSnap.docs.reverse().map((u) => ({
 ---
 <DefaultLayout title='Add User'>
 	<section class='adduserSection section-nav-pb container mx-auto px-3'>
+		<!-- hx-on::after-request=" if(event.detail.successful) this.reset()" -->
 		<form 
 			hx-post='/api/auth/registerUser'
 			hx-swap='afterbegin'
 			hx-target='#allUsers'
 			hx-trigger='submit'
-			hx-on::after-request=" if(event.detail.successful) this.reset()"
 			method='post'
 			class='newUser flex flex-row gap-2 justify-center mt-4 max-lg:flex-col'>
 			<input type='text' name='name' placeholder='Name' />

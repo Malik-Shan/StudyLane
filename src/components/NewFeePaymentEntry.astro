@@ -19,15 +19,15 @@ import NewEntryForm from './NewEntryForm.astro';
         </button>
       </div>
       <!-- Modal body -->
+      <!-- hx-on::after-request="if(event.detail.successful) this.reset()" -->
       <form
         hx-post='/api/database/spreadsheet/entry'
-        hx-on::after-request=" if(event.detail.successful) this.reset()"
         hx-swap='afterbegin'
         hx-target='#feeCards'
         hx-swap-oob='true'
         hx-indicator='#submitIndicator'
         class="p-4 md:p-5">
-        <NewEntryForm />
+        <NewEntryForm></NewEntryForm>
       </form>
     </div>
   </div>

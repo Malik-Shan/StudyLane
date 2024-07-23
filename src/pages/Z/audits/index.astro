@@ -14,7 +14,7 @@ import '../../../stylesheet/z.css';
   </head>
   <body>
     <form hx-post="/partials/notes/create" hx-swap="afterbegin" hx-target="#cards">
-      <textarea id='editor' name='links' style="width:100%;" rows='10'></textarea>
+      <textarea id='links' name='links' style="width:100%;" rows='10'></textarea>
     <button class='submit' type='submit'>Post</button>
     </form>
     <div id='cards'>
@@ -29,7 +29,7 @@ import '../../../stylesheet/z.css';
     import { ClassicEditor, Essentials,Paragraph,Bold,Italic } from 'ckeditor5';
 
     ClassicEditor
-      .create( document.querySelector( '#editor') as HTMLTextAreaElement, {
+      .create( document.querySelector( '#links') as HTMLTextAreaElement, {
         plugins: [ Essentials, Paragraph, Bold, Italic ],
         toolbar: [ 'bold', 'italic' ]
       } )
