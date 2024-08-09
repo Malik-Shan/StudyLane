@@ -9,7 +9,6 @@ import '../../../stylesheet/z.css';
 <html>
   <head>
     <title>Note Pad Online</title>
-    <script src="https://unpkg.com/htmx.org@2.0.1" integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/42.0.1/ckeditor5.css" />
   </head>
   <body>
@@ -24,28 +23,29 @@ import '../../../stylesheet/z.css';
       ))
       }
     </div>
-    <script>
-    import { ClassicEditor,List, Essentials,Paragraph,Bold,Italic } from 'ckeditor5';
-
-    function swapEditor(el:HTMLTextAreaElement){
-      ClassicEditor
-        .create( el , {
-          plugins: [List,Essentials,Paragraph,Bold, Italic],
-          toolbar:
-          ["selectAll","paragraph", "undo", "redo", "bold", "italic","bulletedList","numberedList" ]
-
-        } )
-    }
-    const mainEditor = document.querySelector("#links") as HTMLTextAreaElement;
-    swapEditor(mainEditor);
-    document.body.addEventListener("htmx:afterSwap", (e:CustomEvent) => {
-      console.log(e)
-      if(e.detail.target.id === 'update-btn'){
-        const t = e.detail.elt.firstElementChild;
-        swapEditor(t);
-      }
-    })
-
-    </script>
+    <script defer src="https://unpkg.com/htmx.org@2.0.1" integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/" crossorigin="anonymous"></script>
   </body>
 </html>
+<script>
+import { ClassicEditor,List, Essentials,Paragraph,Bold,Italic } from 'ckeditor5';
+
+function swapEditor(el:HTMLTextAreaElement){
+  ClassicEditor
+    .create( el , {
+      plugins: [List,Essentials,Paragraph,Bold, Italic],
+      toolbar:
+      ["selectAll","paragraph", "undo", "redo", "bold", "italic","bulletedList","numberedList" ]
+
+    } )
+}
+const mainEditor = document.querySelector("#links") as HTMLTextAreaElement;
+swapEditor(mainEditor);
+document.body.addEventListener("htmx:afterSwap", (e:CustomEvent) => {
+  if(e.detail.target.id === 'update-btn'){
+    const t = e.detail.elt.firstElementChild;
+    console.log(t);
+    swapEditor(t);
+  }
+})
+
+</script>

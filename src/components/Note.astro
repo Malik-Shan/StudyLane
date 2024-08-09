@@ -5,7 +5,7 @@ const {id,date,data} = Astro.props;
     <h4 id='edited' data-edited='false'>Edited</h4>
     <div class='btns'>
 	<button class='note-btn' hx-confirm='Are You Sure?' id='del-btn' hx-delete={`/api/db/delete/${id}`} hx-swap="outerHTML"  hx-indicator={`#card-${id}`} hx-target={`#card-${id}`}>Delete</button>
-	<button class='note-btn' id='update-btn' hx-delete='/partials/notes/edit' hx-swap="none" hx-indicator={`#card-${id}`} hx-headers={`{"id": "${id}"}`} data-id={id}>Edit</button>
+	<button class='note-btn' id='update-btn' hx-post='/partials/notes/edit' hx-swap="none" hx-indicator={`#card-${id}`} hx-headers={`{"id": "${id}"}`} data-id={id}>Edit</button>
 	<a href={`/Z/audits/${id}`} style='background-color:darkslateblue;' class='note-btn'>Share</a>
     </div>
     <h2>{new Date(date).toLocaleString('en-US',{timeZone:'Asia/Karachi'})}</h2>
