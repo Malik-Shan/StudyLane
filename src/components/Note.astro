@@ -9,5 +9,5 @@ const {id,date,data} = Astro.props;
 	<a href={`/Z/audits/${id}`} style='background-color:darkslateblue;' class='note-btn'>Share</a>
     </div>
     <h2>{new Date(date).toLocaleString('en-US',{timeZone:'Asia/Karachi'})}</h2>
-    <article id={`text-${id}`} set:html={data.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>')}></article>
+    <article id={`text-${id}`} set:html={data}></article>
 </div>
