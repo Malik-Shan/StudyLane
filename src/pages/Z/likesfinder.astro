@@ -140,7 +140,7 @@ function runFinder(tLikes,tTime){
 	if(factor === null) return;
 	const runs = tLikes / factor;
 	const time = (tTime * 60) / runs;
-	return {qty:factor,runs,int:time};
+	return {qty:factor,runs,int:Math.round(time)};
 };
 function factorFinder(tLikes){
 	for(let i=5;i<=7000;i++){
