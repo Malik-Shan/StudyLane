@@ -26,7 +26,7 @@ export function formatAllPosts(posts, {
 
     // sortyByDate or randomize
     if(sortByDate){
-        filteredPosts.sort((a, b) => new Date(b.data.date) - new Date(a.data.date))
+        filteredPosts.sort((a, b) => new Date(b.data.published) - new Date(a.data.published))
     } else {
         filteredPosts.sort(() => Math.random() - .5)
     }

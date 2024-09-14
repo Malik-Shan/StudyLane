@@ -40,7 +40,7 @@ const formatedNews = await formatAllPosts(news,{
 		<div class='newsCollection grid grid-cols-2 max-lg:grid-cols-1 gap-2'>
 			{
 			formatedNews.map((n) => (
-				<NewsBlog title={n.data.title} link={`/news/${n.slug}`} date={n.data.date} category={n.data.category} position={n.data.position}/>
+				<NewsBlog title={n.data.title} link={`/news/${n.slug}`} date={n.data.published} category={n.data.category} position={n.data.postedBy}/>
 			))
 			}
 		</div>

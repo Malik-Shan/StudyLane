@@ -1,0 +1,5 @@
+name: Navbar
+nav:
+  - name: Schedule
+    href: /schedule
+    icon: icon here
