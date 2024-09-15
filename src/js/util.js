@@ -70,3 +70,13 @@ export function toUTC(d){
     const u = s.toUTCString();
     return u;
 };
+export function slugPathRegex(data){
+	const selectedValues = data.types.map(t => t.value.split('/')[0]).join('|');
+	const generatedRegex = new RegExp(`^(${selectedValues})\/[a-z0-9-]+(?<!-)$`);
+	return generatedRegex;
+};
+export function slugDoublePathRegex(data){
+	const selectedValues = data.types.map(t => t.value.split('/')[0]).join('|');
+	const generatedRegex = new RegExp(`^(${selectedValues})\/[a-z0-9-]+\/[a-z0-9-]+(?<!-)$`);
+	return generatedRegex;
+};

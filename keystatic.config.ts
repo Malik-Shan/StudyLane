@@ -1,4 +1,15 @@
 import { config, fields, collection } from '@keystatic/core';
+import { slugPathRegex, slugDoublePathRegex } from './src/js/util.js';
+import { GetData } from './src/pages/api/cms/courses_path.ts';
+interface JsonData {
+	name: string;
+	value: string;
+};
+import CourseTypes from './src/data/cms/course_types.json';
+import ExamSystems from './src/data/cms/exam_systems.json';
+const r = await GetData();
+const d = await r.json();
+console.log(d);
 
 export default config({
 	storage: {
@@ -10,8 +21,10 @@ export default config({
 			posts: ['news', 'categories'],
 			institue: [
 				'departments', 'faculty', 'designations',
-				'---',
-				'courses', 'subjects'],
+			],
+			education: [
+				'courses', 'course_sections', 'subjects'
+			],
 			settings: ['navigation'],
 		},
 	},
@@ -148,92 +161,118 @@ export default config({
 		}),
 		courses: collection({
 			label: 'Courses',
-			slugField: 'title',
-			path: 'src/content/courses/*',
+			slugField: 'name',
+			path: 'src/content/courses/**',
 			format: { contentField: 'content' },
 			schema: {
-				title: fields.slug({
+				draft: fields.checkbox({
+					label: "Draft",
+					description: "Make a draft of this course",
+					defaultValue: false,
+				}),
+				abbreviation: fields.text({
+					label: 'Course Abbreviation',
+					description: "Abbreviation of the course name. e.g IT,CS",
+					validation: { isRequired: true },
+				}),
+				name: fields.slug({
 					name: {
-						label: 'Title',
+						label: 'Course Name',
+						description: "Complete name of the course. e.g Information Technology",
 						validation: { isRequired: true }
+					},
+					slug: {
+						label: "Slug Path",
+						description: "Path of course course_type/course_name. (e.g bs/information-technology)",
+						validation: {
+							pattern: {
+								// chaing this regex will cause changes to the file path courses
+								regex: slugPathRegex(CourseTypes),
+								message: "Note! Valid course type -- No spaces(' '),more than one(/),special characters(!,@,#,$,%,^,&,*)",
+							},
+						},
 					}
 				}),
 				information: fields.object({
 					type: fields.select({
 						label: "Type",
+						description: "Type of the course",
 						options: [
-							{ label: "None", value: "none" },
-							{ label: "Intermediate", value: "intermediate" },
-							{ label: "ADS", value: "ads" },
-							{ label: "BS", value: "bs" },
-							{ label: "Masters", value: "masters" }
+							...CourseTypes.types.map((t: JsonData) => ({
+								label: t.name,
+								value: t.value,
+							})),
 						],
 						defaultValue: "none"
 					}),
 					exam_system: fields.select({
 						label: "Exam System",
+						description: "Type of exam system of course",
 						options: [
-							{ label: "None", value: "none" },
-							{ label: "Semester", value: "semester" },
-							{ label: "Annual", value: "annual" }
+							...ExamSystems.types.map((t: JsonData) => ({
+								label: t.name,
+								value: t.value,
+							})),
 						],
 						defaultValue: 'none',
 					}),
 					duration: fields.integer({
-						label: 'Duration',
+						label: 'Duration (Year)',
+						description: "Duration to complete course",
 						validation: {
 							isRequired: true,
 							min: 1,
 							max: 5,
 						},
-						defaultValue: 0,
 					}),
 					eligibility: fields.text({
 						label: "Eligibility",
+						description: "Specified criteria to get admission into the course",
+						validation: { isRequired: true },
 						multiline: true,
 					}),
 				}, {
 					layout: [4, 4, 4, 12],
 				}),
-				schedule: fields.array(
-					fields.object({
-						subject: fields.relationship({
-							label: "Subject",
-							collection: "subjects",
-							validation: { isRequired: true },
-						}),
-						time: fields.text({
-							label: "Time",
-							validation: { isRequired: true },
-							defaultValue: '00:00AM'
-						}),
-						teacher: fields.relationship({
-							label: "Lecturer",
-							collection: "faculty",
-						}),
-					}), {
-					label: "Schedule",
-					itemLabel: props => props.fields.subject.value,
-				},
-				),
-				subjects: fields.array(
-					fields.relationship({
-						label: 'Subject',
-						collection: 'subjects',
-						validation: {
-							isRequired: true,
-						},
-					}),
-					{
-						label: 'Subjects',
-						itemLabel: props => props.value ?? 'Select a subject'
-					},
-				),
 				content: fields.markdoc({
 					extension: 'md',
 					label: 'About',
 				}),
 			},
+		}),
+		course_sections: collection({
+			label: "Course Sections",
+			slugField: 'name',
+			path: "src/content/course-sections/**",
+			schema: {
+				draft: fields.checkbox({
+					label: "Draft",
+					description: "Make this course section a draft",
+					defaultValue: false,
+				}),
+				course: fields.relationship({
+					label: "Course",
+					collection: "courses",
+					validation: { isRequired: true },
+				}),
+				name: fields.slug({
+					name: {
+						label: "Name",
+						description: "Name of the subject's section. e.g Semester 1, Part 1",
+						validation: { isRequired: true },
+					},
+					slug: {
+						label: "Slug",
+						description: "Slug path for course section. e.g course_name_path/section_name",
+						validation: {
+							pattern: {
+								regex: slugDoublePathRegex(CourseTypes),
+								message: "Erro",
+							}
+						}
+					}
+				})
+			}
 		}),
 		subjects: collection({
 			label: 'Subjects',

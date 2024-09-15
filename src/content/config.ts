@@ -1,21 +1,25 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, reference, z } from 'astro:content';
 
 const subjectsCollection = defineCollection({});
-const news = defineCollection({
+const newsCollection = defineCollection({
 	type: 'content',
 	schema: z.object({
 		draft: z.boolean(),
 		published: z.date(),
 		title: z.string(),
 		bannerImg: z.string(),
-		category: z.array(z.string()),
+		category: z.array(reference('categories')),
 		tag: z.array(z.string()),
 		postedBy: z.string(),
 	})
 });
+const categoriesCollection = defineCollection({});
+const coursesCollection = defineCollection({});
 
 export const collections = {
 	'subjects': subjectsCollection,
-	news,
+	'categories': categoriesCollection,
+	'news': newsCollection,
+	'courses': coursesCollection,
 }
 

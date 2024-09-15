@@ -1,0 +1,42 @@
+{
+	"title": "Exam Systems",
+	"warning": "DO NOT CHANGE THE VALUES OR NAMES. IT WILL CAUSE CHANGES IN VALUES CALCULATED OR SHOWN.",
+	"types": [
+		{
+			"name": "None",
+			"value": "none"
+		},
+		{
+			"name": "Block Plan (1)",
+			"value": "block plan"
+		},
+		{
+			"name": "Modular (1-1.5)",
+			"value": "modular"
+		},
+		{
+			"name": "Quarter (2.5-3)",
+			"value": "quarter"
+		},
+		{
+			"name": "Trimester (3-4)",
+			"value": "trimester"
+		},
+		{
+			"name": "Semester (4-4.5)",
+			"value": "semester"
+		},
+		{
+			"name": "Annual (9-12)",
+			"value": "annual"
+		},
+		{
+			"name": "Continous",
+			"value": "continous"
+		},
+		{
+			"name": "Rolling Admissions & Exams",
+			"value": "rolling admissions & exams"
+		}
+	]
+}

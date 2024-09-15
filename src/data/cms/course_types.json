@@ -1,0 +1,42 @@
+{
+	"title": "Course Types",
+	"warning": "DO NOT CHANGE THE VALUES OR NAMES. IT WILL CAUSE CHANGES IN THE PATH OF THE COURSES SAVED.",
+	"types": [
+		{
+			"name": "None",
+			"value": "none"
+		},
+		{
+			"name": "ADS - Associate Degree",
+			"value": "ads/associate degree"
+		},
+		{
+			"name": "BS - Bachelor's Degree",
+			"value": "bs/bachelor's degree"
+		},
+		{
+			"name": "Diploma",
+			"value": "diploma"
+		},
+		{
+			"name": "Intermediate",
+			"value": "intermediate"
+		},
+		{
+			"name": "Masters",
+			"value": "masters"
+		},
+		{
+			"name": "Matriculation",
+			"value": "matriculation"
+		},
+		{
+			"name": "PGD - Post Graduate Degree",
+			"value": "pgd/post graduate degree"
+		},
+		{
+			"name": "PC - Professional Certificate",
+			"value": "pc/professional certificate"
+		}
+	]
+}
