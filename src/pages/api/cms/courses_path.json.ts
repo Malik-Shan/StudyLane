@@ -1,6 +1,6 @@
 import { getCollection } from 'astro:content';
 const courses = await getCollection('courses');
-export async function GetData() {
+export async function GET() {
 	return new Response(
 		JSON.stringify({
 			title: "Courses Path",
