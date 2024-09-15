@@ -1,13 +1,13 @@
 import { config, fields, collection } from '@keystatic/core';
 import { slugPathRegex, slugDoublePathRegex } from './src/js/util.js';
-import { GetData } from './src/pages/api/cms/courses_path.ts';
+import { GET } from './src/pages/api/cms/courses_path.json.ts';
 interface JsonData {
 	name: string;
 	value: string;
 };
 import CourseTypes from './src/data/cms/course_types.json';
 import ExamSystems from './src/data/cms/exam_systems.json';
-const r = await GetData();
+const r = await GET();
 const d = await r.json();
 console.log(d);
 
