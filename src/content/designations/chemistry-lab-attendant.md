@@ -1,3 +1,0 @@
----
-name: Chemistry Lab Attendant
----

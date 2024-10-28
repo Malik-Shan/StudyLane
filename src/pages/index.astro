@@ -1,31 +1,7 @@
 ---
-export const prerender = false;
 import DefaultLayout from '../layouts/DefaultLayout.astro';
 import HeroSection from '../components/HeroSection.astro';
-import {app} from '../firebase/server';
-import {getAuth} from 'firebase-admin/auth';
-
-const auth = getAuth(app);
-
-if(Astro.cookies.has('session')){
-	const sessionCookie = Astro.cookies.get('session').value;
-	let decodedCookie;
-	try {
-		decodedCookie = await auth.verifySessionCookie(sessionCookie);
-	}catch(err){
-		Astro.cookies.set('session','', {expires : new Date(0)});
-		return Astro.redirect('/login');
-	}
-	let user; 
-	try {
-		user = await auth.getUser(decodedCookie.uid);
-	} catch(err){
-		Astro.cookies.set('session','', {expires : new Date(0)});
-		return Astro.redirect('/login');
-	}
-}
 ---
-
 <DefaultLayout title="Home">
 
 	<HeroSection />

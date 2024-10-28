@@ -1,6 +1,6 @@
 ---
 import {getCollection} from 'astro:content';
-import { formDate } from "../../../js/util";
+import { formDate } from "../../../lib/util";
 const id = 'test'
 const todo = 'test hererle lerjle lejrlejr'
 const link = '/'
@@ -10,9 +10,7 @@ const date = '2024/01/22'
 const admin = true;
 const d = new Date();
 const v = new Date(date);
-const allSubjects = await getCollection('subjects', ({id}) =>{
-  return id.startsWith('guide/info');
-});
+const allSubjects = await getCollection('subjects');
 ---
 
 <form
@@ -29,7 +27,7 @@ const allSubjects = await getCollection('subjects', ({id}) =>{
     <select class='tag subject'>
       {
       allSubjects.map((s) => (
-	<option value={s.data.shortname}>{s.data.shortname}</option>
+	<option value={s.data.name}>{s.data.name}</option>
       ))
       }
     </select>

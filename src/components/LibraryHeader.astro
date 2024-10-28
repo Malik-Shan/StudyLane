@@ -1,0 +1,18 @@
+---
+import {Image} from 'astro:assets';
+import LibraryImage from '../assets/images/site/page/library/library.jpg';
+const {class:className} = Astro.props;
+---
+<header class:list={['flex flex-row max-md:flex-col gap-8 max-md:gap-4 max-sm:gap-2 p-6 max-sm:p-4 border-2 rounded-md',className]}>
+	<div class='w-full'>
+		<h3 class='text-2xl text-slate-800 mb-2 font-bold'>Welcome to the StudyLane Library</h3>
+		<p class='text-slate-700 text-sm mb-2'>Dive into the world of knowledge, where every book holds the key to unlocking your potential. Whether you're searching for textbooks, research materials, or simply a good read, this is the place where learning meets inspiration.</p>
+		<h4 class='text-lg font-bold text-slate-800'>Why Explore the Library?</h4>
+		<p class='text-slate-700 text-sm'>In this space, you’ll find a wealth of free resources, carefully curated to support your academic journey. From textbooks to research papers, this library is designed to empower you with the tools and knowledge you need to succeed.</p>
+		<blockquote class="p-4 my-4 bg-gray-100 rounded-md border-l-4 border-gray-300 ">
+			<p class="text-sm italic font-medium leading-relaxed text-gray-900 ">"The only thing that you absolutely have to know, is the location of the library."</p>
+			<p class='text-gray-900 text-sm'>- Albert Einstein</p>
+		</blockquote>
+	</div>
+	<Image class='w-full max-w-[350px] max-md:max-w-full aspect-[5/4] rounded-md overflow-hidden h-full object-cover object-right' width={510} src={LibraryImage} alt='Library Image'/>
+</header>

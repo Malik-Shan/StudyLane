@@ -1,0 +1,376 @@
+{
+  "draft": false,
+  "name": "Expository Writing",
+  "code": "GE-102",
+  "credit_hours": {
+    "discriminant": true,
+    "value": "3(3-0)"
+  },
+  "reference_materials": [
+    "a-text-book-of-english-prose-and-structure-arif-1",
+    "college-writing-skills-with-readings-john-7"
+  ],
+  "outline": [
+    {
+      "topic": "Principles of writing good English ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Understanding the composition process",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Writing clearly ",
+            "taught": false
+          },
+          {
+            "topic": "Words",
+            "taught": false
+          },
+          {
+            "topic": "Sentence and paragraphs",
+            "taught": false
+          },
+          {
+            "topic": "Comprehension and expression ",
+            "taught": false
+          },
+          {
+            "topic": "Use of grammar and punctuation ",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Process of writing ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Observing",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Audience collecting ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Composing",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Drafting and revising ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Persuasive writing ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Reading skills ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Listening skills and comprehension",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Skills for taking notes in class ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Skills for exams",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Business communications ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Planning messages",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Writing concise but with impact ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Letter formats",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Mechanics of business ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Letter writing",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Letters",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Memo and applications ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Summaries",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Proposals ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Writing resumes",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Styles and formats",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Oral communications",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Verbal and non-verbal communication ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Conducting meetings",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Small group communication",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Taking minutes",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Presentation skills",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Presentation strategies ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Defining the objective",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Scope and audience of the presentation",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Material gathering material organization strategies",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Time management",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Opening and concluding ",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Use of audio-visual aids",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Delivery and presentation",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    }
+  ]
+}

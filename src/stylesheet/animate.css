@@ -1,0 +1,52 @@
+.animate {
+	animation: var(--direction) var(--time) ease-in-out var(--delay) forwards;
+	opacity: 0;
+}
+
+@keyframes top {
+	from {
+		transform: translateY(50%);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateY(0%);
+		opacity: 1;
+	}
+}
+
+@keyframes bottom {
+	from {
+		transform: translateY(-50%);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateY(0%);
+		opacity: 1;
+	}
+}
+
+@keyframes left {
+	from {
+		transform: translateX(50%);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateX(0%);
+		opacity: 1;
+	}
+}
+
+@keyframes right {
+	from {
+		transform: translateX(-50%);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateX(0%);
+		opacity: 1;
+	}
+}

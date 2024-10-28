@@ -1,0 +1,11 @@
+---
+const {name, type,abbreviation,section_type,section_part} = Astro.props;
+import OrangeGradCard from './OrangeGradCard.astro';
+---
+<OrangeGradCard>
+	<div class='text-white'>
+		<h3 class='text-lg'>{name}</h3>
+		<h4 class='text-md'>Course: {type}-{abbreviation}</h4>
+		<h4 class='text-md'>{section_type}: {section_part}</h4>
+	</div>
+</OrangeGradCard>

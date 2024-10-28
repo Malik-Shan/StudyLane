@@ -1,0 +1,38 @@
+---
+import {getCollection} from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import type {Page} from '../../lib/interface.ts';
+
+import DefaultLayout from '@layouts/DefaultLayout.astro';
+import LibraryHeader from '@components/LibraryHeader.astro';
+import BookCard from '@components/library/BookCard.astro';
+import Pagination from '@components/Pagination.astro';
+
+export async function getStaticPaths({paginate}){
+	const books = await getCollection('library');
+	return paginate(books,{pageSize:12});
+}
+const {page}:{page:Page} = Astro.props;
+---
+<DefaultLayout title='Library'>
+	{
+	page.currentPage === 1 && 
+	<section class='contentContainer py-8 max-md:py-4'>
+		<LibraryHeader />
+	</section>
+	}
+	<section class='contentContainer py-8 max-md:py-4'>
+		<h2 class="heading text-slate-500 text-3xl text-center font-bold mb-8">Explore Our Collection</h2>
+		<div class='grid gap-4 grid-cols-6 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-md:gap-2 mb-4'>
+			{page.data.map((b:CollectionEntry<'library'>)=>(
+			<BookCard href={`/library/read/${b.slug}`} image={b.data.thumbnail} name={b.data.name} edition={b.data.edition} author={b.data.author} category={b.data.category}/>
+			))}
+		</div>
+		<Pagination page={page} />
+	</section>
+</DefaultLayout>
+<style>
+.heading{
+	@apply relative before:block before:content-[""] before:h-[1px] before:w-[calc(100%/2-11rem)] before:bg-slate-400 after:block after:content-[""] after:h-[1px] after:w-[calc(100%/2-11rem)] after:bg-slate-400 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2;
+}
+</style>

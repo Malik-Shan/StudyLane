@@ -1,0 +1,56 @@
+---
+import {getCollection,getEntries} from 'astro:content';
+
+import DefaultLayout from "../../layouts/DefaultLayout.astro"
+
+export async function getStaticPaths(){
+	const subjectsCollection = await getCollection('subjects');
+
+	return subjectsCollection.flatMap((subject) => ({
+		params:{subjectname: subject.id},
+		props:{subject},
+	}));
+}
+
+const {subject} = Astro.props;
+const books = await getEntries(subject.data.reference_materials);
+---
+<DefaultLayout title={subject.data.code}>
+	<section class='container mx-auto px-4 max-sm:px-2'>
+		<h3 class='my-4 text-lg text-center'>{subject.data.name}</h3>
+		<h2 class='text-xl font-medium text-center mb-4'>Outline</h2>
+		<details class='group/outline'>
+			<summary class='select-none cursor-pointer mb-2'>Show Outline</summary>
+			<div class='subject-outline flex flex-col gap-2 mb-4'>
+				{subject.data.outline.map((o:any)=> 
+				o.data.discriminant ? 
+				<details class={`bg-blue-200 text-blue-800 group/sub p-1 px-2 rounded-md`}>
+					<summary class='select-none cursor-pointer group-open/sub:mb-2'>{o.topic}</summary>
+					<div class='subject-outline flex flex-col gap-1'>
+						{o.data.value.map((io:any)=> (
+						<h4 class={`${io.taught ? 'bg-amber-300 text-amber-800' : 'bg-blue-200 text-blue-800'} p-1 px-2 rounded-md`}>{io.topic}</h4> 
+						))}
+					</div>
+				</details> 
+				: 
+				<h4 class={`${o.data.value.taught ? 'bg-amber-300 text-amber-800' : 'bg-blue-200 text-blue-800'} p-1 px-2 rounded-md`}>{o.topic}</h4> 
+				)}
+			</div>
+		</details>
+		<h2 class='text-xl font-medium text-center mb-4'>Reference Material</h2>
+		<div class='subject-ref flex flex-col gap-2 mb-4'>
+			{books.map((r)=>(
+			<a target="_blank" href={`/library/read/${r.data.drive_id}`} class='border-2 rounded-md p-2 relative hover:-translate-y-1 hover:shadow-black/25 hover:shadow-md transition-all'>
+			<i class="fa-solid fa-up-right-from-square absolute text-slate-500 top-2 right-2"></i>
+				<h3>Name: {r.data.name}</h3>
+				<h3>Edition: {r.data.eidtion}</h3>
+				<h3>Author: 
+					{r.data.author.map((a:any)=>(
+					<span class='inline-block bg-slate-300 px-2 rounded-md mr-1'>{a}</span>
+					))}
+				</h3>
+			</a>
+			))}
+		</div>
+	</section>
+</DefaultLayout>

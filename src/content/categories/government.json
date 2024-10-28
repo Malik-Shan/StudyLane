@@ -1,0 +1,7 @@
+{
+  "parent": {
+    "discriminant": true,
+    "value": "news"
+  },
+  "name": "government"
+}

@@ -1,42 +1,70 @@
 {
-	"title": "Exam Systems",
-	"warning": "DO NOT CHANGE THE VALUES OR NAMES. IT WILL CAUSE CHANGES IN VALUES CALCULATED OR SHOWN.",
-	"types": [
-		{
-			"name": "None",
-			"value": "none"
-		},
-		{
-			"name": "Block Plan (1)",
-			"value": "block plan"
-		},
-		{
-			"name": "Modular (1-1.5)",
-			"value": "modular"
-		},
-		{
-			"name": "Quarter (2.5-3)",
-			"value": "quarter"
-		},
-		{
-			"name": "Trimester (3-4)",
-			"value": "trimester"
-		},
-		{
-			"name": "Semester (4-4.5)",
-			"value": "semester"
-		},
-		{
-			"name": "Annual (9-12)",
-			"value": "annual"
-		},
-		{
-			"name": "Continous",
-			"value": "continous"
-		},
-		{
-			"name": "Rolling Admissions & Exams",
-			"value": "rolling admissions & exams"
-		}
-	]
+  "title": "Exam Systems",
+  "warning": "Don'ts :\n- Update or Modify Entries\n- Delete Entries\nDos :\n- Add new entries",
+  "types": [
+    {
+      "abbreviation": "BP",
+      "full_name": {
+        "name": "Block Plan",
+        "slug": "block-plan"
+      },
+      "exam_period": "1 month"
+    },
+    {
+      "abbreviation": "Mod",
+      "full_name": {
+        "name": "Modular",
+        "slug": "modular"
+      },
+      "exam_period": "1-1.5 month"
+    },
+    {
+      "abbreviation": "Qtr",
+      "full_name": {
+        "name": "Quarter",
+        "slug": "quarter"
+      },
+      "exam_period": "2.5-3 months"
+    },
+    {
+      "abbreviation": "Tri",
+      "full_name": {
+        "name": "Trimester",
+        "slug": "trimester"
+      },
+      "exam_period": "3-4 months"
+    },
+    {
+      "abbreviation": "Sem",
+      "full_name": {
+        "name": "Semester",
+        "slug": "semester"
+      },
+      "exam_period": "4-4.5 months"
+    },
+    {
+      "abbreviation": "Ann",
+      "full_name": {
+        "name": "Annual",
+        "slug": "annual"
+      },
+      "exam_period": "9-12 months"
+    },
+    {
+      "abbreviation": "Cont",
+      "full_name": {
+        "name": "Continous",
+        "slug": "continous"
+      },
+      "exam_period": "custom"
+    },
+    {
+      "abbreviation": "RDE",
+      "full_name": {
+        "name": "Rolling Admissions & Exams",
+        "slug": "rolling-admissions-and-exams"
+      },
+      "exam_period": "custom"
+    }
+  ]
 }

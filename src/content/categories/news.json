@@ -1,0 +1,6 @@
+{
+  "parent": {
+    "discriminant": false
+  },
+  "name": "news"
+}

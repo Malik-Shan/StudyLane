@@ -1,0 +1,19 @@
+{
+  "categories": [
+    {
+      "name": "news",
+      "children": [
+        "holiday",
+        "festival"
+      ]
+    },
+    {
+      "name": "notice",
+      "children": [
+        "exams",
+        "fee",
+        "warning"
+      ]
+    }
+  ]
+}

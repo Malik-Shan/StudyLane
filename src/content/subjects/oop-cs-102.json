@@ -1,0 +1,244 @@
+{
+  "draft": false,
+  "name": "Object Oriented Programming",
+  "code": "CS-102",
+  "credit_hours": {
+    "discriminant": true,
+    "value": "4(3-3)"
+  },
+  "reference_materials": [
+    "java-how-to-program-deitel-9",
+    "beginning-java-ivor-7",
+    "an-introduction-to-object-oriented-programming-with-java-thomas-5",
+    "starting-out-with-cpp-from-control-structures-through-objects-tony-9",
+    "cpp-how-to-program-paul-10",
+    "object-oriented-programming-in-cpp-robert-3"
+  ],
+  "outline": [
+    {
+      "topic": "Introduction to object oriented design",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "History and advantages of object oriented design",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Introduction to object oriented programming concepts",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Classes",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Objects",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Data encapsulation",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Constructors, destructors",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Access modifiers",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Const vs non-const functions",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Static data members & functions",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Function overloading",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Operator overloading",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Identification of classes and their relationships",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Composition",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Aggregation",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Inheritance",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Multiple inheritance",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Polymorphism",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Abstract classes and interfaces",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Generic programming concepts",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Function & class templates",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Standard template library",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Object streams",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Data and object verialization using object streams",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Exception handling",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    }
+  ]
+}

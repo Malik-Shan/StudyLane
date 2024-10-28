@@ -1,0 +1,314 @@
+{
+  "draft": false,
+  "name": "Database Systems",
+  "code": "CS-104",
+  "credit_hours": {
+    "discriminant": true,
+    "value": "4(3-3)"
+  },
+  "reference_materials": [
+    "database-systems-thomas-6",
+    "database-systems-the-complete-book-hector-2",
+    "database-system-concepts-henry-6",
+    "database-management-system-ramakrishnan-3"
+  ],
+  "outline": [
+    {
+      "topic": "Basic database concepts",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Database approach vs. file based system",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Database architecture",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Three level schema architecture",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Data independence",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Relational data model",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Attributes",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Schemas",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Tuples",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Domains",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Relation instances",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Keys of relations",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Integrity constraints",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Relational algebra",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Selection",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Projection",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Cartesian product",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Types of joins",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Normalization",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Functional dependencies",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Normal forms",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Entity relationship model",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Entity sets",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Attributes",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Relationship",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Entity-relationship diagrams",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Structured Query Language (SQL)",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Joins and subqueries in SQL",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Grouping and aggregation in SQL",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Concurrency control",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Database backup and recovery",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Indexes",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "NoSQL systems",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    }
+  ]
+}

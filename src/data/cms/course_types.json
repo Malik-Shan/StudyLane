@@ -1,42 +1,62 @@
 {
-	"title": "Course Types",
-	"warning": "DO NOT CHANGE THE VALUES OR NAMES. IT WILL CAUSE CHANGES IN THE PATH OF THE COURSES SAVED.",
-	"types": [
-		{
-			"name": "None",
-			"value": "none"
-		},
-		{
-			"name": "ADS - Associate Degree",
-			"value": "ads/associate degree"
-		},
-		{
-			"name": "BS - Bachelor's Degree",
-			"value": "bs/bachelor's degree"
-		},
-		{
-			"name": "Diploma",
-			"value": "diploma"
-		},
-		{
-			"name": "Intermediate",
-			"value": "intermediate"
-		},
-		{
-			"name": "Masters",
-			"value": "masters"
-		},
-		{
-			"name": "Matriculation",
-			"value": "matriculation"
-		},
-		{
-			"name": "PGD - Post Graduate Degree",
-			"value": "pgd/post graduate degree"
-		},
-		{
-			"name": "PC - Professional Certificate",
-			"value": "pc/professional certificate"
-		}
-	]
+  "title": "Course Types",
+  "warning": "Don'ts :\n- Update or Modify Entries\n- Delete Entries\nDos :\n- Add new entries",
+  "types": [
+    {
+      "abbreviation": "ADS",
+      "full_name": {
+        "name": "Associate Degree",
+        "slug": "associate-degree"
+      }
+    },
+    {
+      "abbreviation": "BS",
+      "full_name": {
+        "name": "Bachelor's Degree",
+        "slug": "bachelor-s-degree"
+      }
+    },
+    {
+      "abbreviation": "Dip",
+      "full_name": {
+        "name": "Diploma",
+        "slug": "diploma"
+      }
+    },
+    {
+      "abbreviation": "Inter",
+      "full_name": {
+        "name": "Intermediate",
+        "slug": "intermediate"
+      }
+    },
+    {
+      "abbreviation": "Matric",
+      "full_name": {
+        "name": "Matriculation",
+        "slug": "matriculation"
+      }
+    },
+    {
+      "abbreviation": "PGD",
+      "full_name": {
+        "name": "Post Graduate Degree",
+        "slug": "post-graduate-degree"
+      }
+    },
+    {
+      "abbreviation": "PC",
+      "full_name": {
+        "name": "Professional Certificate",
+        "slug": "professional-certificate"
+      }
+    },
+    {
+      "abbreviation": "M",
+      "full_name": {
+        "name": "Masters",
+        "slug": "masters"
+      }
+    }
+  ]
 }

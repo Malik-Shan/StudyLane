@@ -1,0 +1,47 @@
+---
+import DefaultLayout from "../../layouts/DefaultLayout.astro";
+import OrangeGradCard from "../../components/OrangeGradCard.astro";
+import {getEntries, getCollection} from "astro:content";
+
+export async function getStaticPaths(){
+	const coursesCollection = await getCollection('courses');
+
+	return Promise.all(coursesCollection.map(async (course) => {
+		const coursesections = await getEntries(course.data.course_section);
+		const coursesectionsdata = coursesections.filter(sec => !sec.data.draft).map((sec)=>{
+			return {
+				id:sec.id,
+				type:sec.data.section_type,
+				part:sec.data.section_part,
+			};
+		});
+		return {
+			params:{coursename: course.slug},
+			props:{course,coursesectionsdata},
+		}
+	}));
+}
+const {course,coursesectionsdata} = Astro.props;
+const { Content } = await course.render();
+---
+
+<DefaultLayout title="Course">
+  <section
+    class="container mx-auto px-4 max-sm:px-2">
+		<h1 class='text-2xl font-bold text-center my-4'>{`${course.data.information.type} ${course.data.name}`}</h1>
+		<OrangeGradCard>
+			<div class='flex flex-row gap-2 mb-2'>
+				<span class='p-1 px-4 text-white bg-blue-400 rounded-md'>Type: {course.data.information.type}</span>
+				<span class='p-1 px-4 text-white bg-blue-400 rounded-md'>Exams: {course.data.information.exam_system}</span>
+				<span class='p-1 px-4 text-white bg-blue-400 rounded-md'>Duration: {course.data.information.duration} years</span>
+			</div>
+			<p set:text={course.data.information.eligibility}></p>
+		</OrangeGradCard>
+		<div class='flex flex-col gap-2'>
+			{coursesectionsdata.map((d:any)=>(
+			<a class='block text-xl border-2 p-2 rounded-md shadow-black/24 transition-all hover:shadow-md hover:-translate-y-1' href={`/subjects/${d.id}`}>{d.type} {d.part}</a>
+			))}
+		</div>
+    <Content />
+  </section>
+</DefaultLayout>

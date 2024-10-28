@@ -1,0 +1,172 @@
+{
+  "draft": false,
+  "name": "QR2(Calculus & Analytical Geometry)",
+  "code": "GE-104",
+  "credit_hours": {
+    "discriminant": true,
+    "value": "3(3-0)"
+  },
+  "reference_materials": [
+    "calculus-and-analytical-geometry-george-9",
+    "calculus-swokowski-6",
+    "calculus-early-transcendentals-james-8"
+  ],
+  "outline": [
+    {
+      "topic": "Limits and Continuity",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Introduction to functions",
+            "taught": true
+          },
+          {
+            "topic": "Introduction to limits",
+            "taught": false
+          },
+          {
+            "topic": "Techniques of funding limits",
+            "taught": false
+          },
+          {
+            "topic": "Indeterminate forms of limits",
+            "taught": false
+          },
+          {
+            "topic": "Continuous and discontinuous functions and their applications",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Differential calculus",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Concept and idea of differentiation",
+            "taught": false
+          },
+          {
+            "topic": "Geometrical and Physical meaning of derivatives",
+            "taught": false
+          },
+          {
+            "topic": "Rules of differentiation",
+            "taught": false
+          },
+          {
+            "topic": "Techniques of differentiation",
+            "taught": false
+          },
+          {
+            "topic": "Rates of change",
+            "taught": false
+          },
+          {
+            "topic": "Tangents and Normals lines",
+            "taught": false
+          },
+          {
+            "topic": "Chain rule",
+            "taught": false
+          },
+          {
+            "topic": "Implicit differentiation",
+            "taught": false
+          },
+          {
+            "topic": "Linear approximation",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Applications of differentiation",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Extreme value functions",
+            "taught": false
+          },
+          {
+            "topic": "Mean value theorems",
+            "taught": false
+          },
+          {
+            "topic": "Maxima and Minima of a function for smgle-variable",
+            "taught": false
+          },
+          {
+            "topic": "Concavity",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Integral calculus",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Concept and idea of Integration",
+            "taught": false
+          },
+          {
+            "topic": "Indefinite Integrals",
+            "taught": false
+          },
+          {
+            "topic": "Techniques of integration",
+            "taught": false
+          },
+          {
+            "topic": "Riemann sums and Definite Integrals",
+            "taught": false
+          },
+          {
+            "topic": "Applications of definite integrals",
+            "taught": false
+          },
+          {
+            "topic": "Improper integral",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Applications of Integration",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Area under the curve",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Analytical Geometry",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Straight lines in R3",
+            "taught": false
+          },
+          {
+            "topic": "Equations for planes",
+            "taught": false
+          }
+        ]
+      }
+    }
+  ]
+}

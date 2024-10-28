@@ -28,14 +28,12 @@ try {
 const appscript_url = import.meta.env.ASSIGN_API;
 const d = await fetch(`${appscript_url}?course=bs-it-s1&type=get`);
 const {result,pagination} = await d.json();
-const allSubjects = await getCollection('subjects', ({id}) =>{
-  return id.startsWith('guide/info');
-});
+const allSubjects = await getCollection('subjects');
 ---
 <DefaultLayout title='Assignments'>
-  <section class='container mx-auto px-6 section-nav-pb pt-4'>
+  <section class='container mx-auto px-6 py-4'>
     {
-    user.customClaims.admin && 
+    user.customClaims.roles.includes('admin') && 
       (
 	<div>
 	  <h2 class='text-center text-xl font-bold text-slate-400 mb-2'>Add New Assignment</h2>
@@ -52,7 +50,7 @@ const allSubjects = await getCollection('subjects', ({id}) =>{
 	    <select class='subject' name='subject' id='subject'>
 	      {
 		allSubjects.map((s) => (
-		  <option value={s.data.shortname}>{s.data.shortname}</option>
+		  <option value={s.data.name}>{s.data.name}</option>
 		))
 	      }
 	    </select>

@@ -1,0 +1,456 @@
+{
+  "draft": false,
+  "name": "Zero Mathematics(Part 2)",
+  "code": "MZ-112",
+  "credit_hours": {
+    "discriminant": true,
+    "value": "0(3 contact hours)"
+  },
+  "reference_materials": [
+    "calculus-early-transcendentals-james-8",
+    "calculus-and-analytical-geometry-george-9"
+  ],
+  "outline": [
+    {
+      "topic": "Concept of function",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Types of functions",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Composition of Function",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Limit function and theorems on limit",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Limit of different functions",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Limit at infinity",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Continuity and discontinuity in functions",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Introduction to derivatives",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Theorems on differentiation",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Chain rule",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Derivatives of inverse function",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Derivative of parametric functions",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Differentiation of implicit relations",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Derivatives of trigonometric functions",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Log function inverse function and hyperbolic function",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Increasing decreasing functions",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Relative maxima minima",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Critical points",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Introduction to integration",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Applications",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Theorems",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Integration as anti-derivatives",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Integration by method of substitution",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Integration by parts",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Integration of functions involving partial fractions",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Definite integrals",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Area under the curves",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Applications, Introduction to analytical geometry",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Distance Formulas",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Equations of straight line",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "All forms of straight line",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Angle between two lines",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Lincar inequalities",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Graphing linear inequalities",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Region boundary problems",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Linear programming problems",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Equation of circle",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Tangent and normal to circle",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "General equation of ellipse parabola",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Introduction to vectors operations properties",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Ratio formula",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Distance formula",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Direction angles",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Direction cosines",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Scalar product",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Vector product Angle between twis vectors",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Projection",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Area of parallelogram",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Area of triangle.",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import {getAuth} from 'firebase-admin/auth';
 import {app} from '../../../firebase/server';
 import AssignmentData from '../../../components/AssignmentData.astro';
 import Toast from '../../../components/Toast.astro';
-import {formatDate, showSuccess} from '../../../js/util';
+import {formatDate, showSuccess} from '../../../lib/util';
 const url = import.meta.env.ASSIGN_API;
 const auth = getAuth(app);
 const appscript = `${url}?type=newentry&course=bs-it-s1`;
@@ -32,7 +32,7 @@ try {
 		}
 	})
 }
-if(!decodedCookie.admin){
+if(!decodedCookie.roles.includes('admin')){
 	return new Response("Unauthorized",{
 		status:401,
 		headers:{

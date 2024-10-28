@@ -1,0 +1,46 @@
+{
+  "categories": [
+    {
+      "category": {
+        "name": "Math",
+        "slug": "math"
+      }
+    },
+    {
+      "category": {
+        "name": "IT",
+        "slug": "it"
+      }
+    },
+    {
+      "category": {
+        "name": "CS",
+        "slug": "cs"
+      }
+    },
+    {
+      "category": {
+        "name": "Programming",
+        "slug": "programming"
+      }
+    },
+    {
+      "category": {
+        "name": "Database",
+        "slug": "database"
+      }
+    },
+    {
+      "category": {
+        "name": "English",
+        "slug": "english"
+      }
+    },
+    {
+      "category": {
+        "name": "History",
+        "slug": "history"
+      }
+    }
+  ]
+}

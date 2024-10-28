@@ -1,0 +1,121 @@
+{
+  "draft": false,
+  "name": "Ideology and constitution of Pakistan",
+  "code": "GE-106",
+  "credit_hours": {
+    "discriminant": true,
+    "value": "2(2-0)"
+  },
+  "reference_materials": [],
+  "outline": [
+    {
+      "topic": "Historical background of Pakistan",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Muslim society in Indo-Pakistan",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "The movement led by the societies",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "The downfall of Islamic society",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "The establishment of British Raj- Causes and consequences",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Political evolution of Muslims in the twentieth century",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Sir Syed Ahmed Khan",
+            "taught": false
+          },
+          {
+            "topic": "Muslim League",
+            "taught": false
+          },
+          {
+            "topic": "Nehru",
+            "taught": false
+          },
+          {
+            "topic": "Allama Iqbal: Independence Movement",
+            "taught": false
+          },
+          {
+            "topic": "Lahore Resolution: Pakistan culture and society",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Constitutional and Administrative issues",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Pakistan and its geopolitical dimension",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Pakistan and International Affairs",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Pakistan and the challenges ahead",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    }
+  ]
+}

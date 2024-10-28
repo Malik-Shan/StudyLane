@@ -1,11 +1,7 @@
 ---
-interface Props {
-  title: string;
-}
 import "../stylesheet/main.css";
 const { title } = Astro.props;
 ---
-
 <!doctype html>
 <html lang="en">
   <head>
@@ -14,10 +10,11 @@ const { title } = Astro.props;
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta
       name="description"
-      content="Cosmic Institute Of Business & Technology student portal"
+      content="StudyLane a place that brings you the ease of finding your study material at click of your finger."
     />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/assests/images/official/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/assests/images/official/logo2.png" media="(prefers-color-scheme:light)"/>
+    <link rel="icon" type="image/svg+xml" href="/assests/images/official/logo2-white.png" media="(prefers-color-scheme:dark)"/>
     <meta name="generator" content={Astro.generator} />
     <link
       rel="stylesheet"
@@ -33,10 +30,10 @@ const { title } = Astro.props;
       integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ"
       crossorigin="anonymous"
     />
-    <script src="../js/main.js"></script>
+    <script src="../lib/main.js"></script>
     <title>{title}</title>
   </head>
-  <body>
+  <body class='relative pb-[calc(var(--nav-height)_+_var(--nav-bottom))] max-sm:pb-[var(--nav-height)]'>
     <slot />
   </body>
 </html>
