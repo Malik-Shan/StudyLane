@@ -18,7 +18,8 @@ import LibraryCategories from './src/data/cms/library_categories.json';
 
 export default config({
 	storage: {
-		kind: 'local',
+		kind: 'github',
+		repo: 'Malik-Shan/StudyLane'
 	},
 	ui: {
 		brand: {
