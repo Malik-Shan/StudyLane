@@ -1,0 +1,90 @@
+---
+draft: false
+readtime: true
+subject: oop-cs-102
+title: Introduction to OOP in C++
+published: 2024-11-01T19:37:00.000Z
+bnnerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+# Object Oriented Programming
+
+Object Oriented Programming is a programming technique in which programs are written on the basis of object. An object is a collection of data (properties) and functions (actions). It may represent a person, thing or place in the real world. In OOP, data and all possible funcitons on data are grouped togehter. Object Oriented Programming are easier to learn and modify.
+
+Object Oriented Programming is a powerful technique to develop software. It is used to analyze and design the applications in terms of objects. It deals with data and the procedures that process that data as a single object.
+
+Some examples of object oriented programming are as follows:
+
+- C++
+- Smalltalk
+- Eiffel
+- CLOS
+- Java
+
+#### OOP Example with real-world object
+
+```cpp
+#include <iostream>
+using namespace std;
+class Human{
+    private:
+        string name;
+        int age;
+    public:
+        Human(string n,int a){
+            name = n;
+            age = a;
+        };
+        void showName(){
+            cout<< name <<endl;
+        };
+        void showAge(){
+            cout << age << endl;
+        };
+};
+int main() {
+    Human a("Ali",20);
+    a.showName();
+    a.showAge();
+    return 0;
+};
+// OUTPUT
+// Ali
+// 20
+```
+
+## Features of Object-Oriented Programming
+
+- Classes
+- Objects
+- Inheritance
+- Polymorphism
+- Encapsulation
+- Real-world Modeling
+
+### Classes:
+
+Object-Oriented Programming gives us the facility to design classes. A class is a protoype , template or design for creating new objects. Class contains all the properites and functions for the defining the structure and behaviour of an object without creating an instance.
+
+### Objects:
+
+Objects are the entities containing data and functions. In object-oriented programming we make objects using classes according to the structure and behaviour provided in the class.
+
+### Inheritance:
+
+It's a mechanism in which a class inherits the data and functions of another class. Inheritance allows us to use same code (data & functions) without the need of creating the same code. It's gives us a reusable code.
+
+### Polymorphism:
+
+Polymorphism comes from a greek word meaning "many shapes". It's a concept in object-oriented programming that's used when multiple classes are related using inheritance. As the name suggests the polymorphism allows us to redefine a function. It gives us the ability to perform the same function but in different ways.
+
+### Encapsulation:
+
+Object-Oriented Programming allows us to hide sensitive information from the user, a concept achieved through encapsulation. In encapsulation, all the data and functions are grouped together in a single class, allowing us to restrict access to certain components or data of an object. The private or sensitive information can then be accessed using public functions.
+
+### Real-world Modeling:
+
+Object-Oriented Programming (OOP) effectively models real-world entities by representing them as objects, which combine data and behavior. Each object is created from a class, acting as a blueprint that encapsulates relevant attributes and methods. For instance, a class representing a "Car" may include properties like color and make, alongside methods such as `start()` and `stop()`. This approach enables a more intuitive understanding of complex systems, allowing developers to mirror real-life interactions and relationships within their code.

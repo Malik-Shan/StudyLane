@@ -129,7 +129,39 @@ const noticeboardCollection = defineCollection({
       }),
       category: z.array(z.string()).default([]),
       tag: z.array(z.string()),
-      postedBy: z.string().default("Admin"),
+      postedBy: z.string().default("admin"),
+    }),
+});
+const subjectBlogCollection = defineCollection({
+  type: "content",
+  schema: ({ image }) =>
+    z.object({
+      draft: z.boolean(),
+      readtime: z.boolean(),
+      subject: reference("subjects"),
+      title: z.string(),
+      published: z.date(),
+      bannerImg: z
+        .object({
+          discriminant: z.boolean(),
+          value: z
+            .object({
+              image: image(),
+              alt: z.string(),
+            })
+            .optional(),
+        })
+        .refine(
+          (bannerImg) =>
+            bannerImg.discriminant
+              ? bannerImg.value !== undefined
+              : bannerImg.value === undefined,
+          { message: "Banner Image must be provided." },
+        )
+        .optional(),
+      category: z.array(z.string()).default([]),
+      tag: z.array(z.string()),
+      postedBy: z.string().default("admin"),
     }),
 });
 const facultyCollection = defineCollection({
@@ -174,6 +206,7 @@ const navigationCollection = defineCollection({
 export const collections = {
   library: libraryCollection,
   subjects: subjectsCollection,
+  subject_blog: subjectBlogCollection,
   courses: coursesCollection,
   course_sections: courseSectionsCollection,
   noticeboard: noticeboardCollection,

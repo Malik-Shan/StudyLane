@@ -1,0 +1,81 @@
+---
+draft: false
+readtime: true
+subject: oop-cs-102
+title: Access Specifiers
+published: 2024-11-02T17:34:00.000Z
+bnnerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+*"Access specifiers, also known as access modifiers, are keywords in object-oriented programming languages that determine the accessibility of classes, methods, and other members"*
+
+{% table %}
+- Public
+- Private
+- Protected
+---
+- It's syntax is `public:`.
+- It's syntax is `private:`.
+- It's syntax is `protected:`.
+---
+- It's data members & functions can be used within and outside the class.
+- It's data members can only be used within it's own class.
+- It's data members can be used within it's own and derived class.
+---
+- It does not provide any security.
+- It provides high security.
+- It provides less security than private data member.
+---
+- It's mostly used for member functions.
+- It's mostly used for data members.
+- It's mostly used for data members.
+---
+- The memebers are inherited in the derived class.
+- The data members are not inherited in derived classes. They're only accessible only within the original class.
+- The data memebers are inherited in the derived class.
+---
+- It can be used in other classes without inheritance.
+- It can't be used in other classes.
+- It can't be used in other classes excepted inherited class.
+{% /table %}
+
+```cpp
+#include <iostream>
+using namespace std;
+class Parent{
+    protected:
+        string color;
+        int age;
+    private:
+        int salary;
+    public:
+        Parent(string c,int a,int s){
+            color = c;
+            age = a;
+            salary = s;
+        };
+        void showSalary(){
+            cout << "Salary: " << salary << endl;
+        };
+};
+class Child: public Parent{
+    public:
+        Child(string c,int a,int s): Parent(c,a,s){};
+        void showColor(){
+            cout << "Color: " << color << endl;
+        };
+        void showAge(){
+            cout << "Age: " << age << endl;
+        };
+};
+int main() {
+    Child c("Brown",19,50000);
+    c.showColor(); // Shows inherited protected data.
+    c.showAge();  // Shows inherited protected data.
+    c.showSalary(); // Inherited public function showing private data
+    return 0;
+};
+```

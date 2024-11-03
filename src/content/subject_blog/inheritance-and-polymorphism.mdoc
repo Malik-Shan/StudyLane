@@ -1,0 +1,211 @@
+---
+draft: false
+readtime: true
+subject: oop-cs-102
+title: Inheritance and Polymorphism
+published: 2024-11-01T20:24:00.000Z
+bnnerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## Inheritance
+
+It's a mechanism in which a class inherits the data and functions of another class. Inheritance allows us to use same code (data & functions) without the need of creating the same code. To inherit the class we use `:` symbol.
+
+The class that is inherited is called **base class**.
+
+The class that inherits it is called **derived class**.
+
+```cpp
+// Base Class
+class Parent{
+   // codeblock
+};
+// Derived Class
+class Child: public Parent{
+   // codeblock
+};
+```
+
+Types of inheritance:
+
+- Multilevel Inheritance
+- Multiple Inheritance
+
+#### Multilevel Inheritance:
+
+In this a class is derived from a class that's alread derived from another class.
+
+```cpp
+// Base Class
+class GrandParent{
+  // codeblock
+};
+// Derived Class
+class Parent: public GrandParent{
+   // codeblock
+};
+// Derived Class
+class Child: public Parent{
+   // codeblock
+};
+```
+
+#### Multiple Inheritance:
+
+When a class is derived from multiple classes it's called multiple inheritance. The classes are separated using comma `,` .
+
+```cpp
+//Base Class
+class Mammal{
+  //codeblock
+};
+//Base Class
+class WingedAnimal{
+  //codeblock
+};
+class Bat: public Mammal, public WingedAnimal{
+  //codeblock
+};
+```
+
+## public, protected and private inheritance in C++
+
+- **public inheritance** makes `public` members of the base class `public` in the derived class, and the `protected` members of the base class remain `protected` in the derived class.
+- **protected inheritance** makes the `public` and `protected` members of the base class `protected` in the derived class.
+- **private inheritance** makes the `public` and `protected` members of the base class `private` in the derived class. They're inaccessible to the derived class.
+
+```cpp
+class Base {
+  public:
+    int x;
+  protected:
+    int y;
+  private:
+    int z;
+};
+class PublicDerived: public Base {
+  // x is public
+  // y is protected
+  // z is not accessible from PublicDerived
+};
+class ProtectedDerived: protected Base {
+  // x is protected
+  // y is protected
+  // z is not accessible from ProtectedDerived
+};
+class PrivateDerived: private Base {
+  // x is private
+  // y is private
+  // z is not accessible from PrivateDerived
+};
+```
+
+#### Accessibility in public Inheritance
+
+{% table %}
+- Accessibility
+- private members
+- protected members
+- public memebers
+---
+- Base Class
+- Yes
+- Yes
+- Yes
+---
+- Derived Class
+- No
+- Yes
+- Yes
+{% /table %}
+
+#### Accessibility in protected Inheritance
+
+{% table %}
+- Accessibility
+- private members
+- protected members
+- public memebers
+---
+- Base Class
+- Yes
+- Yes
+- Yes
+---
+- Derived Class
+- No
+- Yes
+- Yes (inherited as protected variables)
+{% /table %}
+
+#### Accessibility in private Inheritance
+
+{% table %}
+- Accessibility
+- private members
+- protected members
+- public memebers
+---
+- Base Class
+- Yes
+- Yes
+- Yes
+---
+- Derived Class
+- No
+- Yes (inherited as private variables)
+- Yes (inherited as private variables)
+{% /table %}
+
+## Polymorphism
+
+Polymorphism comes from a greek word meaning "many shapes/many forms". It's a concept in object-oriented programming that's used when multiple classes are related using inheritance. As the name suggests the polymorphism allows us to redefine a function. It gives us the ability to perform the same function but in different ways.
+
+```cpp
+#include <iostream>
+using namespace std;
+class Animal{
+    public:
+        Animal(){};
+        virtual void makeSound(){
+            cout << "Animal making sound." << endl;
+        };
+};
+class Dog :public Animal{
+    public:
+        Dog(){};
+        void makeSound(){
+            cout << "Barking" << endl;
+        };
+};
+class Cat :public Animal{
+    public:
+        Cat(){};
+        void makeSound(){
+          cout << "Meow" << endl;  
+        };
+};
+class Duck :public Animal{
+    public:
+        Duck(){};
+        void makeSound(){
+            cout << "Quack" << endl;
+        };
+};
+int main() {
+    Dog d;
+    Cat c;
+    Duck du;
+    d.makeSound();
+    c.makeSound();
+    du.makeSound();
+    return 0;
+};
+// OUTPUT
+// Barking
+// Meow
+// Quack
+```

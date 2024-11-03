@@ -1,103 +1,15 @@
 {
   "draft": false,
-  "name": "Object Oriented Programming",
-  "code": "CS-102",
+  "name": "Arts & Humanities",
+  "code": "ge-108",
   "credit_hours": {
     "discriminant": true,
-    "value": "4(3-3)"
+    "value": "2(2-0)"
   },
-  "reference_materials": [
-    "java-how-to-program-deitel-9",
-    "beginning-java-ivor-7",
-    "an-introduction-to-object-oriented-programming-with-java-thomas-5",
-    "starting-out-with-cpp-from-control-structures-through-objects-tony-9",
-    "cpp-how-to-program-paul-10",
-    "object-oriented-programming-in-cpp-robert-3"
-  ],
+  "reference_materials": [],
   "outline": [
     {
-      "topic": "Introduction to object oriented design",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "History and advantages of object oriented design",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Introduction to object oriented programming concepts",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Classes",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Objects",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Data encapsulation",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Constructors, destructors",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Access modifiers",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Const vs non-const functions",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Static data members & functions",
+      "topic": "Historical, social and economial context of Computing",
       "data": {
         "discriminant": false,
         "value": {
@@ -106,16 +18,7 @@
       }
     },
     {
-      "topic": "Function overloading",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Operator overloading",
+      "topic": "Defintions of Computing subjects areas and professional activities",
       "data": {
         "discriminant": false,
         "value": {
@@ -124,7 +27,7 @@
       }
     },
     {
-      "topic": "Identification of classes and their relationships",
+      "topic": "professional societies",
       "data": {
         "discriminant": false,
         "value": {
@@ -133,7 +36,7 @@
       }
     },
     {
-      "topic": "Composition",
+      "topic": "professional ehtics",
       "data": {
         "discriminant": false,
         "value": {
@@ -142,7 +45,7 @@
       }
     },
     {
-      "topic": "Aggregation",
+      "topic": "professional competency and life-long learning",
       "data": {
         "discriminant": false,
         "value": {
@@ -151,34 +54,7 @@
       }
     },
     {
-      "topic": "Inheritance",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Multiple inheritance",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Polymorphism",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Abstract classes and interfaces",
+      "topic": "Uses, misuses, and risks of software",
       "data": {
         "discriminant": false,
         "value": {
@@ -187,16 +63,7 @@
       }
     },
     {
-      "topic": "Generic programming concepts",
-      "data": {
-        "discriminant": false,
-        "value": {
-          "taught": true
-        }
-      }
-    },
-    {
-      "topic": "Function & class templates",
+      "topic": "Information security and privacy",
       "data": {
         "discriminant": false,
         "value": {
@@ -205,7 +72,7 @@
       }
     },
     {
-      "topic": "Standard template library",
+      "topic": "Business practices and the economics of software",
       "data": {
         "discriminant": false,
         "value": {
@@ -214,7 +81,7 @@
       }
     },
     {
-      "topic": "Object streams",
+      "topic": "Intellectual property and software law (cypher law)",
       "data": {
         "discriminant": false,
         "value": {
@@ -223,7 +90,7 @@
       }
     },
     {
-      "topic": "Data and object serialization using object streams",
+      "topic": "Social responsibilities",
       "data": {
         "discriminant": false,
         "value": {
@@ -232,7 +99,97 @@
       }
     },
     {
-      "topic": "Exception handling",
+      "topic": "Software related contracts",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Software house organization",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Intellectual Property Rights",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "The Framework of Employee Relations Law and Software Liability",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Liability and Practice",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Computer Misuse and the Criminal Law",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Regulation and Code of Ethics",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "ACM Code of Ethics and Professional Conduct",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "ACM/IEEE Software Engineering Code of Ethics and Professional Practice",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Accountability and Auditing",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Social Application of Ethics",
       "data": {
         "discriminant": false,
         "value": {

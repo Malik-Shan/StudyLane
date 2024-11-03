@@ -1,5 +1,12 @@
-import { config, fields, singleton, collection } from '@keystatic/core';
+import CourseTypes from './src/data/cms/course_types.json';
+import ExamSystems from './src/data/cms/exam_systems.json';
+import LibraryCategories from './src/data/cms/library_categories.json';
+//import ArticleCategories from './src/data/cms/article_categories.json';
+//
+import { config, fields, singleton, collection, } from '@keystatic/core';
 import { slugPathRegex, slugDoublePathRegex, coursesectionPathRegx } from './src/lib/cms/lib/util.js';
+
+import type { GitHubConfig, LocalConfig } from '@keystatic/core';
 interface JSONData {
 	title: string;
 	warning: string;
@@ -11,16 +18,10 @@ interface JSONData {
 		};
 	}>;
 };
-import CourseTypes from './src/data/cms/course_types.json';
-import ExamSystems from './src/data/cms/exam_systems.json';
-import LibraryCategories from './src/data/cms/library_categories.json';
-//import ArticleCategories from './src/data/cms/article_categories.json';
-
+const githubmode: GitHubConfig['storage'] = { kind: 'github', repo: 'Malik-Shan/StudyLane' };
+const localmode: LocalConfig['storage'] = { kind: 'local' };
 export default config({
-	storage: {
-		kind: 'github',
-		repo: 'Malik-Shan/StudyLane'
-	},
+	storage: import.meta.env.PROD ? githubmode : localmode,
 	ui: {
 		brand: {
 			name: "StudyLane",
@@ -32,16 +33,15 @@ export default config({
 			}
 		},
 		navigation: {
-			posts: ['article_categories', 'notice_board'],
 			institue: [
 				'faculty', 'designations',
 			],
-			education: [
-				'courses', 'course_sections', 'subjects'
+			blog: ['subject_blog', 'notice_board', 'article_categories'],
+			course: [
+				'courses', '---', 'course_sections', 'subjects', '---', 'course_types', 'exam_systems',
 			],
-			material: ['library_categories', 'library'],
+			material: ['library', 'library_categories'],
 			settings: ['navigation'],
-			data: ['course_types', 'exam_systems', 'article_categories']
 		},
 	},
 	singletons: {
@@ -370,6 +370,100 @@ export default config({
 						image: {
 							directory: "src/assets/images/notice",
 							publicPath: "../../assets/images/notice/",
+						},
+					}
+				})
+			},
+		}),
+		subject_blog: collection({
+			label: 'Subject Blog',
+			slugField: 'title',
+			path: 'src/content/subject_blog/*',
+			entryLayout: 'content',
+			format: { contentField: 'content' },
+			schema: {
+				draft: fields.checkbox({
+					label: 'Draft',
+				}),
+				readtime: fields.checkbox({
+					label: "Read Time",
+					description: "Check if the read-time should be attached to the blog.",
+					defaultValue: true,
+				}),
+				subject: fields.relationship({
+					label: "Subject",
+					description: "Select the subject for the blog.",
+					collection: 'subjects',
+					validation: { isRequired: true }
+				}),
+				title: fields.slug({
+					name: {
+						label: 'Title',
+						validation: { isRequired: true },
+					}
+				}),
+				published: fields.datetime({
+					label: 'Published',
+					defaultValue: { kind: "now" },
+				}),
+				bnnerImg: fields.conditional(
+					fields.checkbox({
+						label: "Add Banner",
+						description: "Check if you want to add the banner image.",
+						defaultValue: false,
+					}),
+					{
+						true: fields.object({
+							image: fields.image({
+								label: "Banner",
+								directory: 'src/assets/images/blog/subject_blog',
+								publicPath: '../../assets/images/blog/subject_blog/',
+								validation: {
+									isRequired: true,
+								},
+							}),
+							alt: fields.text({
+								label: "Alt",
+								description: "Name to show if image doesn't render.",
+								validation: { isRequired: true },
+							})
+						}),
+						false: fields.empty()
+					},
+				),
+				category: fields.array(
+					fields.text({
+						label: "Name",
+						description: "Name of the cateogry",
+						validation: { isRequired: true },
+					}),
+					{
+						label: 'Categories',
+						itemLabel: props => props.value,
+					}
+				),
+				tag: fields.array(
+					fields.text({
+						label: 'Tag',
+						validation: {
+							isRequired: true,
+						}
+					}),
+					{
+						label: 'Tags',
+						itemLabel: props => props.value,
+					}
+				),
+				postedBy: fields.text({
+					label: 'Posted By',
+					defaultValue: 'admin',
+				}),
+				content: fields.markdoc({
+					label: 'Body',
+					options: {
+						image: {
+							directory: "src/assets/images/blog/subject_blog",
+							publicPath: "../../assets/images/blog/subject_blog/",
 						},
 					}
 				})

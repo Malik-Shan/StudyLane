@@ -19,7 +19,7 @@
         "value": [
           {
             "topic": "Introduction to functions",
-            "taught": true
+            "taught": false
           },
           {
             "topic": "Introduction to limits",

@@ -1,0 +1,72 @@
+---
+draft: false
+readtime: true
+subject: oop-cs-102
+title: Constructor & Destructor
+published: 2024-11-02T22:33:00.000Z
+bnnerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+*"A constructor is a fuction that is executed when an object is created"*
+
+*"A destructor is a function that is executed when object is destroyed"*
+
+{% table %}
+- Property
+- Constructor
+- Destructor
+---
+- **Defining**
+- Function with the same name as class name.
+- Function with the same name as class name but contains tilda `~`sign before class name.
+---
+- **Outside Class**
+- It can be defined outside class using scope resolution operator `::`.
+- It can be defined outside class using scope resolution operator `::`.
+---
+- **Execution**
+- It's executed when object is created.
+- It's executed when object is destroyed.
+---
+- **Data Type**
+- It doesn't return any value and doesn't have a data type.
+- It doesn't return any value and doesn't have a data type.
+---
+- **Parameter**
+- It can take one or more parameters.
+- It doesn't take any parameter.
+---
+- **Overloading**
+- We can do constructor overloading by changing the number, data type or sequence of parameters.
+- We can't do destructor overloading as it doesn't take any parameters.
+{% /table %}
+
+```cpp
+#include <iostream>
+using namespace std;
+class Employee{
+    private:
+        int salary;
+    public:
+        Employee(int s);
+        ~Employee();
+        int get_salary()const{
+            return salary;
+        };
+};
+Employee::Employee(int t){
+    cout << "Object was created." << endl;
+    salary = t;
+};
+Employee::~Employee(){
+    cout << "Object was destroyed." << endl;
+};
+int main() {
+    Employee e(1000);
+    cout << "Salary: " << e.get_salary() << endl;
+    return 0;
+};
+```

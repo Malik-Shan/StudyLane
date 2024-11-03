@@ -1,0 +1,98 @@
+---
+draft: false
+readtime: true
+subject: oop-cs-102
+title: Templates
+published: 2024-11-03T02:21:00.000Z
+bnnerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+Templates is a feature of programming language which allows the declaration of functions or classes with generic types. A template is not related to specific data type and can work with different data types.
+
+There are two types of  templates:
+
+- Function templates
+- Class templates
+
+### Function Templates:
+
+The templates allows us to create generic functions which works with different data types and are not related to specific data types. The technique of functional overloading can be used with it. It increases the code by declaring many functions for the same task.
+
+#### Declaring Function Template
+
+A function template is declared with `template`keyword followed by keyword `typename`and name for the generic type taken `T`any letter or word can be used for this, than we declared the function using that generic type.
+
+```cpp
+template <typename T>
+T functionName(T parameter_1, ...) {
+    //body
+}
+```
+
+```cpp
+template <typename T>
+T add(T n1, T n2) {
+   return (n1 + n2);
+};
+int main() {
+
+    int added_ints = add<int>(2, 3);
+    cout << added_ints << endl;
+    int added_doubles = add<double>(2.8, 3.2);
+    cout << added_doubles << endl;
+    return 0;
+};
+// OUTPUT
+// 5
+// 6.0
+```
+
+### Class Templates:
+
+A class template allows us to make a class that works with different data types. The new class is made using the user-defined or built-in data type.
+
+#### Declaring Class Template
+
+A class template is declared with `template`keyword followed by keyword `class`and name for the generic type taken `T`any letter or word can be used for this, than we declared the class using that generic type in it..
+
+```cpp
+template <class T>
+class Class_Name{
+    private:
+       T variable;
+    public:
+       T get_variable{
+          return variable;
+       };
+}
+```
+
+```cpp
+template <class T>
+class Math {
+   private:
+      T num1;
+      T num2;
+   public:
+      Math(T n1, T n2){
+          num1 = n1;
+          num2 = n2;
+      };
+      T add() {
+          return (num1 + num2);
+      };
+};
+int main() {
+    Math<int> addingInt(7,3);
+    cout << addingInt.add() << endl;
+    Math<float> addingFloat(10.2,10.2);
+    cout << addingFloat.add() << endl;
+    return 0;
+};
+// OUTPUT
+// 10
+// 20.4
+```

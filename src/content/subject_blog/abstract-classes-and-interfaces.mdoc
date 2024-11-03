@@ -1,0 +1,97 @@
+---
+draft: false
+readtime: true
+subject: oop-cs-102
+title: Abstract Classes and Interfaces
+published: 2024-11-03T03:17:00.000Z
+bnnerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## Abstract Classes
+
+*"An abstract class is class that is design to be treated as a base class upon which other classes can be built. It can not be used to initiate objects."*
+
+A class that has atleast one pure virtual function which must be redefined or overridden in derived class else it also becomes abstract class.
+
+##### Virutal Function:
+
+A function that is declared in base class with `virtual`keyword and is redefined in derived class.
+
+##### Pure Virtual Function:
+
+A function that is declared in base class with `virtual`keyword and must be redefined in derived class. It is declared by assigning 0 in it's declaration. If the pure virtual function is not redefined in the derived class, then derived class also becomes abstract class.
+
+```cpp
+// Abstract Class
+class Shape{
+    public:
+        // virtual function
+        virtual void set_shape(){
+            cout << "Set shape." << endl;
+        };
+        // pure virtual function
+        virtual void draw() = 0;
+};
+```
+
+## Interfaces
+
+An interface describes the behavior or capabilities of a class without committing to a particular implementation of that class.
+
+The interfaces are implemented using **abstract classes** and these abstract classes should not be confused with data abstraction which is a concept of keeping implementation details separate from associated data.
+
+The purpose of an **abstract class** (often referred to as an ABC) is to provide an appropriate base class from which other classes can inherit. Abstract classes cannot be used to instantiate objects and serves only as an **interface**. Attempting to instantiate an object of an abstract class causes a compilation error.
+
+If the class made from abstract class needs to initiate an object, it needs to implement all the virtual functions meaing it supports the interface defined by the abstract class. Failure to redefine all the virtual functions and than initiating object from that class causes compilation error.
+
+Class that can be used to initiate an object is called concrete class.
+
+```cpp
+#include <iostream>
+using namespace std;
+// Base class
+class Shape {
+   public:
+      // pure virtual function providing interface framework.
+      virtual int getArea() = 0;
+      void setWidth(int w) {
+         width = w;
+      };
+      void setHeight(int h) {
+         height = h;
+      };
+   protected:
+      int width;
+      int height;
+};
+// Derived classes
+class Rectangle: public Shape {
+   public:
+      int getArea() { 
+         return (width * height); 
+      };
+};
+class Triangle: public Shape {
+   public:
+      int getArea() { 
+         return (width * height)/2; 
+      };
+};
+int main(void) {
+   Rectangle Rect;
+   Triangle  Tri;
+ 
+   Rect.setWidth(5);
+   Rect.setHeight(7);
+   cout << "Total Rectangle area: " << Rect.getArea() << endl;
+
+   Tri.setWidth(5);
+   Tri.setHeight(7);
+   cout << "Total Triangle area: " << Tri.getArea() << endl; 
+
+   return 0;
+};
+```

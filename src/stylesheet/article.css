@@ -43,15 +43,19 @@
 	}
 
 	article p {
-		@apply text-lg mb-2;
+		@apply text-lg mb-4 max-sm:text-base;
 	}
 
 	article pre {
-		@apply min-w-[150px] w-auto max-w-full p-4 rounded-md whitespace-pre break-words;
+		@apply p-4 mb-4 rounded-md whitespace-pre break-words;
 	}
 
 	article pre code {
 		@apply w-full;
+	}
+
+	article p code {
+		@apply text-white bg-slate-600 rounded-md px-1 py-0.5;
 	}
 
 	article ul {

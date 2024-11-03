@@ -1,8 +1,8 @@
 ---
 const {date, title, category, link, position} = Astro.props;
 const d = new Date(date);
-const month = new Intl.DateTimeFormat('en-uk',{month:'short',timeZone:'Asia/Karachi'}).format(d);
-const day = new Intl.DateTimeFormat('en-uk', {day:'numeric',timeZone:'Asia/Karachi'}).format(d);
+const month = new Intl.DateTimeFormat('en-uk',{month:'short',timeZone:'UTC'}).format(d);
+const day = new Intl.DateTimeFormat('en-pk', {day:'numeric',timeZone:'UTC'}).format(d);
 ---
 <div class='news p-2 pr-4 shadow shadow-slate-200 border border-slate-300 rounded-md flex flex-row gap-4'>
   <div class='date min-w-[100px] max-sm:min-w-[80px] flex flex-col justify-center items-center border-r border-r-slate-300 p-3'>

@@ -1,0 +1,53 @@
+---
+draft: false
+readtime: true
+subject: oop-cs-102
+title: Const Functions
+published: 2024-11-02T20:54:00.000Z
+bnnerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+*"The function that is not allowed to modify the values of data members of a class are called const functions. It's a read-only function that doesn't modify the object for it's called."*
+
+Const functions are made using `const` keyword after the functions parameter list `return_type function_name() const` .
+
+#### For function declaration within class
+
+```
+return_type function_name() const;
+```
+
+```cpp
+int get_salary() const;
+```
+
+#### For function definition within class
+
+```
+return_type function_name() const {
+  //body
+};
+```
+
+```cpp
+int get_salary() const {
+  //body
+};
+```
+
+#### For function definition outside class
+
+```
+return_type class_name::function_name() const {
+  //body
+};
+```
+
+```cpp
+int Employee::get_salary() const {
+  //body
+};
+```
