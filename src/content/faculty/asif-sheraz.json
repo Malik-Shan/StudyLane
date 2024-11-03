@@ -1,17 +1,18 @@
 {
-	"draft": false,
-	"profile": {
-		"image": "../../assets/images/faculty/asif-sheraz/image/src.jpeg",
-		"alt": "asif sheraz picture"
-	},
-	"name": "Asif Sheraz",
-	"info": {
-		"qualification": [
-			"M.Phill Math"
-		],
-		"designation": [
-			"lecturer",
-			"examination-controller"
-		]
-	}
+  "draft": false,
+  "profile": {
+    "image": "../../assets/images/faculty/asif-sheraz/profile/image.jpeg",
+    "alt": "asif sheraz picture"
+  },
+  "name": "Asif Sheraz",
+  "info": {
+    "contact": "0",
+    "qualification": [
+      "M.Phill Math"
+    ],
+    "designation": [
+      "lecturer",
+      "examination-controller"
+    ]
+  }
 }
