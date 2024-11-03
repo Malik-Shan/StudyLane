@@ -175,8 +175,8 @@ const facultyCollection = defineCollection({
       }),
       name: z.string(),
       info: z.object({
-        contact: z.string(),
-        email: z.string().email(),
+        contact: z.string().optional(),
+        email: z.string().email().optional(),
         qualification: z.array(z.string()),
         designation: z.array(reference("designations")),
       }),
