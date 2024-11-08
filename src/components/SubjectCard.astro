@@ -33,7 +33,7 @@ function completeTopic(outline:any){
 const totalTopics = totalTopic(outline);
 const completedTopics = completeTopic(outline);
 ---
-<a class='block p-2 py-4 pl-4 rounded-md border-2 relative overflow-hidden group/card cursor-pointer hover:shadow-black/20 hover:shadow-md hover:-translate-y-1 transition-all' href={path}>
+<a data-astro-prefetch='hover' class='block p-2 py-4 pl-4 rounded-md border-2 relative overflow-hidden group/card cursor-pointer hover:shadow-black/20 hover:shadow-md hover:-translate-y-1 transition-all' href={path}>
 	<!--<span class='sub_bg' style={`background-image:url('${img}'); background-image:cover; background-position:center;)`}></span>-->
   <h2 class='font-bold mb-2'><span class='bg-secondary text-white p-1 mr-1 rounded-sm aspect-square'>{sname.toUpperCase()}</span>{name}</h2>
 

@@ -6,7 +6,10 @@
     "discriminant": true,
     "value": "2(2-0)"
   },
-  "reference_materials": [],
+  "reference_materials": [
+    "a-gift-of-fire-sara-4",
+    "computer-ethics-deborah-4"
+  ],
   "outline": [
     {
       "topic": "Historical, social and economial context of Computing",

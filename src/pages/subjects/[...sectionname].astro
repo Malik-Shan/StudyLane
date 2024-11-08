@@ -4,7 +4,7 @@ import type {CollectionEntry} from 'astro:content';
 import {getEntry,getEntries,getCollection} from 'astro:content';
 import DefaultLayout from '../../layouts/DefaultLayout.astro';
 import SectionInfoCard from '../../components/SectionInfoCard.astro';
-import SubjectCard from '../../components/SubjectCard.astro';
+import SubjectCard from '@components/SubjectCard.astro';
 
 export async function getStaticPaths(){
 	const courses = await getCollection('courses');

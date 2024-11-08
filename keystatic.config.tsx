@@ -2,9 +2,9 @@ import CourseTypes from './src/data/cms/course_types.json';
 import ExamSystems from './src/data/cms/exam_systems.json';
 import LibraryCategories from './src/data/cms/library_categories.json';
 //import ArticleCategories from './src/data/cms/article_categories.json';
-//
-import { config, fields, singleton, collection, } from '@keystatic/core';
-import { slugPathRegex, slugDoublePathRegex, coursesectionPathRegx } from './src/lib/cms/lib/util.js';
+import { block } from '@keystatic/core/content-components'
+import { config, fields, singleton, collection } from '@keystatic/core';
+import { slugPathRegex, slugDoublePathRegex } from './src/lib/cms/lib/util.js';
 
 import type { GitHubConfig, LocalConfig } from '@keystatic/core';
 interface JSONData {
@@ -27,8 +27,8 @@ export default config({
 			name: "StudyLane",
 			mark: ({ colorScheme }) => {
 				let path = colorScheme === 'dark'
-					? '/assests/images/official/logo2-white.png'
-					: '/assests/images/official/logo2.png';
+					? '/assets/images/official/logo2-white.png'
+					: '/assets/images/official/logo2.png';
 				return <img src={path} height={24} />
 			}
 		},
@@ -465,7 +465,39 @@ export default config({
 							directory: "src/assets/images/blog/subject_blog",
 							publicPath: "../../assets/images/blog/subject_blog/",
 						},
-					}
+					},
+					components: {
+						DrivePreview: block({
+							label: "Drive Preview",
+							schema: {
+								driveId: fields.text({
+									label: "Drive Id",
+									validation: { isRequired: true },
+								}),
+								name: fields.text({
+									label: "Name",
+									validation: { isRequired: true },
+								}),
+								type: fields.select({
+									label: "File Type",
+									description: "Select the type of file.",
+									options: [
+										{ label: "PDF", value: "pdf" },
+										{ label: "JPG", value: "jpg" },
+										{ label: "WEBP", value: "webp" },
+										{ label: "PNG", value: "png" },
+									],
+									defaultValue: "pdf",
+								})
+							},
+							ContentView: (props) => (
+								<div>
+									<p>ID: {props.value.driveId}</p>
+									<p>Name: {props.value.name}</p>
+									<p>Type: {props.value.type}</p>
+								</div>),
+						})
+					},
 				})
 			},
 		}),

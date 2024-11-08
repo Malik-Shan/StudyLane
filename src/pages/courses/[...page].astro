@@ -13,7 +13,7 @@ const {page}:{page:Page} = Astro.props;
 <DefaultLayout title='Courses'>
 	<section class='container my-4 flex flex-col gap-2 mx-auto px-4 max-sm:px-2 '>
 		{page.data.map((d) => 
-		<a class='text-xl max-sm:text-md p-4 text-center border-2 rounded-md shadow-black/25 hover:shadow-md hover:-translate-y-1 transition-all' href={`/course/${d.slug}`}>{d.data.information.type+" " + d.data.name}</a>
+		<a data-astro-prefetch='hover' class='text-xl max-sm:text-md p-4 text-center border-2 rounded-md shadow-black/25 hover:shadow-md hover:-translate-y-1 transition-all' href={`/course/${d.slug}`}>{d.data.information.type+" " + d.data.name}</a>
 		)}
 	</section>
 	<Pagination page={page} />

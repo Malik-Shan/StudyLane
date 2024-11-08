@@ -14,7 +14,7 @@ interface Props{
 }
 const {href,image,name,edition,author,category} = Astro.props;
 ---
-<a href={href} class="relative hoverEffect border-2 p-1 rounded-lg">
+<a data-astro-prefetch='hover' href={href} class="relative hoverEffect border-2 p-1 rounded-lg">
 	<span class='[--clr:var(--clr-secondary)] absolute top-2 left-0 no-sr-only inline-block bg-[--clr] px-2 pl-4 text-white before:block before:border-8 before:border-b-transparent before:border-r-transparent before:border-[--clr] before:absolute before:left-full before:top-0 before:content-[""] after:border-8 after:border-t-transparent after:border-r-transparent after:border-[--clr] after:absolute after:left-full after:bottom-0 after:content-[""]'>
 		{category}
 	</span>

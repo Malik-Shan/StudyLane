@@ -1,6 +1,9 @@
 ---
+import {Image} from 'astro:assets';
+import Image404 from '@assets/images/official/404.jpg';
+
 import DefaultLayout from '../layouts/DefaultLayout.astro';
 ---
 <DefaultLayout title='404'>
-	<img class='absolute inset-0 h-full w-full object-cover object-center' src='/assests/images/official/404.jpg' />
+	<Image class='absolute inset-0 h-full w-full object-cover object-center' src={Image404} alt='Cartoon cat with a plug in hand. Showing 404 page' />
 </DefaultLayout>
