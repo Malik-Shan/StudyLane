@@ -40,10 +40,10 @@ const books = await getEntries(subject.data.reference_materials);
 		<h2 class='text-xl font-medium text-center mb-4'>Reference Material</h2>
 		<div class='subject-ref flex flex-col gap-2 mb-4'>
 			{books.map((r)=>(
-			<a target="_blank" href={`/library/read/${r.data.drive_id}`} class='border-2 rounded-md p-2 relative hover:-translate-y-1 hover:shadow-black/25 hover:shadow-md transition-all'>
+			<a target="_blank" href={`/library/read/${r.slug}`} class='border-2 rounded-md p-2 relative hover:-translate-y-1 hover:shadow-black/25 hover:shadow-md transition-all'>
 			<i class="fa-solid fa-up-right-from-square absolute text-slate-500 top-2 right-2"></i>
 				<h3>Name: {r.data.name}</h3>
-				<h3>Edition: {r.data.eidtion}</h3>
+				<h3>Edition: {r.data.edition}</h3>
 				<h3>Author: 
 					{r.data.author.map((a:any)=>(
 					<span class='inline-block bg-slate-300 px-2 rounded-md mr-1'>{a}</span>

@@ -41,6 +41,12 @@
         "name": "History",
         "slug": "history"
       }
+    },
+    {
+      "category": {
+        "name": "Ethics",
+        "slug": "ethics"
+      }
     }
   ]
 }

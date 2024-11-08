@@ -7,6 +7,10 @@ import keystatic from "@keystatic/astro";
 
 // https://astro.build/config
 export default defineConfig({
+  prefetch: {
+    prefetchAll: false,
+    defaultStrategy: "hover",
+  },
   integrations: [
     tailwind({
       applyBaseStyles: false,

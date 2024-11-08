@@ -8,6 +8,12 @@ import LibraryHeader from '@components/LibraryHeader.astro';
 import BookCard from '@components/library/BookCard.astro';
 import Pagination from '@components/Pagination.astro';
 
+interface Image {
+		img:ImageMetadata;
+		alt:string;
+		position:string;
+};
+
 export async function getStaticPaths({paginate}){
 	const books = await getCollection('library');
 	return paginate(books,{pageSize:12});
@@ -25,7 +31,7 @@ const {page}:{page:Page} = Astro.props;
 		<h2 class="heading text-slate-500 text-3xl text-center font-bold mb-8">Explore Our Collection</h2>
 		<div class='grid gap-4 grid-cols-6 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-md:gap-2 mb-4'>
 			{page.data.map((b:CollectionEntry<'library'>)=>(
-			<BookCard href={`/library/read/${b.slug}`} image={b.data.thumbnail} name={b.data.name} edition={b.data.edition} author={b.data.author} category={b.data.category}/>
+			<BookCard href={`/library/read/${b.slug}`} image={b.data.thumbnail as Image} name={b.data.name} edition={b.data.edition} author={b.data.author} category={b.data.category}/>
 			))}
 		</div>
 		<Pagination page={page} />

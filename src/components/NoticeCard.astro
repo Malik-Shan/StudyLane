@@ -20,7 +20,7 @@ const day = new Intl.DateTimeFormat('en-pk', {day:'numeric',timeZone:'UTC'}).for
       }
     </div>
     <div class='wrapper flex flex-row justify-between w-full'>
-      <a class='primaryBtn inline-block p-1.5 rounded-md text-[.8rem] border-2 font-mdium' href={`${link}`}>Read More</a>
+      <a data-astro-prefetch='hover' class='primaryBtn inline-block p-1.5 rounded-md text-[.8rem] border-2 font-mdium' href={`${link}`}>Read More</a>
       <span class='self-end text-slate-400 text-sm font-bold'>{position}</span>
     </div>
   </div>

@@ -1,13 +1,20 @@
 ---
+interface NavData{
+	href:string;
+	name:string;
+	icon:string;
+};
 import {getEntry} from 'astro:content';
 const navigation = await getEntry('navigation','navbar');
-const pathname = new URL( Astro.request.url).pathname
+const url = new URL( Astro.request.url).pathname;
+const pathname = import.meta.env.PROD ? (url.slice(1)) : (url);
+console.log({url,pathname});
 ---
 <nav class='z-[1000] fixed w-max h-[var(--nav-height)] bottom-[var(--nav-bottom)] left-1/2 -translate-x-1/2 border-2 border-slate-300 rounded-full bg-white p-2  max-sm:w-full max-sm:rounded-none max-sm:bottom-0 max-sm:border-l-0 max-sm:border-r-0 max-sm:border-b-0'>
 	<ul class='flex flex-row justify-center gap-2 h-full'>
-		{navigation.data.navigation.map((d)=>(
+		{navigation.data.navigation.map((d:NavData)=>(
 		<li class='h-full'>
-			<a href={d.href} class={`${pathname === d.href ? 'active' : ''} nav-link lowSecondaryBtn border rounded-full p-1 px-3 max-sm:p-2 flex flex-row justify-center items-center gap-2 max-sm:text-xl h-full max-sm:aspect-square`}>
+			<a data-astro-prefetch='hover' href={d.href} class={`${pathname === (import.meta.env.PRDO ? d.href.slice(1) : d.href) ? 'active' : ''} nav-link lowSecondaryBtn border rounded-full p-1 px-3 max-sm:p-2 flex flex-row justify-center items-center gap-2 max-sm:text-xl h-full max-sm:aspect-square`}>
 				<Fragment set:html={d.icon} />
 				<span class='inline-block max-sm:hidden'>{d.name}</span>
 			</a>

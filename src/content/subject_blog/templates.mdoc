@@ -41,7 +41,7 @@ int main() {
 
     int added_ints = add<int>(2, 3);
     cout << added_ints << endl;
-    int added_doubles = add<double>(2.8, 3.2);
+    double added_doubles = add<double>(2.8, 3.2);
     cout << added_doubles << endl;
     return 0;
 };
@@ -50,9 +50,29 @@ int main() {
 // 6.0
 ```
 
+Example with one generic and one specific data type.
+
+```cpp
+#include <iostream>
+using namespace std;
+template <typename Type>
+Type scaleByFactor(Type number, int factor) {
+    return number * factor;
+};
+int main() {
+    int intValue = 10;
+    double doubleValue = 5.5;
+
+    cout << "intValue scaled by 2: " << scaleByFactor(intValue, 2) << endl;
+    cout << "doubleValue scaled by 3: " << scaleByFactor(doubleValue, 3) << endl;
+
+    return 0;
+};
+```
+
 ### Class Templates:
 
-A class template allows us to make a class that works with different data types. The new class is made using the user-defined or built-in data type.
+A class template allows us to make a class that works with different data types. It's used to define generic definition of a class. A class template consists of statements which are independent of particular data types. The new class is made using the user-defined or built-in data type.
 
 #### Declaring Class Template
 

@@ -1,5 +1,7 @@
 ---
+import {Image} from 'astro:assets';
 
+import StockStudent from '@assets/images/official/stock/students.png';
 ---
 <section class='overflow-hidden flex flex-row max-lg:flex-col justify-center items-center p-12 min-h-[calc(100vh_-_65px_-_(var(--nav-height)_+_var(--nav-bottom)))] max-sm:min-h-[calc(100vh_-_65px_-_var(--nav-height)]'>
 	<p class='animate [--direction:left] [--time:1s] [--delay:1.2s] text-5xl max-lg:text-3xl max-sm:text-2xl max-w-[500px] font-black text-slate-700 text-wrap mb-4'>
@@ -8,7 +10,7 @@
 		FOR LIFE LONG
 		<span class='text-secondary'>SUCCESS</span> 
 	</p>
-	<img class='animate [--direction:top] [--time:1.2s] [--delay:0s] block w-full max-w-[700px] max-lg:max-w-[450px]' src='/assests/images/stock/students.png' />
+	<Image class='animate [--direction:top] [--time:1.2s] [--delay:0s] block w-full max-w-[700px] max-lg:max-w-[450px]' width={700} src={StockStudent} alt='Students image'/>
 </section>
 <style is:global>
 </style>

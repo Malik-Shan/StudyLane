@@ -10,22 +10,17 @@ category: []
 tag: []
 postedBy: admin
 ---
-## Abstract Classes
-
-*"An abstract class is class that is design to be treated as a base class upon which other classes can be built. It can not be used to initiate objects."*
-
-A class that has atleast one pure virtual function which must be redefined or overridden in derived class else it also becomes abstract class.
+## Virtual & Pure Virtual Function
 
 ##### Virutal Function:
 
-A function that is declared in base class with `virtual`keyword and is redefined in derived class.
+Virtual means existing in effect but not in reality. A function that is declared in base class with `virtual`keyword and is redefined/overridden in derived class. It appears to exist in some part of a program but doesn't really exist. It is used to implement polymorphism enabling user to execute different functions by the same function name.
 
 ##### Pure Virtual Function:
 
-A function that is declared in base class with `virtual`keyword and must be redefined in derived class. It is declared by assigning 0 in it's declaration. If the pure virtual function is not redefined in the derived class, then derived class also becomes abstract class.
+A type of virtual function that has no body is known as **pure virtual function**. Pure virtual function is declared in base class with `virtual`keyword and must be redefined in derived class. It is declared by assigning 0 in it's declaration. If the pure virtual function is not redefined in the derived class, then derived class also becomes abstract class.
 
 ```cpp
-// Abstract Class
 class Shape{
     public:
         // virtual function
@@ -33,13 +28,47 @@ class Shape{
             cout << "Set shape." << endl;
         };
         // pure virtual function
-        virtual void draw() = 0;
+        virtual void set_shape() = 0;
+};
+```
+
+## Abstract Classes
+
+*"An abstract class is class that is design to be treated as a base class upon which other classes can be built. It can not be used to initiate objects."*
+
+A class that has atleast one pure virtual function which must be redefined or overridden in derived class else it also becomes abstract class.
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+class Animal {
+public:
+    // Pure virtual function (makes the class abstract)
+    virtual void makeSound() const = 0;
+    // Regular member function with an implementation
+    void eat() const {
+        cout << "Eating...\n";
+    };
+};
+class Dog : public Animal {
+public:
+    void makeSound() const override {
+        cout << "Woof! Woof!\n";
+    };
+};
+int main() {
+    Dog dog;
+    dog.makeSound();  // Output: Woof! Woof!
+    dog.eat();        // Output: Eating...
+
+    return 0;
 };
 ```
 
 ## Interfaces
 
-An interface describes the behavior or capabilities of a class without committing to a particular implementation of that class.
+An interface describes the behavior or capabilities of a class without committing to a particular implementation of that class.  It only contains pure virtual function with no data members or functions.
 
 The interfaces are implemented using **abstract classes** and these abstract classes should not be confused with data abstraction which is a concept of keeping implementation details separate from associated data.
 
@@ -52,46 +81,30 @@ Class that can be used to initiate an object is called concrete class.
 ```cpp
 #include <iostream>
 using namespace std;
-// Base class
-class Shape {
-   public:
-      // pure virtual function providing interface framework.
-      virtual int getArea() = 0;
-      void setWidth(int w) {
-         width = w;
-      };
-      void setHeight(int h) {
-         height = h;
-      };
-   protected:
-      int width;
-      int height;
+class Sound {
+public:
+    // Pure virtual function, defining an interface
+    virtual void makeSound() const = 0;
 };
-// Derived classes
-class Rectangle: public Shape {
-   public:
-      int getArea() { 
-         return (width * height); 
-      };
+class Dog : public Sound {
+public:
+    void makeSound() const override {
+        cout << "Woof! Woof!\n";
+    };
 };
-class Triangle: public Shape {
-   public:
-      int getArea() { 
-         return (width * height)/2; 
-      };
+class Cat : public Sound {
+public:
+    void makeSound() const override {
+        cout << "Meow! Meow!\n";
+    };
 };
-int main(void) {
-   Rectangle Rect;
-   Triangle  Tri;
- 
-   Rect.setWidth(5);
-   Rect.setHeight(7);
-   cout << "Total Rectangle area: " << Rect.getArea() << endl;
+int main() {
+    Dog dog;
+    Cat cat;
 
-   Tri.setWidth(5);
-   Tri.setHeight(7);
-   cout << "Total Triangle area: " << Tri.getArea() << endl; 
+    dog.makeSound();  // Output: Woof! Woof!
+    cat.makeSound();  // Output: Meow! Meow!
 
-   return 0;
+    return 0;
 };
 ```
