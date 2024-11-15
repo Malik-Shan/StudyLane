@@ -1,0 +1,102 @@
+---
+draft: false
+readtime: true
+title: Basic Database Concepts
+published: 2024-11-14T15:46:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+### **What is a Database?**
+
+A database is an **organized** collection of **related** data that is stored in an **efficient** and **compact** manner. The word **compact** means that data is stored in such a way that users can use this data easily. The word **related** means that a database is normally created to store the data about a particular topic. The word **efficient** means that the user can search the required data quickly. The word **compact** means that the stored data occupies as little space as possible in the computer.
+
+**Data**
+
+A collection of raw facts and figures is called **data**. A word **raw** means that the facts have not yet been processed to get their exact meaning. Data is collected from different sources. It is collected for different purposes. Data may consist of numbers, characters, symbols & pictures etc.
+
+**Ex:** Students fill his information while getting admission.It contains raw data for student records.
+
+**Information**
+
+The processed data is called information. Information is an organized and processed form of data. It is more meaningful than data and is used for making decisions. Data is used as an input for the processing and information is the output of this processing. This information can be used again in some other processing and will be considered as data in that processing.
+
+**Ex:** Marks of students in different subjects are data , while their total marks are the information.
+
+### **2. Types of Databases**
+
+- **Relational Database (RDBMS)**: Stores data in tables with rows and columns, using a structured query language (SQL) for data management. **Examples** include MySQL, PostgreSQL, and Oracle.
+- **NoSQL Database**: Designed to handle unstructured data and large datasets with a more flexible schema. **Examples** include MongoDB (document-based), Cassandra (column-based), and Redis (key-value store).
+- **Hierarchical Database**: Organizes data in a tree-like structure where records have a parent-child relationship. Often used in mainframe systems.
+- **Network Database**: Data is represented as a network of records connected by links. Allows for more complex relationships than hierarchical databases.
+- **Object-Oriented Database**: Stores data as objects, similar to object-oriented programming languages, and is often used in multimedia and scientific applications.
+- **Graph Database**: Focused on relationships between data points, typically used in social networks, recommendation engines, and fraud detection.
+
+### **3. Key Database Terminology**
+
+- **Table/Relation**: The basic unit of storage in relational databases, consisting of rows (records) and columns (fields).
+- **Record (Row)**: A single entry in a table that represents a complete set of data attributes.
+- **Field (Column)**: Represents one category of data in a table, such as "Name" or "Age."
+- **Primary Key**: A unique identifier for each record in a table, ensuring no two records are identical in terms of this key.
+- **Foreign Key**: A field in one table that links to the primary key in another, establishing a relationship between the two tables.
+- **Index**: A database optimization technique used to speed up the retrieval of records. Indexes can improve query performance but may slow down write operations.
+- **Schema**: The structure or blueprint of the database, defining tables, fields, relationships, and constraints.
+- **Transaction**: A unit of work performed within a database that must either complete fully or not at all, to ensure data integrity.
+
+### **4. Database Relationships**
+
+- **One-to-One Relationship**: Each record in Table A is linked to only one record in Table B, and vice versa.
+- **One-to-Many Relationship**: A record in Table A can link to multiple records in Table B, but each record in Table B links to only one record in Table A.
+- **Many-to-Many Relationship**: Records in Table A can link to multiple records in Table B, and vice versa, often managed through a **junction table**.
+
+### **5. Normalization**
+
+- **Normalization** is the process of organizing data to reduce redundancy and improve data integrity. It involves structuring tables to remove duplicate data and ensure dependencies are logically stored. Common forms of normalization include:
+  - **1st Normal Form (1NF)**: Removes duplicate columns, creating a unique set of fields.
+  - **2nd Normal Form (2NF)**: Removes subsets of data that apply to multiple rows by creating separate tables.
+  - **3rd Normal Form (3NF)**: Removes columns that are not dependent on the primary key.
+
+### **6. SQL (Structured Query Language)**
+
+- **SQL** is a standard programming language used to manage and manipulate relational databases. It includes commands for data querying (SELECT), updating (UPDATE), inserting (INSERT), and deleting (DELETE).
+- **Common SQL Commands**:
+  - **SELECT**: Retrieves data from one or more tables.
+  - **INSERT**: Adds new records to a table.
+  - **UPDATE**: Modifies existing data within a table.
+  - **DELETE**: Removes records from a table.
+  - **JOIN**: Combines data from multiple tables based on related columns.
+  - **GROUP BY**: Groups rows with the same values in specified columns for aggregation.
+
+### **7. ACID Properties**
+
+- ACID stands for **Atomicity, Consistency, Isolation,** and **Durability**. These properties are essential to ensure data reliability, especially during transactions.
+  - **Atomicity**: Ensures that each transaction is all-or-nothing; it either fully completes or doesn’t happen at all.
+  - **Consistency**: Ensures data integrity by adhering to all predefined rules.
+  - **Isolation**: Ensures that concurrent transactions do not interfere with each other.
+  - **Durability**: Ensures that completed transactions are permanently stored, even in the event of a system failure.
+
+### **8. Indexes**
+
+- **Indexes** improve the speed of data retrieval by creating a data structure that allows the database to locate rows more quickly. They can be based on a single column or a combination of columns. However, indexes increase storage requirements and can slow down data modification operations like insertions and updates.
+
+### **9. Data Integrity and Constraints**
+
+- **Data Integrity** is the accuracy and consistency of data stored in a database. Common integrity constraints include:
+  - **Primary Key Constraint**: Ensures each record in a table is unique.
+  - **Foreign Key Constraint**: Enforces relationships between tables by ensuring foreign keys match primary keys in related tables.
+  - **Unique Constraint**: Ensures all values in a column are distinct.
+  - **Not Null Constraint**: Prevents null (empty) values in a column.
+  - **Check Constraint**: Ensures values in a column meet a specified condition.
+
+### **10. Database Management Systems (DBMS)**
+
+- **DBMS** is the software that interacts with the user, applications, and the database itself to capture and analyze data. A DBMS provides an interface for managing databases and ensures data consistency, security, and backup.
+- **Examples of DBMS**: MySQL, PostgreSQL, Oracle Database, MongoDB (for NoSQL), and SQLite.
+
+### **11. Backup and Recovery**
+
+- Regular **backups** are critical for data security, enabling recovery in case of data loss due to system failure, human error, or malicious attacks.
+- **Recovery** involves restoring data to its previous state using backup copies, often necessary for maintaining business continuity.l.

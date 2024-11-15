@@ -1,0 +1,94 @@
+---
+draft: false
+readtime: true
+title: Basics of Relational Model
+published: 2024-11-14T16:36:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+The relational model gives us a single way to represent data: as a two-dimen- sional table called a relation. Figure below is an example of a relation, which we shall call Movies. The rows each represent a movie, and the columns each represent a property of movies. In this section, we shall introduce the most important terminology regarding relations, and illustrate them with the Movies relation.
+
+{% table %}
+- title
+- year
+- length
+- genre
+---
+- Gone With the Wind
+- 1939
+- 231
+- drama
+---
+- Star Wars
+- 1977
+- 124
+- sciFi
+---
+- Wayne’s World
+- 1992
+- 95
+- comedy
+---
+- 
+- 
+- 
+- 
+{% /table %}
+
+### Attributes
+
+The columns of a relation are named by attributes-, in Fig. above the attributes are `title` , `year`, `length`, and `genre`. Attributes appear at the tops of the columns. Usually, an attribute describes the meaning of entries in the column below. For instance, the column with attribute length holds the length, in minutes, of each movie.
+
+### Schemas
+
+The name of a relation and the set of attributes for a relation is called the schema for that relation. We show the schema for the relation with the relation name followed by a parenthesized list of its attributes. Thus, the schema for relation Movies
+
+`M o v ie s(title , year, length , genre)`
+
+The attributes in a relation schema are a set, not a list. However, in order to
+talk about relations we often must specify a “standard” order for the attributes.
+Thus, whenever we introduce a relation schema with a list of attributes, as
+above, we shall take this ordering to be the standard order whenever we display
+the relation or any of its rows.
+In the relational model, a database consists of one or more relations. The
+set of schemas for the relations of a database is called a relational database
+schema, or just a database schema.
+
+### Tuples
+
+The rows of a relation, other than the header row containing the attribute names, are called tuples. A tuple has one component for each attribute of the relation. For instance, the first of the three tuples in Fig. above has the four components Gone With th e Wind, 1939, 231, and drama for attributes `title` , `year`, `length`, and `genre`, respectively. When we wish to write a tuple
+
+> **Conventions for Relations and Attributes**
+We shall generally follow the convention that relation names begin with a
+capital letter, and attribute names begin with a lower-case letter. However,
+later in this book we shall talk of relations in the abstract, where the names
+of attributes do not matter. In that case, we shall use single capital letters
+for both relations and attributes, e.g., R(A,B,C) for a generic relation
+with three attributes.
+
+in isolation, not as part of a relation, we normally use commas to separate
+components, and we use parentheses to surround the tuple. For example,
+
+`(Gone With the Wind, 1939, 231, drama)`
+
+is the first tuple of Fig. above Notice that when a tuple appears in isolation, the attributes do not appear, so some indication of the relation to which the tuple belongs must be given. We shall always use the order in which the attributes were listed in the relation schema.
+
+### Domains
+
+The relational model requires that each component of each tuple be atomic; that is, it must be of some elementary type such as integer or string. It is not permitted for a value to be a record structure, set, list, array, or any other type that reasonably can have its values broken into smaller components.
+
+It is further assumed that associated with each attribute of a relation is a domain, that is, a particular elementary type. The components of any tuple of the relation must have, in each component, a value that belongs to the domain of the corresponding column. For example, tuples of the Movies relation of Fig. above must have a first component that is a string, second and third components that are integers, and a fourth component whose value is a string.
+
+It is possible to include the domain, or data type, for each attribute in a relation schema. We shall do so by appending a colon and a type after attributes. For example, we could represent the schema for the Movies relation as: `Movies(title:string, year:integer, length:integer, genre:string)`
+
+### Relation Instances
+
+A relation about movies is not static; rather, relations change over time. We expect to insert tuples for new movies, as these appear. We also expect changes to existing tuples if we get revised or corrected information about a movie, and perhaps deletion of tuples for movies that are expelled from the database for some reason.
+
+It is less common for the schema of a relation to change. However, there are situations where we might want to add or delete attributes. Schema changes, while possible in commercial database systems, can be very expensive, because each of perhaps millions of tuples needs to be rewritten to add or delete com- ponents. Also, if we add an attribute, it may be difficult or even impossible to generate appropriate values for the new component in the existing tuples.
+
+We shall call a set of tuples for a given relation an instance of that relation. For example, the three tuples shown in Fig. above form an instance of relation Movies. Presumably, the relation Movies has changed over time and will continue to change over time. **For instance**, in **1990**, Movies did not contain the tuple for `Wayne ’ s World`. However, a conventional database system maintains only one version of any relation: the set of tuples that are in the relation “now.” This instance of the relation is called the **current instance**

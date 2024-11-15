@@ -1,0 +1,133 @@
+---
+draft: false
+readtime: true
+title: Database Approach
+published: 2024-11-15T05:02:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Database approach has many advantages over file processing system.
+
+### **Advantages of Database Approach**
+
+Some important advantages of database approach are as follows:
+
+1. #### **Redundancy Control:**
+
+The data in a database appears only once and is not duplicated. For example the data of a student in college database is stored int one table. The table can be accessed for diffedata purposes. For example, if we want foabore the marks of the student in a table, only Roll Neol the student will be used in nation about the studend table will be connected to ke Nont table for accessing the information as follows:
+
+**Student Table**
+
+{% table %}
+---
+- **Roll no**&nbsp;
+- **Name**
+- **Address**
+- **Email**
+- **Phone**
+---
+- 1
+- Usman
+- Faisalabad
+- usmanitseries.com.pk
+- 727253
+---
+- 2
+- Abdullah
+- Toronto
+- abdullahitseries.com.pk
+- 784692
+{% /table %}
+
+**Marks Table**
+
+{% table %}
+---
+- Roll No&nbsp;
+- Subject
+- Marks
+---
+- 1
+- Math&nbsp;
+- 98
+---
+- 2
+- English
+- 87
+---
+- 3
+- Math
+- 81
+---
+- 4
+- English
+- 92
+{% /table %}
+
+In the above figure, the details of the students are stored in Student table. The Marks table stores only the Roll No of students. The remaining data is not duplicated. Roll No in the Marks table is duplicated for joining two tables.
+
+2. #### **Data Consistency:**
+
+An important benefit of controlling redundancy is that the data is consistent. If a data item appears only at one place, it is easy to maintain. If it is required to update data, the updation is performed at only one place. The change will automatically take effect at places where ever this data is used.
+
+3. #### **Consistency Constraints:**
+
+Consistency constraints are the rules that must be followed to enter data in database. If the constrainsts are not fulfilled, data cannot be entered in database. Database management systems provide an easy way to apply different consistency constraints to ensure data consistency. For example, a constraint can be applied to ensure that the data is always entered in a specific range otc.
+
+4. #### **Data Atomicity:**
+
+A collection of all steps to complete a process is known as transaction. Data atomicity means that either a transaction should take place as a whole or it should not take place at all. 11 ensures that the database will always have correct and consistent data. Suppose a user wants to transfer money from account A to account B. This process consists of two steps:
+
+1. Deduct the money from account A.
+1. Add the money to account B.
+
+Suppose that the system fails when the computer has performed the first step. It means that the amount has been deducted from the account. A but has not been added to account B. This situation can make data inconsistent. The database management system does not allow such a situation to happen. Database management system either executes both steps or does not execute any step.
+
+5. #### **Data Security:**
+
+Data security is the protection of the database from unauthorized access. The database management system provides several procedures to maintain data security. The security is maintained by allowing access to the database through the use of passwords. Not every use of database system should be able to access all the data.
+
+In some situations, it is required to provide different types of access permission to dala for different users. For example, a data entry operator should only be allowed to enter data. The chairman of the organization should be able to access or delete the data completely. Database management system provides different levels of security options for different users.
+
+6. #### **Reduced Developed Time:**
+
+A database organizes data more efficiently than a file processing system. It is often easier and faster to develop programs that use this data. Many database management systems also provide several tools to assist in program development. So it reduces the overall time for developing applications.
+
+7. #### **Compactness:**
+
+The database management system stores data with compactness and efficiency. It requires less storage space than the file system. It saves the storage resources of the system and memory is not wasted.
+
+8. #### **Easier Reporting:**
+
+Reports are very important part of database applications. The reports are very essential for taking crucial decisions in an organization. The data in database is stored in an organized manner. It can easily be retrieved for creating different reports. The reports can be prepared very easily and quickly in required format in database management system.
+
+9. #### **Data Sharing:**
+
+Once a database is developed, it can be used by several users in the organization. The database can also be shared by different applications. If a new application requires the same data, it can share the existing database instead of developing it again.
+
+10. #### **Increased Concurrency:**
+
+In some situation, two or more users may access the same file simultaneously. It is possible that the accesses will interfere with each other. This may result in loss of information or even loss of integrity. Many DBMS manage concurrent access and ensure such problems cannot occur.
+
+11. #### **Improved Backup & Recovery:**
+
+In file-based systems, it is the responsibility of the user to protect data from failures of the computer system or application program. This may require taking backup of the data daily. If the data is lost, the backup is restored. The modern DBMS provide facilities to minimize the amount of processing that can be lost due to a failure.
+
+12. #### **Data Independence:**
+
+Database approach provides the facility of data independence. It means that the data and the application programs are separate from each other. It is possible to change data storage structures and operations without changing the application programs.
+
+### **Disadvantages of Database Approach**
+
+Some disadvantages of using database approach are as follows:
+
+1. **High Cost of DBMS:** A complete database management system is very large and sophisticated software. It is expensive to purchase database management software.
+1. **Higher Hardware Cost:** Database management systems are complicated and heavy softwares. Additional memory and processing power may be required to run the DBMS. It may require more powerful hardware.
+1. **Higher Programming Cost:** DBMS is complex software with many features. The programmers need a thorough knowledge of system to use it to best advantage. If the organization hires experienced database programmers, it has to pay extra cost for this expertise.
+1. **Higher Conversion Cost:** It an organization converts its records to database, data has to be converted from files to database system. Because of the different formats used by different systems, it may be a difficult and time-consuming process. Moreover, the structure and data may also have to be modified according to the requirements of DBMS.
+1. **More Chance of Failure:** In database management system, all resources and components are centralized. If any of these components fails, the whole system stops.
+1. **Complexity & Performance:** Database management system is general-purpose software. A complete DBMS has to perform many tasks that make it complex and complicated software. In some applications DBMS may run less efficiently as compared to file processing systems.

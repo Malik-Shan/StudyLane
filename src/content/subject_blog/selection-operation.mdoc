@@ -1,0 +1,170 @@
+---
+draft: false
+readtime: true
+title: Selection Operation
+published: 2024-11-14T19:49:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+The selection operation is a unary operation. The selection operator is sigma σ. It acts like a filter on relation. It return only a certain number of tuples. It selects the tuples using a condition. The condition appears as subscript to σ. The resulting relations has the same degree as the original relation. However, the resulting relations may have fewer tuples than the original relation.
+
+σ<sub>c</sub> (R) return only those tuples in R that satisfy condition C
+
+A condition C may consist of any combination of comparison or logical operators that operate on the attributes of R.
+
+- Comparison operators: = (Equals)  ≠ (Not Equal) < (Less Than) > (Greater Than) ≤ (Less Than or Equal To)  ≥ (Greater Than or Equal To)
+- Logical Operators: ∧ (AND)  ∨ (OR)  ¬ (NOT)
+- Use the Truth tables for logical expressions:
+
+{% table %}
+- ∧
+- T
+- F
+---
+- **T**
+- T
+- F
+---
+- **F**
+- F
+- F
+{% /table %}
+
+{% table %}
+- ∨
+- T
+- F
+---
+- **T**
+- T
+- T
+---
+- **F**
+- T
+- F
+{% /table %}
+
+{% table %}
+- ¬
+- T
+- F
+---
+- 
+- F
+- T
+{% /table %}
+
+**Example:**
+
+Assume a relation EMP has the following tuples:
+
+{% table %}
+- **Name**
+- **Office**
+- **Dept**
+- **Rank**
+---
+- Saleem
+- 400
+- CS
+- Assistant
+---
+- Junaid
+- 220
+- Econ
+- Lecturer
+---
+- Ghafoor
+- 160
+- Econ
+- Assistant
+---
+- Babar
+- 420
+- CS
+- Associate
+---
+- Saleem
+- 500
+- Fin
+- Associate
+{% /table %}
+
+**Question**
+
+Select only those Employees with last name Saleem who are assistant professors:
+
+σ<sub>Name = ‘Saleem’</sub>&nbsp;∧&nbsp;<sub>Rank = ‘Assistant’</sub> (EMP)
+
+**Result**
+
+{% table %}
+- Name
+- Office
+- Dept
+- Rank
+---
+- Saleem
+- 400
+- CS
+- Assistant
+{% /table %}
+
+**Question**
+
+Select only those Employees who are Assistant Professors or in Economics department:
+
+σ<sub>Rank = ‘Assistatn’</sub> ∨ <sub>Dept=’Econ’</sub> (EMP)
+
+**Result**
+
+{% table %}
+- Name
+- Office
+- Dept
+- Rank
+---
+- Saleem
+- 400
+- CS
+- Assistant
+---
+- Junaid
+- 220
+- Econ
+- Lecturer
+---
+- Ghafoor
+- 160
+- Econ
+- Assistant
+{% /table %}
+
+**Questions**
+
+Select only those Employees who are not in CS department or Lecturer:
+
+σ ¬<sub>Rank = ‘Lecturer’</sub> ∨&nbsp;<sub>Dept=’CS’</sub> (EMP)
+
+**Result**
+
+{% table %}
+- Name
+- Office
+- Dept
+- Rank
+---
+- Ghafoor
+- 160
+- Econ
+- Assistant
+---
+- Saleem
+- 500
+- Fin
+- Associate
+{% /table %}

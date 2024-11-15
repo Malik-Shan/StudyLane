@@ -1,0 +1,148 @@
+---
+draft: false
+readtime: true
+title: Operators in SQL
+published: 2024-11-15T03:14:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Different operators in SQL ar as follows:
+
+### Arithmetic Operators
+
+Mathematical operators are the symbols that are used to perform arithmetic operationson data. An operator is a symbol that performs some operations. Arithmetic expression may contain column names, constant numeric values and the arithmetic operators. Following are the lists of available operatos in SQL.
+
+- Add(+)
+- Subtract(-)
+- Multiply(*)
+- Divide(/)
+
+**Example**
+
+Write a query that displays ENAME, annual salary and COMM from EMP table
+
+`SELECT ENAME, SAL * 12, COMM FROM EMP;`
+
+#### Operator Precedence
+
+The order in which different types of operations in an expression are evaluated is known as operator precedence. It is also known as **hierarchy of operations**. Multiplication, division operators are performed before addition and subtraction. When an expression contains operators of the same order, the expression is evaluated from left to right. Use parenthesis to force a specific order of evaluation.
+
+**Example**
+
+`SELECT ENAME,SAL+250*12 FROM EMP;`
+
+In above example, multiplication (250*12) is evaluated first. The salary value is then added to the result of multiplication.
+
+**Example**
+
+`SELECT ENAME, (SAL+250)*12 FROM EMP;`
+
+In above example parentheses may be used to specify the order in which operations are executed. Becuase of parentheses, addition takes priority over multiplication.
+
+### Relational Operators
+
+The relational operators are used in conditions to compare one expression with another. They are used in WHERE clause in the following format:
+
+WHERE exp operator value
+
+Following are the list of Relational Operators
+
+- Greater than >
+- Less than <
+- Equal to =
+- Greater than or equal to >=
+- Less than or equal to <=
+- Not equal to !=
+
+**Example**
+
+Write a query that display names, job and departments of all clerks.
+
+`SELECT ENAME, JOB, DEPT FROM EMP WHERE JOB='CLERK';`
+
+#### Comparing One Column with Another
+
+A column can be compared with another column in the same row as well as with a constant value.
+
+**Example**
+
+Write a query that displays those employees whose commission is greater than their salary:
+
+`SELECT ENAME, SAL,COMM FROM EMP WHERE COMM>SAL;`
+
+### LOGICAL Operators
+
+Logical operators are used to evaluate compound conditions. The logical operators are AND, OR and NOT. AND and OR are used to give two or more conditions in a WHERE clause. NOT negates the search condition
+
+- **AND:** The AND operator displays a row if ALL conditions listed are true.
+- **OR:** The OR operator displays a row if ANY of the condition listed are true.
+- **NOT:** The NOT operator negates an expression.
+
+**Example**
+
+Write a query that dislpays all clerks who earn between 1000 and 2000.
+
+`SELECT EMPNO,ENAME, JOB,SAL FROM EMP WHERE SAL BETWEEN 1000 AND 2000 AND JOB='CLERK';`
+
+### Other Operators
+
+Some other operators of SQL are as follows:
+
+#### BETWEEN...AND
+
+The **BETWEEN...AND** operator retrives a range of data between two values. The values can be numbers, text or dates.
+
+**Syntax**
+
+`SELECT column_name FROM table_name WHERE column_name BETWEEN value1 AND value2;`
+
+**Example**
+
+write a query that displays those Employees whose salary is between 1000 and 2000.
+
+`SELECT ENAME, SAL FROM EMP WHERE SAL BETWEEN 1000 AND 2000;`
+
+#### IN Operator
+
+The **IN** Operator is used to test for values in specified list. It can be used with any data type.
+
+**Example**
+
+Write a query that displays all Employees who have one of three MGR Numbers.
+
+`SELECT EMPNO, ENAME, SAL,MGR FROM EMP WHERE MRG IN (8902,7566,7788);`
+
+#### LIKE Operator
+
+The **LIKE** operator is used to specify a search for a pattern in a column. The character pattern matching opeartion may be referred to as "wild-card" search. Two symbols can be used to construct the search string.
+
+- The % symbol represents any sequence of zero or more characters
+- The _ symbol represents any single character (_ defines number of characters)
+
+**Syntax**
+
+`SELECT column FROM table WHERE column LIKE pattern;`
+
+**Example**
+
+Write a query that display all Employees whose name starts with an S.
+
+`SELECT ENAME FROM EMP WHERE ENAME LIKE S%;`
+
+**Example**
+
+Write a query that displays employee names whose names consist of four characters.
+
+`SELECT ENAME FROM EMP WHERE ENAME LIKE '_ _ _ _';`
+
+#### IS NULL Operator
+
+The **IS NULL** operator is usedto test Null value.
+
+**Example**
+
+`SELECT ENAME , MGR FROM EMP WHERE MGR IS NOT NULL;`

@@ -1,0 +1,118 @@
+---
+draft: false
+readtime: true
+title: Projection Operator
+published: 2024-11-14T19:50:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Projection is also a unary operator. The Projection operator is pie π. It limits the attributes return from original relation. The resulting relation has the same number of tuples as the original relation. The resulting relation hs the same number of tuples as the original relation. The degree of the relation may be equal to or  less than the original relation.
+
+The general syntax is : π <sub>attributes</sub> R
+
+Where attributes is thel ist of attributes to be displayed and R is the relation.
+
+**Examples**
+
+{% table %}
+- **Name**
+- **Office**
+- **Dept**
+- **Rank**
+---
+- Saleem
+- 400
+- CS
+- Assistant
+---
+- Junaid
+- 220
+- Econ
+- Lecturer
+---
+- Ghafoor
+- 160
+- Econ
+- Assistant
+---
+- Babar
+- 420
+- CS
+- Associate
+---
+- Saleem
+- 500
+- Fin
+- Associate
+{% /table %}
+
+**Question**
+
+Display on the names and departments of the employees:
+
+π<sub>name,dept</sub> (EMP)
+
+**Result**
+
+{% table %}
+- Name
+- Dept
+---
+- Saleem
+- CS
+---
+- Junaid
+- Econ
+---
+- Ghafoor
+- Econ
+---
+- Babar
+- CS
+---
+- Saleem
+- Fin
+{% /table %}
+
+**Combining Selection & Projection**
+
+The selection and projection operators can be combined to perform both operations
+
+**Question**
+
+Show the name of all employees working in the CS department
+
+π<sub>name</sub>(σ<sub>Dept=’CS’</sub>(EMP))
+
+**Result**
+
+{% table %}
+- Name
+---
+- Saleem
+---
+- Babar
+{% /table %}
+
+**Question**
+
+Show name and rank of those Employees who are not in CS department or Lecturers:
+
+π<sub>name,rank</sub>(σ ¬<sub>(rank = ‘Lecturer’ ∨ Dept=’CS’)</sub> (EMP) )
+
+{% table %}
+- Name
+- Rank
+---
+- Ghafoor
+- Assistant
+---
+- Saleem
+- Associate
+{% /table %}
+
+\

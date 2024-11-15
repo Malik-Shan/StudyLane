@@ -1,0 +1,60 @@
+---
+draft: false
+readtime: true
+title: File Processing System
+published: 2024-11-15T04:59:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Traditional or simple file processing is the first computer-based method to handle business application. In the past, many organizations stored data in files on tape or disk. The data was managed using file-processing system. In a typical file processing system, each department in an organization has its own set of files. The files are designed specially for their own applications. The records in one file are not related to the records in any other file.
+
+![](../../assets/images/blog/subject_blog/file-processing-system/image.png)
+
+**Figure:** File Processing System
+
+Business organizations have used file-processing system for many years. But this system has many disadvantages.
+
+### **Disadvantages of file processing system:**&nbsp;
+
+Some important disadvantages of file processing system are as follows:
+
+1. #### **Data Redundancy and Inconsistency:**&nbsp;
+
+In the processing system, the same data may be duplicated in several files. Suppose there are two files "Students" and "Library". The file "Students" contains the Roll No, name, address and telephone number and other details of all students in a college. The file "Library" contains the Roll No and name of those students who get a book from library along with the Information about the rented books. The data of one student appears in two files. This is known as data redundancy This redundancy causes higher storage.
+
+The situation can also result in data inconsistency. Inconsistency means that two files may contain different data of the same student. For example, if the address of a student is changed, it must be changed in both files. There is a possibility that it is changed in the “Students” file and not from “Library”&nbsp; file. The data becomes inconsistent in this situation.
+
+2. #### **Data Isolation:**&nbsp;
+
+The data in file processing system is stored in various files. It becomes very difficult to write new application programs to retrieve the appropriate data. Suppose that student emails are stored in “Students” file and fee information is stored in "Fee” file. The data from both files is required to send an email message to inform a student that the date for fee payment is over. In file processing system, it is difficult to generate such type of list from multiple files.
+
+3. #### **Integrity Programs:**&nbsp;
+
+Integrity means reliability and accuracy of data. The stored data must satisfy certain types of consistency constrains. For example, Roll No and Marks of students should be numeric value. It is very difficult to apply these constrains on files in file processing system.
+
+4. #### **Program Data Dependency:**
+
+Program data dependency is a relationship between data in files and program required to update and maintain the files. Application programs are developed according to a particular file format in file processing system. If the format of file is changed, the application program also needs to be changed accordingly. For example, if there is a change in the length of postal code, it requires change in the program. The changes may be costly to implement.
+
+5. #### **Atomicity Problem:**
+
+An operation on data may consist of different steps. A collection of all steps required to complete a process is known as transaction. The atomicity means that either one transaction should take place as a whole or it should not take place at all. Suppose a user wants to transfer money from account A to account B. This process consists of two steps:
+
+1. Deduct the money from account A.
+1. Add the money to account B.
+
+Suppose that the system fails when the computer has performed the first step. It means that the amount has been deducted from account A but has not been added to account B. This situation can make data inconsistent. File processing system does not provide the facility to ensure atomicity of data.
+
+6. #### **Security Problems:**&nbsp;
+
+File processing system does not provide adequate security on data. In some situations, it is required to provide different types of access to data for different users. For example, a data entry operator should only be allowed to enter data. The chairman of the organization should be able to access or delete the data completely. Such types of security options are not available in file processing system.
+
+7. #### **Program Maintenance:**
+
+The programs developed in file processing system are difficult to maintain. Most of the budget may be spent on maintenance. It makes it difficult to develop new applications.
+
+\

@@ -1,0 +1,54 @@
+---
+draft: false
+readtime: true
+title: Three Level Architecutre
+published: 2024-11-14T16:27:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Database Task Group (DBTG) developed and published a proposal for a standard vocabulary and architecture for database systems in 1971. It was appointed by the Conference on Data Systems and Languages (CODASYL). The Standards Planning and Requirements Committee of American National Standards Institute (ANSI) Committee on Computers and Information Processing developed and published a similar vocabulary and architecture in 1975.
+
+The result of these reports was the three-level architecture. Three-level architecture is the basis of modern database architecture. Databases can be viewed at three levels. The three levels are depicted by three models known as three-level schema. The models refer to the structure of the database, not the data stored in it. The permanent structure of the database is known as intension of the database or database schema. The data stored at a given time is known as extension of database or database instance.
+
+The intension of a database should not be changed once it has been defined. This is because a small change in the intension of the database may require many changes to the data. stored in the database. The extension of the database is performed after the intension of the database has been finalised. It means that data is stored in a database when database structure has been defined. The extension of the database is performed according to the rules defined in the intension of the database.
+
+The schemas are used to store definitions of the structures of the database. It can be anything like a single entity or the whole organisation. Three-level architecture defines different schemas stored at different levels to isolate the details of different levels from one another.
+
+1. ### **External Level:**
+
+The external level consists of different external views of a database. Each external view is the view of a particular user about the system. Different users conceive the system in different ways. Each user is interested in one part of the system and ignores other parts. One user may not be aware of the whole system at all.
+
+Different views may have different representations of the same data. For example, one user may think that dates are stored in the form (month/day/year). Another user may think they are represented as (year/month/day).
+
+Some views might include virtual or calculated data. Virtual data is the data that is not actually stored in a database but created when needed. For example, the product name and its price can be stored in a database. The total bill can be created as and when desired. Similarly, the marks of different subjects can be stored in a database. The overall grade of the students can be calculated when the result card is prepared.
+
+External level is described in the external schema. It is also called subschemas. External schemas refer to different views of data.
+
+2. ### **Logical or Conceptual Level:**
+
+This is the middle-level view in three-level architecture. The logical or conceptual level describes the data stored in the database. It contains the definition of the data to be stored in the database. It also contains the rules and information about the structure and type of data. It is the complete description of data stored in the database. That is why it is also known as the community view of the database.
+
+This level contains the logical structure of entire database as seen by DBA. It hides the details of physical storage structure. The conceptual level represents the following:
+
+- All entities, their attributes and their relationship
+- The constraint on the data
+- Semantic data about the information
+- Security and integrity information
+
+The conceptual level supports each external view, It means that any data required by any user must be available from conceptual level. The conceptual model is comparatively constant. DBA designs a conceptual model to fulfil the present and future requirements of the organization. If there is any change in the external model, the conceptual model should be able to accommodate that change. It is important because any change in the conceptual model requires a lot of effort. It also affects other views or levels of the database. The conceptual level is described in conceptual schemas. There is only one schema for one database.
+
+3. ### **Internal or Physical Level:**
+
+Internal level is responsible to store data on storage media. It describes the physical representation of a database on a computer. It describes how the data is stored in database. It covers the data structures and file organization used to store data on storage devices.
+
+Internal and physical levels are normally considered to be the same. But there is a slight difference between them. The data is stored in binary format on disks. The binary storage method is implemented by operating systemą DBMS partially decides the way data is stored on the disk. This decision of DBMS is based on the specifications of DBA. Additionally, DBMS adds information to the data to be stored. For example, it selects a specific file organization for storing data on disk. It also creates specific indexes to implement that file system. It uses the same index information for retrieving the data from the disk.
+
+DBMS performs storage space utilization to consume minimum space for storing data. Data compression can be performed for this purpose. It also applies different data encryption algorithms to implement security on the data.
+
+The records at internal level are presented according to the format of schema definition but the data is not in record format at physical level. It is in character format. The rules specified by the schema of record are not enforced at physical level. Data is managed by operating system at physical level.
+
+Internal level is described in internal schemas. They describe the internal mode. They contain the definitions of stored records, methods of representation, data fields and indexes etc. There is only one internal schema for one database.

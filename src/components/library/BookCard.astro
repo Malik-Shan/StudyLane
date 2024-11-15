@@ -18,7 +18,7 @@ const {href,image,name,edition,author,category} = Astro.props;
 	<span class='[--clr:var(--clr-secondary)] absolute top-2 left-0 no-sr-only inline-block bg-[--clr] px-2 pl-4 text-white before:block before:border-8 before:border-b-transparent before:border-r-transparent before:border-[--clr] before:absolute before:left-full before:top-0 before:content-[""] after:border-8 after:border-t-transparent after:border-r-transparent after:border-[--clr] after:absolute after:left-full after:bottom-0 after:content-[""]'>
 		{category}
 	</span>
-	<Image class:list={['w-full aspect-[4/5] object-cover rounded-md overflow-hidden',`object-${image.position}`]} width={235} src={image.img} alt={image.alt} />
+	<Image class:list={['w-full aspect-[4/5] object-cover rounded-md overflow-hidden']} style=`object-position:${image.position};` width={235} src={image.img} alt={image.alt} />
 	<div class='flex flex-col pt-1'>
 		<h4 class='line-clamp-2 text-md max-md:text-sm font-semibold text-center text-slate-600'>{name}</h4>
 		<h4 class='text-slate-400 text-center text-sm mb-1'>Edition {edition}</h4>

@@ -1,0 +1,38 @@
+---
+draft: false
+readtime: true
+title: Relational Database Rules
+published: 2024-11-14T16:36:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+The **12 rules of the relational model** were defined by Dr. E.F. Codd, the inventor of the relational database model, to clarify what makes a database truly relational and to establish a standard for evaluating relational database management systems (RDBMS). Here’s a summary of Codd’s 12 rules:
+
+1. **Information Rule**
+   - All information (data) in a relational database is represented only by values within tables. Tables consist of rows and columns, where data is stored in the simplest possible form.
+1. **Guaranteed Access Rule**
+   - Every piece of data should be accessible without ambiguity, by specifying a table name, a primary key, and the column name. This ensures that each data element can be uniquely accessed.
+1. **Systematic Treatment of NULL Values**
+   - The relational model should support a systematic way to represent missing or inapplicable information using `NULL` values. These `NULL`s should be handled in a consistent manner across the system.
+1. **Dynamic Online Catalog Based on the Relational Model**
+   - The database must have a self-descriptive catalog, also stored in relational form. This "data dictionary" or catalog should be accessible using the same query language used for other data.
+1. **Comprehensive Data Sublanguage Rule**
+   - The system must support at least one language that can define data structures, manipulate data, and enforce constraints (e.g., SQL). This language should support operations such as retrieval, insertion, update, and deletion.
+1. **View Updating Rule**
+   - All views (virtual tables derived from queries) must be updatable by the system, in a way that does not compromise data integrity. Updates to views should reflect in the underlying tables.
+1. **High-Level Insert, Update, and Delete**
+   - The RDBMS should support operations that allow the manipulation of data in sets, rather than only one row at a time. This means you should be able to insert, update, or delete multiple rows at once.
+1. **Physical Data Independence**
+   - Changes in the physical storage of data should not affect how the data is accessed. Users should not need to know about the underlying data structures or how data is stored.
+1. **Logical Data Independence**
+   - Changes in the logical structure of the database (like adding or removing fields or tables) should not require changes to applications that use the data. Applications should remain unaffected by changes to the database schema.
+1. **Integrity Independence**
+   - Integrity constraints (such as primary key and foreign key constraints) must be defined and stored within the database and not in application code. They should be able to be modified without affecting applications.
+1. **Distribution Independence**
+   - The RDBMS should work regardless of whether data is stored in a single location or distributed across multiple locations. Users should not be aware of data distribution.
+1. **Nonsubversion Rule**
+   - If the RDBMS supports low-level access methods (e.g., bypassing the relational interface), there should be no way to bypass relational security and integrity constraints.

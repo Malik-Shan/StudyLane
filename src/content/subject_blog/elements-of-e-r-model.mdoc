@@ -1,0 +1,59 @@
+---
+draft: false
+readtime: true
+title: Elements of E-R Model
+published: 2024-11-14T23:36:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Different elements of an E-R Model are as follows:
+
+### Entities
+
+An entity is a person, place, thing or an event for which data is collected and maintained . **For Example,** a library may contain data about different entities like `BOOK` and `MEMBER`. A college system may include entities like `STUDENT`, `TEACHER`, and `CLASS` etc.
+
+Some examples of entities as follows:
+
+- **Person:** `TEACHER`, `PLAYER`, `DOCTOR`
+- **Place:** `COUNTRY` , `CITY`
+- **Object:** `VEHICLE`, `TOY`, `FURNITURE`
+- **Event:** `PURCHASE`, `ADMISSION`, `REGISTRATION`
+- **Concept:** `ACCOUNT`, `PROGRAMMING`
+
+An entity is represented by a rectangle. The name of the entity is written inside the rectanble. The entity is used in three different meanings that are as follows:
+
+1. #### Entity Type
+
+   A set of entities with same attributes is called **entity type**. All entities in an entity type share common characteristics. It is also known as **entity class**. **For Example**, `STUDENT` entity class is a set of all students. Similarly, `BOOK` entity type is a collection of all books etc.
+
+1. #### Entity Instance
+
+   A member of an entity class is also known as an **entity instance**. It is also known as **entity occurence**. Each entity instance of an entity type has its own value for each instance. **For Example**, a student Abdullah of `STUDENT` entity type is an entity instance.
+
+1. #### Entity Set
+
+   A set of all the entities of a particular entity type in the database at a given point of time is called an **entity set**. **For Example**, an entity set `Sudent` may consist of all students in the university. Another entity set `Teacher` may consist of all teachers in the university etc.
+
+   The same name is usually used for both entity type and entity set. **For Example**, `BOOK` refers to both a entity type as well as the current set of all books in the database.
+
+### Attributes
+
+The characteristics of an entity are called **attributes** or **properties**. **For Example**, Name, Address, Class and Email of a student are his attributes. All instances of a particular entity class have same attributes. **For Example**, all student of `STUDENT` entity class have the attributes of Name , Address, Class and Email.
+
+#### Attribute Domain
+
+An attribute domain is a set of possible values for an attribute. All attributes have domain. The domains may consist of a range of values or some discrete values. **For example,** the domain for Grade Point Average (GPA) can be from 0 to 4. Similarly, the domain for Gender attribute can be either Male or Female.
+
+The association of a domain with an attribute ensures the integrity of database. The domain is normally defined in form of data type and some additional constrains like range constrains. **For Example**, if the data type of a field is integer, it can store only integer values.
+
+### Relationships
+
+A relationship is a logical connection between different entities. The entities that participates in a relationship are called **participants**. The relationship may be between different entities or between an entity and itself. A relationship is establised on the basis of interaction among these entities. **For Example**, a relationship exists between `STUDENT` and `TEACHER` becuase the teacher teaches the student.
+
+A relationship is called **total** if all entities of that entity set may be participant in the relationship. A relationship is called **partial** if some of the entities of that entity set may be participant in the relationship.
+
+Suppose a relationship `SUPP_PART` exist between Supplier and Part. The relationship is total if every part is supplied by a supplier. The relationship is partial if certain parts are available without supplier.
