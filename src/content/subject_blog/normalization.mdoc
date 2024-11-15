@@ -1,0 +1,42 @@
+---
+draft: false
+readtime: true
+title: Normalization
+published: 2024-11-14T22:13:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+*The process of producing a simpler and more reliable database structure is called **normalization**. It is used to create a suitable set of relations for storing data.*
+
+This process works through different stages known as **normal forms**. These stages are 1NF,2NF,3NF and so on. Each normal form has a certain criteria reuirements or condition. If a relation satisfies the conditions of a normal form, it is said to be in that normal form.
+
+The task of database design starts with unnormalized set of relations. The process of normalization identifies and corrects the problems and complexities of database design. It produces a new set of relations. The new design is as free of processing problems as possible.
+
+### Purpose of Normalization
+
+The purpose of normalization are as follows:
+
+- It makes the database design efficient in performance.
+- It reduces the amound of data if possible
+- It makes the database design free of update, insertion and deletion anomalies
+- It makes the design according to the rules of relational database
+- It indentifies relationship between entities
+- It makes a design that allows simple retrieval of data
+- it simplifies data maintenance and reduces the need to restructure data
+
+### Characteristics of Normalized Database
+
+A normalized database should have the following characteristics:
+
+- Each relation must have a key field
+- All fields must contain atomic data
+- There must be no repeating fields
+- Each table must contain information about a single entity
+- Each field in a relation must depend on key fields
+- All non-key fields must be manually independent
+
+![](../../assets/images/blog/subject_blog/normalization/normalizationedited.jpg)

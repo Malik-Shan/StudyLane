@@ -1,0 +1,51 @@
+---
+draft: false
+readtime: true
+title: File vs Database Approach
+published: 2024-11-15T05:07:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+The difference between File and Database Approach is as follows:
+
+{% table %}
+- **File-based approach**
+- **Database approach**
+---
+- The programs and data are inter- dependent.
+- The programs and data are independent of each other.
+---
+- The data may be duplicated in different files that cause data redundancy.
+- The data is not duplicated and appears only once.
+---
+- The same data in different file may be different that creates inconsistency
+- The data appear only once so it is always consistent.
+---
+- The data is separately stored in various files and it is difficult for applications to retrieve the appropriate data.
+- The data is stored in tables which are linked together. The applications can retrieve the required data easily.
+---
+- The data is distributed in many different files and cannot be shared.
+- The data is stored at one place and can be shared easily.
+---
+- It is difficult to apply data integrity checks on files.
+- Database approach provides many constraints for data integrity.
+---
+- It provides poor security as the data is widely spread.
+- It provides many procedures to maintain data security.
+---
+- It is difficult to maintain as it provides less controlling facilities.
+- It provides many facilities to maintain the programs easily.
+---
+- It is less complex system.
+- It is very complex system.
+---
+- The cost is very less than DBMS.
+- The cost is much more than file system.
+---
+- One application can fail without affecting the others.
+- All application relying on database fail if the database fails.
+{% /table %}

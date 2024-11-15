@@ -138,7 +138,6 @@ const subjectBlogCollection = defineCollection({
     z.object({
       draft: z.boolean(),
       readtime: z.boolean(),
-      subject: reference("subjects"),
       title: z.string(),
       published: z.date(),
       bannerImg: z

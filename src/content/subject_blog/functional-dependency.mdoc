@@ -1,0 +1,110 @@
+---
+draft: false
+readtime: true
+title: Functional Dependency
+published: 2024-11-14T17:39:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Functional dependency is a relationship between attributes. It means that if the value of one attribute is known, it is possible to obtain the value of another attribute. Suppose there is a relation `Student` with following fields:
+
+`STUDENT (RegistrationNo, StudentName, Class, Email)`
+
+If value of `RegistrationNo` is known, it is possible to obtain the value of `StudentName`. It means that StudentName is functionally dependent on RegistrationNo. An attribute B is functionally dependent on attribute A if the value of A determines the value of B.
+
+Functional Dependency is written as follow:
+
+`RegistationNo → StudentName`
+
+The above expression is read as **"RegistrationNo determines StudentName"** or **"StudentName is functionally dependent on RegistrationNo"**. The attribute on thel eft is called **determinant**.
+
+If A and B are attributes or sets of attributes of relation R, B is functionally dependent on A if each value of A in R has exactly one associated value of B in R.
+
+A particular value of `RegistrationNo` is related to only one of `StudentName`. But `StudentName` may be related with multiple values of `RegistrationNo`. **For Example**, the ***"Usman***" may be related with two or more `RegistrationNo` values becuase two or more students may have the name ***"Usama".***
+
+Similarly, it's also possible to determine all three fields using `RegistrationNo` as follows:
+
+`RegistrationNo → StudentName, Class, Email`
+
+The above line indicates that if the value of `RegistrationNo` is known, the values of `StudentName`, `Class` and `Email` can be determined. It means that all three fields are functionally dependent on `RegistrationNo`.
+
+### If FD Holds:
+
+Figure suggests what this FD tells us about any two tuples t and u in the relation R. However, the A’s and B's can be anywhere; it is not necessary for the A’s and B ’s to appear consecutively or for the A’s to precede the B ’s.
+
+![](../../assets/images/blog/subject_blog/functional-dependency/image.png)
+
+If we can be sure every instance of a relation R will be one in which a given FD is true, then we say that R satisfies the FD. It is important to remember that when we say that R satisfies an FD / , we are asserting a constraint on R, not just saying something about one particular instance of R. It is common for the right side of an FD to be a single attribute. In fact, we shall see that the one functional dependency A 1A2 ... An —> B 1B2 ... B m is equivalent to the set of FD’s:
+
+A1,A2,A3 … An → B1
+
+A1,A2,A3 … An → B2
+
+...
+
+A1,A2,A3 … An → Bn
+
+{% table %}
+- Title
+- Year
+- Length
+- Genre
+- Studio
+- Star Name
+---
+- Star Wars
+- 1977
+- 124
+- SciFi
+- Fox
+- Carrie Fisher
+---
+- Star Wars
+- 1977
+- 124
+- SciFi
+- Fox
+- Mark Hamill
+---
+- Star Wars
+- 1977
+- 124
+- SciFi
+- Fox
+- Harrison Ford
+---
+- Gone With the Wind
+- 1939
+- 231
+- Drama
+- MGM
+- Vivien Leigh
+---
+- Wayne’s World
+- 1992
+- 95
+- Comedy
+- Paramount
+- Dana Carvey
+---
+- Wayne’s World
+- 1992
+- 95
+- Comedy
+- Paramount
+- Mike Meyers
+{% /table %}
+
+`Moviesl(title, year, length, genre, studioName, starName)`
+
+While related to our running Movies relation, it has additional attributes, which is why we call it “Moviesl” in- stead of “Movies.” Notice that this relation tries to “do too much.” It holds information that in our running database schema was attributed to three different relations: `Movies, Studio, and Stars` ln . As we shall see, the schema for Movies1 is not a good design. But to see what is wrong with the design, we must first determine the functional dependencies that hold for the relation. We claim that the following FD holds:
+
+`title year →  length genre studioName`
+
+Informally, this FD says that if two tuples have the same value in their title components, and they also have the same value in their year components, then these two tuples must also have the same values in their length components, the same values in their genre components, and the same values in their studioName components. This assertion makes sense, since we believe that it is not possible for there to be two movies released in the same year with the same title (although there could be movies of the same title released in different years). Thus, we expect that given a title and year, there is a unique movie. Therefore, there is a unique length for the movie, a unique genre, and a unique studio. On the other hand, we observe that the statement `title year →  starName`is false; it is not a functional dependency. Given a movie, it is entirely possible that there is more than one star for the movie listed in our database. Notice that even had we been lazy and only listed one star for Star Wars and one star for Wayne’s World (just as we only listed one of the many stars for Gone With the Wind), this FD would not suddenly become true for the relation Moviesl.
+
+The reason is that the FD says something about all possible instances of the relation, not about one of its instances. The fact that we could have an instance with multiple stars for a movie rules out the possibility that title and year functionally determine starName.

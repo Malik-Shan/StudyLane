@@ -1,6 +1,6 @@
 import CourseTypes from './src/data/cms/course_types.json';
 import ExamSystems from './src/data/cms/exam_systems.json';
-import LibraryCategories from './src/data/cms/library_categories.json';
+import SubjectCategories from './src/data/cms/study_categories.json';
 //import ArticleCategories from './src/data/cms/article_categories.json';
 import { block } from '@keystatic/core/content-components'
 import { config, fields, singleton, collection } from '@keystatic/core';
@@ -33,21 +33,21 @@ export default config({
 			}
 		},
 		navigation: {
-			institue: [
-				'faculty', 'designations',
-			],
-			blog: ['subject_blog', 'notice_board', 'article_categories'],
+			material: ['library', 'subject_blog', 'study_categories'],
+			blog: ['notice_board', 'article_categories'],
 			course: [
 				'courses', '---', 'course_sections', 'subjects', '---', 'course_types', 'exam_systems',
 			],
-			material: ['library', 'library_categories'],
+			institue: [
+				'faculty', 'designations',
+			],
 			settings: ['navigation'],
 		},
 	},
 	singletons: {
-		library_categories: singleton({
-			label: "Library Categories",
-			path: "src/data/cms/library_categories",
+		study_categories: singleton({
+			label: "Subject Categories",
+			path: "src/data/cms/study_categories",
 			format: { data: 'json' },
 			schema: {
 				categories: fields.array(
@@ -233,7 +233,7 @@ export default config({
 					description: "Subject category of the book.",
 					options: [
 						{ label: "None", value: "none" },
-						...LibraryCategories.categories.map((c) => (
+						...SubjectCategories.categories.map((c) => (
 							{ label: c.category.name, value: c.category.name }
 						)),
 					],
@@ -390,12 +390,6 @@ export default config({
 					description: "Check if the read-time should be attached to the blog.",
 					defaultValue: true,
 				}),
-				subject: fields.relationship({
-					label: "Subject",
-					description: "Select the subject for the blog.",
-					collection: 'subjects',
-					validation: { isRequired: true }
-				}),
 				title: fields.slug({
 					name: {
 						label: 'Title',
@@ -406,7 +400,7 @@ export default config({
 					label: 'Published',
 					defaultValue: { kind: "now" },
 				}),
-				bnnerImg: fields.conditional(
+				bannerImg: fields.conditional(
 					fields.checkbox({
 						label: "Add Banner",
 						description: "Check if you want to add the banner image.",
@@ -432,15 +426,20 @@ export default config({
 					},
 				),
 				category: fields.array(
-					fields.text({
-						label: "Name",
-						description: "Name of the cateogry",
-						validation: { isRequired: true },
-					}),
-					{
-						label: 'Categories',
-						itemLabel: props => props.value,
-					}
+					fields.select({
+						label: "Category",
+						description: "Subject category of the book.",
+						options: [
+							{ label: "None", value: "none" },
+							...SubjectCategories.categories.map((c) => (
+								{ label: c.category.name, value: c.category.name }
+							)),
+						],
+						defaultValue: 'none',
+					}), {
+					label: "Category",
+					itemLabel: props => props.value,
+				}
 				),
 				tag: fields.array(
 					fields.text({
@@ -492,6 +491,7 @@ export default config({
 							},
 							ContentView: (props) => (
 								<div>
+									<iframe className='w-full mx-auto mb-4 border rounded-md' src={`https://drive.google.com/file/d/${props.value.driveId}/preview`} width="300" height="300" allow="autoplay"></iframe>
 									<p>ID: {props.value.driveId}</p>
 									<p>Name: {props.value.name}</p>
 									<p>Type: {props.value.type}</p>

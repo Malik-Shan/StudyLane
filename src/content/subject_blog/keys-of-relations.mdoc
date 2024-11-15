@@ -1,0 +1,218 @@
+---
+draft: false
+readtime: true
+title: Keys of Relations
+published: 2024-11-15T05:09:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+A key is an attribute or set of attributes that uniquely identifies a tuple in a relation. The keys are defined in tables to access or sequence the stored data quickly and smoothly. They are also used to create relationship between different tables.
+
+### **Super Keys**
+
+A super key is an attribute or combination of attributes in a relation that identifies a tuple uniquely within the relation. A super key is the most general type of key.&nbsp;
+
+For example, a relation STUDENT consists of different attributes like RegistrationNo, Name, Father Name, Class and Address. The only attribule that can uniquely identify a tuple in the relation is RegistrationNo. The Name attribute cannot identify a tuple because two or more students may have the same name. Similarly, FatherName, Class and Address cannot be used to identify a tuple. It means that Registration No is the super key for the relation.
+
+Any combination of attributes with the super key is also a super key. It means any attribute or set of attributes combined with the super key RegistrationNo will also become a super key. A combination of two attributes (Registration No, Name) is also a super key. This combination can also be used to identify a tuple in the relation. Similarly, (RegistrationNo, Class) or (Registration No, Name, Class) are also super keys.
+
+### **Candidate Key**
+
+A candidate key is a super key that contains no extra attribute. It consists of minimum possible attributes. A super key like (RegistrationNo, Name) contains an extra field Name. It can be used to identify a tuple uniquely in the relation. But it does not consist of minimum possible attribute as only Registration No can be used to identify a tuple in relation. It means that [RegistrationNo, Name) is a super key but it is not a candidate key because it contains an extra field. On the other hand, Registration No is a super key as well as a candidate key.
+
+### **Primary Key**
+
+A primary key is a candidate key that is selected by the database designer to identify tuples uniquely in a relation. A relation may contain many candidate keys. When the designer selects one of them to identify a tuple in the relation, it becomes a primary key. It means that if there is only one candidate key, it will be automatically selected as primary key.
+
+Some most important points about a primary key are:&nbsp;
+
+1. A relation can have only one primary key.
+1. Each value in primary key attribute must be unique.&nbsp;
+1. Primary key cannot contain null values.
+
+Suppose a relation Student contains different attributes such as RegNo, Name and Class. The attribute RegNo uniquely identifies each student in the table. It can be used as primary key for this table. The attribute Name cannot uniquely identify each row because two students can have same name. It cannot be used as primary key.
+
+{% table %}
+---
+- **Primary Key**
+{% /table %}
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; I
+
+{% table %}
+- **RegNo**&nbsp;
+- **Name**
+- **Class**
+---
+- 10
+- Nadeem Khalid
+- MSc
+---
+- 20
+- Muhammad Usman
+- BSc
+---
+- 30
+- Noman Qadir
+- FSc
+{% /table %}
+
+**Figure:** Primary Key
+
+### **Alternate Key**
+
+The candidate keys that are not selected as primary key are known as alternate keys. Suppose Student relation contains different attributes such as RegNo, RollNo, Name and Class. The attributesRegNo and RollNo can be used to identify each student in the table. If RegNo is selected as primary key then RollNo attribute is known as alternate key.\
+
+{% table %}
+---
+- Primary Key
+- Alternate Key
+{% /table %}
+
+{% table %}
+- **RegNo**&nbsp;
+- **RollNo**
+- **Name**
+- **Class**
+---
+- 10
+- 1
+- Nadeem Khalid
+- MSc
+---
+- 20
+- 2
+- Muhammad Usman
+- BSc
+---
+- 30
+- 3
+- Noman Qadir
+- FSc
+{% /table %}
+
+**Figure:** Alternate Key
+
+### **Composite Key**
+
+A primary key that consists of two or more attributes is known as composite key. For example, the following relation uses two fields RollNo and Subject to identify each tuple. This is an example of composite key.
+
+{% table %}
+- **RollNo**
+- **Subject**
+- **Marks**
+---
+- 1
+- English&nbsp;
+- 52
+---
+- 1
+- Math&nbsp;
+- 77
+---
+- 1
+- Computer
+- 64
+---
+- 2
+- English&nbsp;
+- 58
+---
+- 2
+- Math&nbsp;
+- 69
+---
+- 2
+- Computer
+- 49
+---
+- 3
+- English&nbsp;
+- 82
+---
+- 3
+- Math&nbsp;
+- 98
+---
+- 3
+- Computer
+- 86
+{% /table %}
+
+### **Foreign Key**
+
+A foreign key is an attribute or set of attributes in a relation whose values match a primary key in another relation. The relation in which foreign key is created is known as dependent table or child table. The relation to which the foreign key refers is known as parent table. The key connects to another relation when a relationship is established between two relations. A relation may contain many foreign keys.
+
+The following figure shows two relations. The RollNo attribute in Parent relation is used as the primary key. The RollNo attribute in Child relation is used as foreign key. It refers to RollNo attribute in Parent relation.&nbsp;
+
+**Primary Key**
+
+{% table %}
+- <u>Roll No</u>
+- Name
+- Address
+---
+- 1
+- Ali
+- Faislabad
+---
+- 2
+- Ahmad
+- Lahore
+---
+- 3
+- Nadeem
+- Peshawar
+{% /table %}
+
+**Parent Table**
+
+{% table %}
+- <u>RollNo</u> (Compo Key)
+- <u>Subject</u> (Compo Key)
+- **Marks**
+---
+- 1
+- English&nbsp;
+- 52
+---
+- 1
+- Math&nbsp;
+- 77
+---
+- 1
+- Computer
+- 64
+---
+- 2
+- English&nbsp;
+- 58
+---
+- 2
+- Math&nbsp;
+- 69
+---
+- 2
+- Computer
+- 49
+---
+- 3
+- English&nbsp;
+- 82
+---
+- 3
+- Math&nbsp;
+- 98
+---
+- 3
+- Computer
+- 86
+{% /table %}
+
+**Child Table**
+
+\

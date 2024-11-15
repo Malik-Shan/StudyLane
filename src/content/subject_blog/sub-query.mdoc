@@ -1,0 +1,99 @@
+---
+draft: false
+readtime: true
+title: Sub Query
+published: 2024-11-15T04:36:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+A query witin another query is called sub query. It is normally a SELECT statement inside SELECT statement. It is also nested SELECT, sub-SELECT or Inner SELECT statement.
+
+**Syntax**
+
+`SELECT Select_List FROM Table WHERE Expr Operator (SELECT Select_List FROM Table);`
+
+- The subquery (inner query) executes once before the main query
+- The result of the subquery is used by the main query (outer query)
+
+### Types of Sub Query
+
+1. #### Single-Row Sub Query
+
+   Single row sub query is a type of sub query that returns only one row from inner SELECT statement. It uses a single row operator e.g =, >,<,>=,<>
+
+   - Find the minimum salary
+
+     `SELECT MIN (SAL) FROM EMP;`
+
+   - Find the employee who earns the minimum salary:
+
+     `SELECT ENAME, JOB,SAL FROM EMP WHERE SAL=(lowset salary which is 'unknown')`
+
+   - The above expression is combined in sub  query as folows:
+
+     `SELECT ENAME,JOB,SAL FROM EMP WHERE SAL=(SELECT MIN(SAL) FROM EMP);`
+
+   #### Working of Subquery
+
+   A SELECT statement can be considered as a query block. The above example consists of two queries:
+
+   - The main query
+   - The inner query
+
+   The inner SELECT query is executed first and produces the result 800. The main query than executes and uses the value of inner query to complete search condition. The main query actually works as follows:
+
+   SELECT ENAME, SAL,DEPTNO FROM EMP WHERE SAL=800;
+
+1. #### Multiple -Row Sub Query
+
+   Multiple row sub query is a type of sub query that reuturn more than one row from the inner SELECT statement.
+
+   `SELECT ENAME, SAL, DEPTNO FROM EMP WHERE SAL IN (SELECT MIN(SAL) FROM EMP GROUP BY DEPTNO);`
+
+   #### Comparing Multiple Values
+
+   A query can compare multiple values of an inner query in WHERE condition
+
+   **Example**
+
+   `SELECT ENAME, SAL,DEPTNO FROM EMP WHERE (SAL,DEPNO) IN (SELECT MIN(SAL) , DEPTNO FROM EMP GROUP BY DEPTNO);`
+
+   #### ANY or ALL Operators
+
+   The ANY or ALL operators are used for subqueries that return multiple rows. They are used with WHERE or HAVING clause along with logical operators (=, !=,<,>,>=,<=)
+
+   **ANY Operator:**
+
+   The ANY operator compares value to each value returned by a subquery
+
+   - '>ANY' means more than the minimum
+   - '=ANY' means equivalent to IN
+   - '<ANY' means less than the maximum
+
+   **Example**
+
+   `SELECT ENAME,SAL,JOB,DEPTNO FROM EMP WHERE SAL>ANY(SELECT DISTINCT SAL FROM EMP WHERE DEPTNO=30);`
+
+   The DISTINCT clause is frequently used with ANY operator to prevent rows from being select sevel times.
+
+   **ALL Operator**
+
+   The ALL operator compares the value to every value return by a sub query.
+
+   **Example**
+
+   `SELECT ENAME,SAL,JOB,DEPTNO FROM EMP WHERE SAL>ALL(SELECT DISTINCT SAL FROM EMP WHERE DEPTNO=30);`
+
+   #### HAVING Clause with Subquery
+
+   Nested subqueries can also be used in HAVING clause. The WHERE refers to single rows and HAVING refers to groups of rows specified in GROUP BY clause
+
+   **Example**
+
+   `SELECT DEPTNO,AVG(SAL) FROM EMP HAVING AVG(SAL) > (SELECT AVG(SAL) FROM EMP WHERE DEPNOT=30) GROUP BY DEPTNO;`
+
+   The inner query first finds the average salary fro each job group and MAX function gets the highest  average salary. The value 500 is used in HAVING clause. The GROUP BY clause in maain query is needed becuase main query's SELECT list contains both an aggregate and non-aggregate column.

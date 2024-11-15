@@ -16,7 +16,9 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
     react(),
-    markdoc(),
+    markdoc({
+      allowHTML: true,
+    }),
     keystatic(),
   ],
   output: "hybrid",

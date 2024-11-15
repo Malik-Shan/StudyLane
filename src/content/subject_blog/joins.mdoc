@@ -1,0 +1,77 @@
+---
+draft: false
+readtime: true
+title: Joins
+published: 2024-11-15T04:10:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Joining is used to combine the rows from multiple tables. A join creates a temporary table with all retrieved columns from the tables specified in the join.
+
+`SELECT * FROM A, B;`
+
+In the above example A and B are two tables. It will create a temporary table with all rows from Cartesian product of table A and B. If table A contains 5 rows and table B contains 10 rows, the above statement will retrieve 5 x 10 = 50 rows. It may return duplicate or matching rows. A join requries horizontal filtering to display desired rows.
+
+The SELECT statement can be written as follows:
+
+`SELECT * FROM A,B WHERE X = Y;`
+
+Here X and Y are two columns from A and B. Table A and B must be joined with a common column between them. The tables must have atleast one matching column in order to be joined. A join between two tables should have at least one join condition between them.
+
+There are basically three different types of joins.
+
+- Simple Join
+- Self Join
+- Outer Join
+
+### Simple Join
+
+Simple join is the most common type of join. It retrieves rows from two tables. these tables should have a common column or set or columns that can be logically related. It is furthur classified into equi-join and non-equi-join
+
+#### Equi-Join
+
+A type of join that is based on equalities is called equi-join. The syntax of equi-join is as follows:
+
+`SELECT table1.column, table2.column FROM table1,table2 WHERE table1.column=table2.column;`
+
+The condtion WHERE clause specifies how the tables are joined.
+
+**Example**
+
+Give exmple and describe when the tables will be joined on condition
+
+#### Non-Equi-Join
+
+A non-equi-join specifies the relationship between columns of different tables by using relational (>,<,=,>=,<=,<>) other than =. The following is illustrated non-equi-join.
+
+**Example**
+
+`SELECT EMP.ENAME,EMP.SAL,SALGRADE.GRADE FROM EMP,SALGRADE WHERE EMP.SAL BETWEEN SALGRADE.LOSAL AND SALGRADE.HISAL;`
+
+#### Using Table Aliases
+
+Table aliases are used to prevent ambiguity in a query. They make the queries shorter and more readable. An alias is given to the table in FROM clause. It is used instead of actual table name in the query.
+
+**Example**
+
+`SELECT E.EMPNO,E.ENAME,E.SAL,D.DNAME,D.LOC FROM EMP E,DEPT D WHERE E.DEPTNO=D.DEPTNO;`
+
+### Self Join
+
+Self join is a type of join in which a table is joined with itself.
+
+**Example**
+
+`SELECT E.EMPNO,E.ENAME,E.MGR,M.ENAME E.MANAGER FROM EMP E,EMP M WHERE E.MGR=M.EMPNO`
+
+### Outer Join
+
+The outer join extends the result of a simple join. It results all rows returned by simple join as well as those rows from one table that do not match any rows from other table. The symbol (+) represents outer join.
+
+**Example**
+
+`SELECT E.EMPNO,E.ENAME,E.DEPTNO,D.DNAME,D.LOC FROM EMP E, DEPT D WHERE E.DEPTNO (+)=D.DEPTNO`

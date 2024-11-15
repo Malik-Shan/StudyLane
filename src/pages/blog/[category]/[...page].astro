@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import {getCollection} from 'astro:content';
+import {formatAllPosts} from '../../../lib/util';
+import type {Page} from '../../../lib/interface.ts';
+
+import DefaultLayout from '@layouts/DefaultLayout.astro';
+import NoticeCard from '@components/NoticeCard.astro';
+import Pagination from '@components/Pagination.astro';
+
+export async function getStaticPaths({paginate}){
+	const subject_blog = await getCollection('subject_blog',({data})=>{
+		return import.meta.env.PROD ? data.draft !== true : true;
+	});
+	const formatedSubjectBlog = formatAllPosts(subject_blog);
+	const subjectCategory = [...new Set(formatedSubjectBlog.map((s:any) => s.data.category).flat())];
+	return subjectCategory.flatMap((category:string)=>{
+		const filteredData = subject_blog.filter((s)=>s.data.category.some((cat:string)=> cat.toLowerCase() === category.toString().toLowerCase()))
+		return paginate(filteredData,{
+			params:{category:category.toLowerCase()},
+			props:{categoryName:category,blog:filteredData},
+			pageSize:12,
+		})
+
+	});
+}
+const {category} = Astro.params;
+const {categoryName,blog,page} = Astro.props;
+---
+<DefaultLayout title='Subject Blogs'>
+	<section class='newsSection container p-2 pt-8 mx-auto'>
+		<div class='newsCollection mb-4 grid grid-cols-2 max-lg:grid-cols-1 gap-2'>
+			{
+			page.data.map((n) => (
+			<NoticeCard title={n.data.title} link={`/blog/read/${n.slug}`} date={n.data.published} category={n.data.category} position={n.data.postedBy}/>
+			))
+			}
+		</div>
+		<Pagination page={page} />
+	</section>
+</DefaultLayout>

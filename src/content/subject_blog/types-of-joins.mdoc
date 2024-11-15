@@ -1,0 +1,448 @@
+---
+draft: false
+readtime: true
+title: Types of Joins
+published: 2024-11-14T20:33:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+A join operation combines the product, selection and possibly projection. The join operator combines data from one tuple of a relation with tuples from another relation or same relation when certain criteria are met. The criteria involve a relationship among the attributes in the join relations. Different types of joins are as follows:
+
+- Theta Join
+- Equi Join
+- Natural Join
+- Outer Join
+- Semi Join
+
+### Theta Join θ
+
+Thera join is the result of performing a SELECT operation using a comparison operator **thera** on the product. Thera is denoted by θ.
+
+In normal cross product, all rows of one relation are merged with all rows of second relation. In Thera join, only selected rows of first relation are merged with all rows of second relation. It is denoted as follows:
+
+R ⋈ S.
+
+**Example**
+
+Suppose there are two relations FACULTY and COURSE as follows:
+
+FACULTY Relation
+
+{% table %}
+- FacID
+- Name
+- Department
+- Designation
+---
+- 1001
+- Usman Khalil
+- CS
+- Assistant
+---
+- 1002
+- Abdullah
+- Fin
+- Associate
+---
+- 1003
+- Aysha Ashfaq
+- Eco
+- Associate
+---
+- 1004
+- Tanveer Hussain
+- Fin
+- Lecturer
+{% /table %}
+
+COURSE Relation
+
+{% table %}
+- CourseID
+- Title
+- FID
+---
+- CS-520
+- DMBS
+- 1001
+---
+- CS-511
+- OOP
+- 
+---
+- CS-430
+- FM
+- 1003
+{% /table %}
+
+(σ<sub>Designation=’Associate’</sub>(FACULTY)) ⋈ COURSE
+
+{% table %}
+- FacID
+- Name
+- Department
+- Designation
+- CourseID
+- Title
+- FID
+---
+- 1002
+- Abdullah
+- Fin
+- Associate
+- CS-520
+- DBMS
+- 1001
+---
+- 1002
+- Abdullah
+- Fin
+- Associate
+- CS-511
+- OOP
+- 
+---
+- 1002
+- Abdullah
+- Fin
+- Associate
+- CS-430
+- FM
+- 1003
+---
+- 1003
+- Aysha Ashfaq
+- Eco
+- Associate
+- CS-520
+- DBMS
+- 1001
+---
+- 1003
+- Aysha Ashfaq
+- Eco
+- Associate
+- CS-511
+- OOP
+- 
+---
+- 1003
+- Aysha Ashfaq
+- Eco
+- Associate
+- CS-430
+- FM
+- 1003
+{% /table %}
+
+### Equi Join
+
+Equi join is a type of join in which tuples are joined on the basis of values of a  common attribute between two relations. It is the most commonly used type of join. The common attributes of both relations appear twice in the output.
+
+FACULTY ⋈ <sub>FACULTY.FacID = COURSE.FID</sub>COURSE
+
+{% table %}
+- FacID
+- Name
+- Department
+- Designation
+- CourseID
+- Title
+- FID
+---
+- 1001
+- Usman Khalil
+- CS
+- Assistant
+- CS-520
+- DBMS
+- 1001
+---
+- 1003
+- Aysha Ashfaq
+- Eco
+- Associate
+- CS-430
+- FM
+- 1003
+{% /table %}
+
+### Natural Join
+
+Natural join is same as equi join. The difference is that common attributes appear only once. A natrual join removes the duplicate attributes(FacID & FID). In most systems, a natural join requires that the attributes have same name to identity attributes to be used in the join. It may require a renaming mechanism.
+
+**Example**
+
+FACULTY ⋈ <sub>FacID, FID</sub> COURSE
+
+{% table %}
+- FacID
+- Name
+- Department
+- Designation
+- CourseID
+- Title
+---
+- 1001
+- Usman Khalil
+- CS
+- Assistant
+- CS-520
+- DBMS
+---
+- 1003
+- Aysha Ashfaq
+- Eco
+- Associate
+- CS-430
+- FM
+{% /table %}
+
+### Outer Join
+
+In outer join, all the tuples of left and right relations are part of output. All tuples of left relation which are not matched with right relation are left as Null. Similarly, all tuples of right relation which are not matched with left relation are left as Null.
+
+There are three forms of outer join depending on the data to be kept:
+
+- **Left Outer Join:** It is denoted by ⟕. It includes all tuples of left hand relation and includes only the matching tuples from right hand relation. The unmatched row are represented as Null.
+- **Right Outer Join:** It is denoted by ⟖. It includes all tuples of right hand relation and includes only matching tuples from left hand relation. The unmatched rows are represented as Null.
+- **Full Outer Join:** It is denoted by ⟗. It includes all tuples of left and right relations.
+
+PEOPLE Relation
+
+{% table %}
+- Name
+- Age
+- Food
+---
+- Ali
+- 21
+- Burger
+---
+- Bilal
+- 24
+- Pizza
+---
+- Chohan
+- 23
+- Beaf
+---
+- Daud
+- 19
+- Meat
+{% /table %}
+
+MENU Relation
+
+{% table %}
+- Food
+- Day
+---
+- Pizza
+- Monday
+---
+- Burger
+- Tuesday
+---
+- Chicken
+- Wednesday
+---
+- Fish
+- Thursday
+---
+- Rice
+- Friday
+{% /table %}
+
+**Left Outer Join**
+
+PEOPLE ⟕ MENU will display the following output:
+
+{% table %}
+- Name
+- Age
+- Food
+- Day
+---
+- Ali
+- 21
+- Burger
+- Tuesday
+---
+- Bilal
+- 24
+- Pizza
+- Monday
+---
+- Chohan
+- 23
+- Beaf
+- NULL
+---
+- Daud
+- 19
+- Meat
+- NULL
+{% /table %}
+
+**Right Outer Join**
+
+PEOPLE ⟖ MENU will display the following output:
+
+{% table %}
+- Name
+- Age
+- Food
+- Day
+---
+- Bilal
+- 24
+- Pizza
+- Monday
+---
+- Ali
+- 21
+- Burger
+- Tuesday
+---
+- NULL
+- NULL
+- Chicken
+- Wednesday
+---
+- NULL
+- NULL
+- Fish
+- Thursday
+---
+- NULL
+- NULL
+- Rice
+- Friday
+{% /table %}
+
+**Full Outer Join**
+
+PEOPLE ⟗ MENU will display the following output:
+
+{% table %}
+- Name
+- Age
+- Food
+- Day
+---
+- Ali
+- 21
+- Burger
+- Tuesday
+---
+- Bilal
+- 24
+- Pizza
+- Monday
+---
+- Chohan
+- 23
+- Beaf
+- NULL
+---
+- Daud
+- 19
+- Meat
+- NULL
+---
+- NULL
+- NULL
+- Chicken
+- Wednesday
+---
+- NULL
+- NULL
+- Fish
+- Thursday
+---
+- NULL
+- NULL
+- Rice
+- Friday
+{% /table %}
+
+### Semi Join
+
+Semi join takes the natural join of two relations then projects the attributes of the relation only. Afterjoin and matching the common attributes of both relations, only attributes of first relation are project.
+
+**Example**
+
+There are two relations FACULTY and COURSE as follow:
+
+FACULTY Relation
+
+{% table %}
+- FacID
+- Name
+- Department
+- Designation
+---
+- 1001
+- Usman Khalil
+- CS
+- Assistant
+---
+- 1002
+- Abdullah
+- Fin
+- Associate
+---
+- 1003
+- Aysha Ashfaq
+- Eco
+- Associate
+---
+- 1004
+- Tanveer Hussain
+- Fin
+- Lecturer
+{% /table %}
+
+COURSE Relation
+
+{% table %}
+- CourseID
+- Title
+- FID
+---
+- CS-520
+- DBMS
+- 1001
+---
+- CS-511
+- OOP
+- 
+---
+- CS-430
+- FM
+- 1003
+{% /table %}
+
+FACULTY ⋉ COURSE will display the following output:
+
+{% table %}
+- FacID
+- Name
+- Department
+- Designation
+---
+- 1001
+- Usman Khalil
+- CS
+- Assistant
+---
+- 1003
+- Aysha Ashfaq
+- Eco
+- Associate
+{% /table %}

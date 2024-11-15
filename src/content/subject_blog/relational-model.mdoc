@@ -1,0 +1,118 @@
+---
+draft: false
+readtime: true
+title: Relational Model
+published: 2024-11-14T18:32:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Dr. E. F. Codd worked to improve the working of DBMS to handle large volumes of data. He applied the rules to mathematics to solve the problems of earlier database models. Some important problems were as follows:
+
+- Data integrity
+- Data redundancy
+
+Dr. Codd presented a paper A Relational Model of Data for Large Shared Databanks in June 1970 that contained 12 rules. A DBMS that satisfies these rules is called a full Relational Database Management System (RDBMS). The term relation is also derived from the set theory of mathematics.
+
+In a relational model, data is stored in relations. Relation is another term used for table. A table in a database has a unique name that identifies its contents. Each table can be called an intersection of rows and columns. An important property of a table is that the rows are unordered. A row cannot be identified by its position in the table. Every table must have a
+
+column that uniquely identifies each row in the table.
+
+### **Relational Database Terminology:**
+
+Some important terminologies used in relational database model are as follows:
+
+![](../../assets/images/blog/subject_blog/relational-model/image.png)
+
+#### **Relation:**
+
+In a relational model, data is stored in relations. Relation is another term used for tables. Following is an example of a relation.
+
+{% table %}
+---
+- **Registration No**&nbsp;
+- **Name**
+- **Class**
+---
+- 96-AG-1950
+- Nadeem Khalil
+- MSc&nbsp;
+---
+- 96-AG-1950
+- Ejaz Saeed
+- MSc&nbsp;
+---
+- 96-AG-1950
+- Nauman Qadeer
+- MSc&nbsp;
+{% /table %}
+
+**Figure:** An example of Relation
+
+#### **Tuple:**
+
+In a relational model, every relation or table consists of many tuples. Tuples are also records or rows.
+
+{% table %}
+---
+- 96-AG-1950
+- Nadeem Khalil
+- MSc&nbsp;
+{% /table %}
+
+{% table %}
+---
+- 96-AG-1950
+- Nauman Qadeer
+- MSc&nbsp;
+{% /table %}
+
+**Figure:** Two tuples of a relation
+
+#### **Attributes:**&nbsp;
+
+An attribute is a named column of a relation. Attributes are also called characteristics. The characteristics of the tuple are represented by attributes or fields.
+
+{% table %}
+---
+- 96-AG-1940
+{% /table %}
+
+{% table %}
+---
+- Ejaz Saeed&nbsp;
+{% /table %}
+
+{% table %}
+---
+- MSc
+{% /table %}
+
+**Figure:** Three Attributes of a relation
+
+#### **Domain:**
+
+A domain is a collection of all possible values of one or more attributes. For example, the value in the field “Class” can be the name of any taught classes. It is known as class domain. Similarly, Registration domain is a collection of all possible Registration numbers.
+
+#### **Degree:**&nbsp;
+
+The number of attributes is called the degree of that relation.
+
+#### **Cardinality:**
+
+The number of tuples is called the cardinality of that relation.
+
+### **Advantages of a Relational Database Model:**
+
+Some important advantages of a relational database model are as follows:
+
+1. **Data integrity:** Relational model allows data integrity from field level to table level to avoid duplication of records. It detects records with missing primary key values at the relationship level to ensure valid relationships between relations.
+1. **Data independence:** The implementation of database will not be affected by changes made in the logical design of the database or changes made in the database software.
+1. **Structural Independence:** Structural independence exists when the structure of database can be changed without affecting DBMS's ability to access the data. The relational database model does not use a navigational data access system. The data access paths are irrelevant to relational database designers, programmers and end users. Any change in relational database structure does not affect data access in any way. It makes relational databases model structure independence.
+1. **Data Consistency & Accuracy:** Since multiple level check and constraints are built-in, data is accurate and consistent.
+1. **East Data Retrieval & Sharing:** Data can be easily extracted from one or multiple relations. Data can also be easily shared among users.
+
+\

@@ -1,0 +1,127 @@
+---
+draft: false
+readtime: true
+title: Cartesian Product
+published: 2024-11-14T20:00:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+The  product is a binary operation that works on two relations. It concatenates every tuple in one relation with every tuple in one relation with every tuple in second relation. It is also called **cartesian product** or **cross product.** The product of a relation **A** with **m** tuples and relation  **B** with **n** tuples is relation **C** with **m x n** tuples. The product is denoted as A x B.
+
+The product needs not to be union compatible. It means that they can be of differetnt degree. It is commutative and associative.
+
+{% table %}
+- X
+- Y
+- Z
+---
+- 1
+- A
+- 10
+---
+- 2
+- B
+- 20
+---
+- 3
+- C
+- 30
+{% /table %}
+
+{% table %}
+- X
+- Y
+- Z
+---
+- 1
+- A
+- 10
+---
+- 4
+- D
+- 40
+---
+- 5
+- E
+- 50
+{% /table %}
+
+{% table %}
+- X1
+- Y1
+- Z1
+- X2
+- Y2
+- Z2
+---
+- 1
+- A
+- 10
+- 1
+- A
+- 10
+---
+- 1
+- A
+- 10
+- 4
+- D
+- 40
+---
+- 1
+- A
+- 10
+- 5
+- E
+- 50
+---
+- 2
+- B
+- 20
+- 1
+- A
+- 10
+---
+- 2
+- B
+- 20
+- 4
+- D
+- 40
+---
+- 2
+- B
+- 20
+- 5
+- E
+- 50
+---
+- 3
+- C
+- 30
+- 1
+- A
+- 10
+---
+- 3
+- C
+- 30
+- 4
+- D
+- 40
+---
+- 3
+- C
+- 30
+- 5
+- E
+- 50
+{% /table %}
+
+**m x n**, **m** = 3(tuples) **n** = 3(tuples) = C&nbsp; (16 tuples)
+
+\

@@ -1,0 +1,145 @@
+---
+draft: false
+readtime: true
+title: Aggregate Functions SQL
+published: 2024-11-15T03:42:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+Functions are used to manipulate data item. They accept one or more arguments and return one value. An argument is user-supplied constant, variable or column reference. The format for a function is as follow:
+
+Function name (argument1, argument2.....)
+
+### Aggregate Functions
+
+Aggregate functions generate summary value. They can be applied to all the rows in a table or the rows specified by WHERE clause. Aggregate functions generate a single value from each set of rows. Aggregate functions such as SUM, COUNT, AVG, MAX MIN generates a summary value.
+
+#### COUNT (*/Column_name/Distinct Column_name)
+
+COUNT function is used to count the number of rows.
+
+#### COUNT(*)
+
+The COUNT(*) is used to count all the rows including rows containing duplicates and null values.
+
+**Example**
+
+Write a query that displays total columns in EMP table.
+
+`SELECT COUNT(*) FROM EMP WHERE DEPT=20;`
+
+**Result**
+
+COUNT(*) → 5
+
+**COUNT with DISTINCT**
+
+`SELECT COUNT(DISTINCT MGR) FROM EMP;`
+
+**COUNT with Column\_name**
+
+`SELECT COUNT(COMM) FROM EMP;`
+
+#### AVG Function
+
+The **AVG** function returns the average of all values expression. AVG function ca be used with numeric column only and will automatically ignore the null values.
+
+**Syntax**
+
+`AVG(ALL|DISTINCT|Expression)`
+
+- **ALL:** it is the default and is applied to all values
+- **DISTINCT:** It indicates that AVG is performed only on each unique instance of a value
+- **Expression:** It is any valid expression like column_name.
+
+**Example**
+
+`SELECT AVG(SAL) FROM EMP;`
+
+#### SUM Function
+
+The **SUM** function return the sum of all the values in an expression. It supports the use of **DISTINCT** to summarize only unique value in the expression. Null values are ignored. It can be used only with numeric columns.
+
+`SUM (ALL|DISTINCT|Expression)`
+
+**Example**
+
+`SELECT SUM(SAL) FROM EMP WHERE JOB='CLERK';`
+
+#### MAX
+
+The **MAX** function returns the maximum value in an expression. It ignores all null values. It can be used with all datatypes.
+
+**Example**
+
+`SELECT MAX(SAL) FROM EMP WHERE JOB='CLERK';`
+
+#### MIN
+
+The **MIN** function return the minimum value in an expression. It ignores all null values. It can be used with all datatypes.
+
+`MIN(ALL|DISTINCT|Expression);`
+
+**Example**
+
+`SELECT MIN(SAL) FROM EMP WHERE JOB='CLERK';`
+
+#### GROUP BY Clause
+
+The **GROUP BY** clause can be used to divide the rows in a table into smaller group. If aggregate function is used in SELECT statement, GROUP BY clause produces a single value per aggregate.
+
+`GROUP BY Column_name`
+
+**Example**
+
+`SELECT AVG(SAL) FROM EMP GROUP BY JOB;`
+
+#### Excluding Rows in GROUP BY
+
+Some rows may be pre-excluded in WHERE clause before dividing them into groups.
+
+**Example**
+
+`SELECT JOB,AVG(SAL) FROM EMP WHERE JOB !='MANAGER' GROUP BY JOB;`
+
+#### Groups within Groups
+
+It is also possible to use GROUP BY clause to provide results for groups within groups.
+
+**Example**
+
+`SELECT DEPNO,JOB,AVG(SAL) FROM EMP GROUP BY DEPTNO, JOB`
+
+#### HAVING Clause
+
+The **HAVING** clause is used to filter rows after groupping them. It is also used to restrict rows  by applying aggregate function in SELECT statement. It means that HAVING clause is used to restrict groups.
+
+**Example**
+
+`SELECT DEPNO, AVG(SAL) FROM EMP GROUP BY DEPTNO HAVING COUNT(*)>3`
+
+#### Order of Clauses in SELECT Statement
+
+The WHERE clause may still be used to exclude rows. The order of clauses is:
+
+SELECT        column(s)
+
+FROM           table(s)
+
+WHERE         row condition(s)
+
+GROUP BY   column(s)
+
+HAVING        group of rows condition(s)
+
+ORDER BY    columns(s)
+
+SQL evalutes:
+
+- **WHERE** clause to establish individual rows. It can not contain groups functions
+- **GROUP BY** clause to set up groups
+- **HAVING** clause to select group for display

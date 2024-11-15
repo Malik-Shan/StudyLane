@@ -1,0 +1,164 @@
+---
+draft: false
+readtime: true
+title: SQL
+published: 2024-11-15T02:27:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - Database
+tag: []
+postedBy: admin
+---
+SQL stands for **Structured Query Langauge**. SQL, is not a full-featured programming language. It is simply a data sublanguage. It means that it only has language statements for database defintion and processing (querying and updating). The data defintion commands are called **Data Defining Language(DDL)**. The data query and data updating commands are called **Data Manipulation Language (DML)**.
+
+SQL was developed by IBM. It is endorsed as a national standard by **American National Standard Institute (ANSI)**. A new standard SQL3 also exists but the most widly implemented version of SQL is **ANSI SQL-92** standard.
+
+SQL works with database programs like MS Access, DB2, Informix, MS SQL Server, Oracle, Sybase etc.
+
+### Features of SQL
+
+1. SQL is an English-like language. It uses words lke SELECT , INSERT, DELETE etc.
+1. SQL is a non-procedural language. The user specifies what to do not how to do. SQL does not require to specify the access method to data.
+1. SQL commands are not case sensitive.
+1. SQL processes sets of records rather than a single record at a time. The most common form of a set of record is table.
+1. SQL can be used by a range of users like DBA, application programmer, management personal and many other types of end uses.
+1. SQL provides commands for a variety of tasks including:
+   - Querying data
+   - Inserting , updating, deleting rows in table
+   - Creating, modifying, and deleting databas object
+   - Controlling access to the database and database objects
+   - Guaranteeing database consistency
+
+### Relations Used in Examples
+
+The following three relations will be used in all examples of this chapter:
+
+**EMP** (<u>EMPID</u>, EMPNAME,JOB,MGR, HIREDATE, SAL, COMM, DEPTNO)
+
+**DEPT** (<u>DEPTNO,</u> DNAME, LOC)
+
+**SALGRADE** (GRADE, LOSAL, HISAL)
+
+The bold word indicates the relation name. The underline word indicates the primary key field. The remaining words in parentheses are the names of fields in the relations.
+
+### Basic SQL Statements
+
+These basic SQL statements are as follows:
+
+- SELECT fields/*
+- DISTINCT fields
+- WHERE condition
+- ORDER BY fields /  ORDER BY fields DESC
+
+### SELECT Statement
+
+**SELECT** statement is used to select data from a table. It displays result in tabular form.
+
+#### SELECT One Column
+
+**Syntax**
+
+`SELECT column_name(s) FROM table_name;`
+
+**Result**
+
+EMPNO → 7369 , 7499 , 7521 .........
+
+#### SELECT Multiple Column
+
+Write a query that display the columns EMPNO and ENAME from EMP table.
+
+`SELECT EMPNO, ENAME FROM EMP;`
+
+**Result**
+
+EMPNO → 7369, 7499, 7521 ....
+
+ENAME → SMITH, ALLEN, WARD ....
+
+#### SELECT All Columns
+
+Write a query that displays all columns from EMP table.
+
+SELECT * FROM EMP;
+
+**Result**
+
+EMPNO → 7369, 7499, 7521 ...
+
+ENAME → SMITH, ALLEN, WARD ...
+
+JOB → CLERK, SALESMAN, SALESMAN ...
+
+MGR → 7902, 7698, 7698...
+
+HIREDATE → 17-DEC-0, 20-FEB-81, 22-FEB-81...
+
+SAL → 800, 1600, 1250, ...
+
+COMM → - , 300, 500, - , 1400, ...
+
+DEPTNO → 20, 30, 30 , 20 ...
+
+### SELECT DISTINCT Statement
+
+**DISTINCT** keyword is used to eliminate duplicate rows from the result of **SELECT** statement. If **DISTINCT** is not used, all rows are returned including duplicates.
+
+#### DISTINCT One Column
+
+Write a query to display all distinct **DEPTNO** from **EMP** table.
+
+`SELECT DISTINCT DEPTNO FROM EMP;`
+
+#### DISTINCT Multiple Columns
+
+Multiple columns may be used with **DISTINCT**.
+
+**Example**
+
+Write a query that displays distinct **DEPTNO** and **JOB** from **EMP** table.
+
+`SELECT DISTINCT DEPTNO, JOB FROM EMP;`
+
+### SELECT Statement with WHERE Clause
+
+**WHERE** clause is used to retrive data from a table conditionally. It can appear only after **FROM** clause.
+
+**Syntax**
+
+SELECT Column(s) FROM Table WHERE condition
+
+**Example**
+
+Write a query that displays records of clerks from EMP table.
+
+`SELECT * FROM EMP WHERE JOB='CLERK';`
+
+**Using Quotes**
+
+SQL uses single quotes around text values. Most database systems also accept double quotes. Numeric values should not be enclosed in quotes.
+
+### SELECT Statement with ORDER BY Clause
+
+The **ORDER BY** clause is used to short he rows. The process of arranging data or records in a sequence is called **sorting**. A short can be ascending or descending. In **ascending sort**, the smallest value is placed at first position and largest position is placed at the last position. **For Example**, 1,2,3,4,5. In **descending sort**, the largest value is placed at first position and the smallest value is placed at last position. **For Example**, 5,4,3,2,1.
+
+SQL uses **ASC** keyword to specify ascending sort and **DESC** keyword for descending sort. If neither is specified, **ASC** is used as default. **ORDER BY** must always be the last clause in **SELECT** statement. If the record contain date values, earliest data will appear first. If the records contains character values, it will be sorted alphabetically.
+
+**Example**
+
+Write a query that display **EMP** table in alphabetical order with respect to name:
+
+`SELECT * FROM EMP ORDER BY ENAME;`
+
+`SELECT ENAME, JOB,SAL FROM EMP ORDER BY SAL DESC;`
+
+#### Ordering By Many Columns
+
+The **ORDER BY** clause can be used with multiple columns.
+
+**Example**
+
+Write a query that displays name and salary of all employees from **EMP** table. Result should be sorted in ascending order by **DEPTNO** and then in descending by **SAL.**
+
+`SELECT ENAME, SAL FROM EMP ORDER BY DEPNO, SAL DESC;`
