@@ -18,7 +18,7 @@ interface JSONData {
 		};
 	}>;
 };
-const githubmode: GitHubConfig['storage'] = { kind: 'github', repo: 'Malik-Shan/StudyLane' };
+const githubmode: GitHubConfig['storage'] = { kind: 'github', repo: 'Malik-Shan/StudyLane', branchPrefix: 'update/' };
 const localmode: LocalConfig['storage'] = { kind: 'local' };
 export default config({
 	storage: import.meta.env.PROD ? githubmode : localmode,
@@ -578,17 +578,11 @@ export default config({
 				}, {
 					layout: [4, 4, 4, 12],
 				}),
-				course_section: fields.array(
-					fields.relationship({
-						label: "Section",
-						collection: "course_sections",
-						description: "Select the course section you wanna add. Or make a new one.",
-						validation: { isRequired: true },
-					}), {
-					label: "Course Section",
-					itemLabel: props => props.value,
-				},
-				),
+				course_section: fields.multiRelationship({
+					label: "Section",
+					collection: "course_sections",
+					description: "Select the course section you wanna add. Or make a new one.",
+				}),
 				content: fields.markdoc({
 					label: 'About',
 					options: {
@@ -643,18 +637,11 @@ export default config({
 						}
 					}
 				}),
-				subjects: fields.array(
-					fields.relationship({
-						label: "Subject",
-						collection: "subjects",
-						description: "Subject part of this course section",
-						validation: { isRequired: true }
-					}),
-					{
-						label: "Subjects",
-						itemLabel: props => props.value,
-					}
-				),
+				subjects: fields.multiRelationship({
+					label: "Subject",
+					collection: "subjects",
+					description: "Subject part of this course section",
+				}),
 				schedule: fields.array(
 					fields.object({
 						subject: fields.relationship({
@@ -721,17 +708,11 @@ export default config({
 						false: fields.empty(),
 					},
 				),
-				reference_materials: fields.array(
-					fields.relationship({
-						label: "Reference Materials",
-						description: "Reference a book from the library.",
-						collection: "library",
-						validation: { isRequired: true },
-					}), {
+				reference_materials: fields.multiRelationship({
 					label: "Reference Materials",
-					itemLabel: props => props.value,
-				}
-				),
+					description: "Reference a book from the library.",
+					collection: "library",
+				}),
 				outline: fields.array(
 					fields.object({
 						topic: fields.text({
@@ -842,18 +823,11 @@ export default config({
 						itemLabel: props => props.value,
 					}
 					),
-					designation: fields.array(
-						fields.relationship({
-							label: "Desgination",
-							description: "The main position given the person.",
-							collection: 'designations',
-							validation: { isRequired: true },
-						}), {
-						label: "Designation",
-						description: "Select the desgiation or desginations give to the person",
-						itemLabel: props => props.value,
-					}
-					),
+					designation: fields.multiRelationship({
+						label: "Desgination",
+						description: "The main position given the person.",
+						collection: 'designations',
+					}),
 				}, {
 					layout: [6, 6, 6, 6],
 				}),
