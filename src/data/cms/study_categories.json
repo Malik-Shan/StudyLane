@@ -47,6 +47,12 @@
         "name": "Ethics",
         "slug": "ethics"
       }
+    },
+    {
+      "category": {
+        "name": "Islamic Studies",
+        "slug": "islamic-studies"
+      }
     }
   ]
 }

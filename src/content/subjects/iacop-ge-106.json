@@ -16,7 +16,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -25,7 +25,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -34,7 +34,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -43,7 +43,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -52,7 +52,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -63,23 +63,23 @@
         "value": [
           {
             "topic": "Sir Syed Ahmed Khan",
-            "taught": false
+            "taught": true
           },
           {
             "topic": "Muslim League",
-            "taught": false
+            "taught": true
           },
           {
             "topic": "Nehru",
-            "taught": false
+            "taught": true
           },
           {
             "topic": "Allama Iqbal: Independence Movement",
-            "taught": false
+            "taught": true
           },
           {
             "topic": "Lahore Resolution: Pakistan culture and society",
-            "taught": false
+            "taught": true
           }
         ]
       }
@@ -89,7 +89,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -98,7 +98,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -107,7 +107,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -116,7 +116,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     }

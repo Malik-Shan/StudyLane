@@ -1,0 +1,14 @@
+---
+interface Props{
+	videoId:string;
+	position:'left'|'center'|'right';
+	timestamp:{
+		hour:number;
+		minute:number;
+		second:number;
+	}
+};
+const {videoId,position,timestamp} = Astro.props;
+const seconds = (timestamp.hour * 60 * 60) + (timestamp.minute * 60) + timestamp.second;
+---
+<iframe class:list={['w-full max-w-[800px] rounded-md mb-4 aspect-video ml-auto mr-auto',position === 'left' && 'mr-auto',position === 'right' && 'ml-auto', position === 'center' && 'mx-auto']} src={`https://www.youtube.com/embed/${videoId}${seconds !== 0 ? `?start=${seconds}` : ''}`} title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>

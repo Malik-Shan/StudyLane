@@ -52,7 +52,7 @@ const completedTopics = completeTopic(outline);
   </div>
 
   <div class="block w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
-		<div class="bg-blue-600 h-1.5 rounded-full dark:bg-blue-500" style={`width: ${completedTopics * 100 / totalTopics}%`}></div>
+<div class:list={['h-1.5 rounded-full',completedTopics / totalTopics === 1 ? 'bg-green-600 dark:bg-green-500' : 'bg-blue-600 dark:bg-blue-500']} style={`width: ${completedTopics * 100 / totalTopics}%`}></div>
   </div>
 
   <span class='w-2 h-full bg-secondary absolute left-0 top-0 opacity-0 group-hover/card:opacity-100 transition-opacity'></span>

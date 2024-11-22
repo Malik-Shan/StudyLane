@@ -1,5 +1,6 @@
 ---
 import {getCollection} from 'astro:content';
+import {Image} from 'astro:assets';
 import type {Page} from '../../lib/interface.ts';
 
 import DefaultLayout from '../../layouts/DefaultLayout.astro';
@@ -11,10 +12,25 @@ const courses = await getCollection('courses');
 const {page}:{page:Page} = Astro.props;
 ---
 <DefaultLayout title='Courses'>
-	<section class='container my-4 flex flex-col gap-2 mx-auto px-4 max-sm:px-2 '>
-		{page.data.map((d) => 
-		<a data-astro-prefetch='hover' class='text-xl max-sm:text-md p-4 text-center border-2 rounded-md shadow-black/25 hover:shadow-md hover:-translate-y-1 transition-all' href={`/course/${d.slug}`}>{d.data.information.type+" " + d.data.name}</a>
-		)}
-	</section>
+	<section class='container my-4 mx-auto px-4 max-sm:px-2 '>
+		<div class='course_container grid gap-4 grid-cols-6 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-md:gap-2 mb-4'>
+			{page.data.map((d) => 
+			<a data-astro-prefetch='hover' href={`/course/${d.slug}`} class='flex flex-col items-start p-2 border-2 rounded-md shadow-black/25 hover:shadow-md hover:-translate-y-1 transition-all'>
+				<Image class:list={['w-full aspect-[9/10] rounded-md mb-2 object-cover']} style=`object-position:${d.data.img.position};` src={d.data.img.src} alt={d.data.img.alt} />
+				<div class='flex flex-row gap-2 mb-2'>
+					<span class='p-1 px-2 bg-[--clr-primary] font-bold rounded-md text-white text-sm'>{d.data.information.type}</span>
+					<span class='p-1 px-2 bg-[--clr-primary] font-bold rounded-md text-white text-sm'>{d.data.abbreviation}</span>
+				</div>
+				<p class='text-lg font-semibold text-slate-600'>{d.data.name}</p>
+				<p class='text-slate-600'><span class='font-semibold'>Period:</span> {d.data.information.duration} 
+					{d.data.information.duration >= 1 && d.data.information.duration <=1.11 && 'Year'}
+					{d.data.information.duration >= 2 && 'Years'}
+					{d.data.information.duration === 0.1 && 'Month'}
+					{(d.data.information.duration >=.2 && d.data.information.duration <= 0.9)  && 'Months'}
+				</p>
+			</a>
+			)}
+		</div>
 	<Pagination page={page} />
+	</section>
 </DefaultLayout>

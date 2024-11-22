@@ -179,7 +179,7 @@
 	}
 
 	.pagination .btn {
-		@apply flex flex-col w-full bg-white border border-slate-300 text-slate-400 text-right text-xl font-bold rounded-md p-2 px-4 hover:border-slate-300 hover:shadow-slate-400 hover:shadow-sm;
+		@apply flex flex-col w-full border border-slate-300 text-slate-400 text-right text-xl font-bold rounded-md p-2 px-4 hover:border-slate-300 hover:shadow-slate-400 hover:shadow-sm;
 	}
 
 	.pagination .btn.left {

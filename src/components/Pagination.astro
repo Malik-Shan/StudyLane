@@ -4,12 +4,23 @@ const {page} = Astro.props as {page:Pagination};
 ---
 <div class='pagination'>
 	{page.url.prev ? 
-	<a data-astro-prefetch='viewport' href={page.url.prev} class='btn left' href='/'>Previous<span class='pageNum'>Page {page.currentPage - 1}</span></a>
+	<a data-astro-prefetch='hover' href={page.url.prev} class:list={['btn left']} href='/'>Previous<span class='pageNum'>Page {page.currentPage - 1}</span></a>
 	:
-	null
+	<div class='btn bg-slate-200 pointer-events-none'>Previous<span class='pageNum'>None</span></div>
+	}
+	{page.url.first ? 
+	<a data-astro-prefetch='hover' href={page.url.first} class:list={['btn left']} href='/'>First<span class='pageNum'>Page 1</span></a>
+	:
+	<div class='btn bg-slate-200 pointer-events-none'>First<span class='pageNum'>Page 1</span></div>
+	}
+	{page.url.last ? 
+	<a data-astro-prefetch='hover' href={page.url.last} class:list={['btn left']} href='/'>Last<span class='pageNum'>Page {page.lastPage}</span></a>
+	:
+	<div class='btn bg-slate-200 pointer-events-none'>Last<span class='pageNum'>Page {page.lastPage}</span></div>
 	}
 	{page.url.next ?
-	<a data-astro-prefetch='viewport' href={page.url.next} class='btn' href='/'>Next<span class='pageNum'>Page {page.currentPage + 1}</span></a>
+	<a data-astro-prefetch='hover' href={page.url.next} class='btn'>Next<span class='pageNum'>Page {page.currentPage + 1}</span></a>
 	:
-	null}
+	<div class='btn bg-slate-200 pointer-events-none'>Next<span class='pageNum'>None</span></div>
+	}
 </div>

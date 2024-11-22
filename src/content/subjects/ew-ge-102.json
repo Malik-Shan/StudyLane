@@ -179,7 +179,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },

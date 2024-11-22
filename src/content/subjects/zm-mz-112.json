@@ -16,7 +16,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -25,7 +25,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -34,7 +34,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -43,7 +43,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -52,7 +52,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -61,7 +61,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -70,7 +70,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -79,7 +79,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -88,7 +88,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -97,7 +97,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -106,7 +106,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -115,7 +115,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -124,7 +124,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -133,7 +133,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -142,7 +142,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -151,7 +151,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -160,7 +160,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -169,7 +169,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -300,7 +300,7 @@
       }
     },
     {
-      "topic": "Lincar inequalities",
+      "topic": "Linear Inequalities",
       "data": {
         "discriminant": false,
         "value": {
@@ -322,7 +322,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -358,7 +358,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -367,7 +367,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -376,7 +376,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -385,7 +385,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -394,7 +394,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -403,7 +403,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -412,16 +412,16 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
     {
-      "topic": "Vector product Angle between twis vectors",
+      "topic": "Vector product Angle between two vectors",
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -430,7 +430,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -439,7 +439,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -448,7 +448,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     }
