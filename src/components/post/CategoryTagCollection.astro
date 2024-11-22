@@ -1,0 +1,24 @@
+---
+import {getCollection} from 'astro:content';
+
+const subject_blog = await getCollection("subject_blog", ({ data }) => {
+	return import.meta.env.PROD ? data.draft !== true : true;
+});
+const allCategories = subject_blog.flatMap((s)=>s.data.category);
+const processedCategories = allCategories.reduce((acc,cat)=>{
+	const val = acc[cat] || 0;
+	return {
+		...acc,
+		[cat]:val + 1
+	};
+},{});
+---
+<div class="flex flex-row justify-end flex-wrap gap-2 mb-4">
+	{
+	Object.entries(processedCategories).map(([key,value]) => (
+	<a data-astro-prefetch='hover' href={`/blog/${key.toLowerCase()}`} class="inline p-1 px-2 rounded-md secondaryBtn border">
+		{key.toLowerCase()} - {value}
+	</a>
+	))
+	}
+</div>

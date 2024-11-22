@@ -1,5 +1,4 @@
 ---
-import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 import { formatAllPosts } from "../../lib/util";
 import type { Page } from "../../lib/interface.ts";
@@ -7,6 +6,7 @@ import type { Page } from "../../lib/interface.ts";
 import DefaultLayout from "../../layouts/DefaultLayout.astro";
 import NoticeCard from "../../components/NoticeCard.astro";
 import Pagination from "../../components/Pagination.astro";
+import CategoryTagCollection from '@components/post/CategoryTagCollection.astro';
 
 export async function getStaticPaths({ paginate }) {
 	const subject_blog = await getCollection("subject_blog", ({ data }) => {
@@ -15,29 +15,13 @@ export async function getStaticPaths({ paginate }) {
 	const formatedSubjectBlog = formatAllPosts(subject_blog);
 	return paginate(formatedSubjectBlog, { pageSize: 12 });
 }
+
 const { page }: { page: Page } = Astro.props;
-const subject_blog = await getCollection("subject_blog", ({ data }) => {
-	return import.meta.env.PROD ? data.draft !== true : true;
-});
-const subjectCategory = [
-	...new Set(subject_blog.map((s: any) => s.data.category).flat()),
-];
 ---
 
 <DefaultLayout title="Subject Blogs">
 	<section class="newsSection container p-2 pt-8 mx-auto">
-		<div class="flex flex-row flex-wrap gap-2 mb-2">
-			{
-				subjectCategory.map((c: string) => (
-					<a
-						href={`/blog/${c.toLowerCase()}`}
-						class="inline p-1 px-2 text-white rounded-md bg-[--clr-primary] underline"
-					>
-						{c}
-					</a>
-				))
-			}
-		</div>
+		<CategoryTagCollection />
 		<div
 			class="newsCollection mb-4 grid grid-cols-2 max-lg:grid-cols-1 gap-2"
 		>

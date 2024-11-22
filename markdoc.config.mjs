@@ -6,9 +6,33 @@ export default defineMarkdocConfig({
     DrivePreview: {
       render: component("@components/article/DrivePreview.astro"),
       attributes: {
-        driveId: { driveId: String },
-        name: { name: String },
+        driveId: { type: String },
+        name: { type: String },
         type: { type: String },
+      },
+    },
+    YoutubeVideo: {
+      render: component("@components/article/YoutubeVideo.astro"),
+      attributes: {
+        videoId: { type: String },
+        position: {
+          type: String,
+          matches: ["left", "center", "right"],
+        },
+        timestamp: {
+          type: Object,
+          properties: {
+            hour: {
+              type: Number,
+            },
+            minute: {
+              type: Number,
+            },
+            second: {
+              tyep: Number,
+            },
+          },
+        },
       },
     },
   },
@@ -16,6 +40,10 @@ export default defineMarkdocConfig({
     document: {
       ...nodes.document,
       render: null,
+    },
+    table: {
+      ...nodes.table,
+      render: component("@components/article/TableWrapper.astro"),
     },
   },
   extends: [

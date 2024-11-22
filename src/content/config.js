@@ -7,15 +7,15 @@ const libraryCollection = defineCollection({
       thumbnail: z.object({
         img: image(),
         position: z.enum([
-          "left-top",
+          "left top",
           "top",
-          "right-top",
+          "right top",
           "left",
           "center",
           "right",
-          "left-bottom",
+          "left bottom",
           "bottom",
-          "right-bottom",
+          "right bottom",
         ]),
         alt: z.string(),
       }),
@@ -86,18 +86,34 @@ const subjectsCollection = defineCollection({
 });
 const coursesCollection = defineCollection({
   type: "content",
-  schema: z.object({
-    draft: z.boolean(),
-    abbreviation: z.string(),
-    name: z.string(),
-    information: z.object({
-      type: z.string(),
-      exam_system: z.string(),
-      duration: z.number(),
-      eligibility: z.string(),
+  schema: ({ image }) =>
+    z.object({
+      draft: z.boolean(),
+      img: z.object({
+        src: image(),
+        alt: z.string(),
+        position: z.enum([
+          "left top",
+          "top",
+          "right top",
+          "left",
+          "center",
+          "right",
+          "left bottom",
+          "bottom",
+          "right bottom",
+        ]),
+      }),
+      abbreviation: z.string(),
+      name: z.string(),
+      information: z.object({
+        type: z.string(),
+        exam_system: z.string(),
+        duration: z.number(),
+        eligibility: z.string(),
+      }),
+      course_section: z.array(reference("course_sections")),
     }),
-    course_section: z.array(reference("course_sections")),
-  }),
 });
 const courseSectionsCollection = defineCollection({
   type: "data",

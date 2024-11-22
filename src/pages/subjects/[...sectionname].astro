@@ -5,6 +5,8 @@ import {getEntry,getEntries,getCollection} from 'astro:content';
 import DefaultLayout from '../../layouts/DefaultLayout.astro';
 import SectionInfoCard from '../../components/SectionInfoCard.astro';
 import SubjectCard from '@components/SubjectCard.astro';
+import YoutubeVideo from '@components/article/YoutubeVideo.astro';
+
 
 export async function getStaticPaths(){
 	const courses = await getCollection('courses');
@@ -12,7 +14,7 @@ export async function getStaticPaths(){
 		coursedata:course.data,
 		ref:sec_ref,
 	})));
-	return Promise.all(parts.map(async (s)=>{
+	return Promise.all(parts.map(async (s:any)=>{
 		const sectiondata = await getEntry(s.ref);
 		const subjectsdata = await getEntries(sectiondata.data.subjects);
 		return {

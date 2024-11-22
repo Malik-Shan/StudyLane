@@ -24,16 +24,16 @@ const books = await getEntries(subject.data.reference_materials);
 			<div class='subject-outline flex flex-col gap-2 mb-4'>
 				{subject.data.outline.map((o:any)=> 
 				o.data.discriminant ? 
-				<details class={`bg-blue-200 text-blue-800 group/sub p-1 px-2 rounded-md`}>
+				<details class={`${o.data.value.every((io:any)=>(io.taught)) ? 'bg-green-300 text-green-800' : 'bg-amber-200 text-amber-800'} group/sub p-1 px-2 rounded-md`}>
 					<summary class='select-none cursor-pointer group-open/sub:mb-2'>{o.topic}</summary>
 					<div class='subject-outline flex flex-col gap-1'>
 						{o.data.value.map((io:any)=> (
-						<h4 class={`${io.taught ? 'bg-amber-300 text-amber-800' : 'bg-blue-200 text-blue-800'} p-1 px-2 rounded-md`}>{io.topic}</h4> 
+						<h4 class={`${io.taught ? 'bg-green-300 text-green-800' : 'bg-amber-200 text-amber-800'} p-1 px-2 rounded-md`}>{io.topic}</h4> 
 						))}
 					</div>
 				</details> 
 				: 
-				<h4 class={`${o.data.value.taught ? 'bg-amber-300 text-amber-800' : 'bg-blue-200 text-blue-800'} p-1 px-2 rounded-md`}>{o.topic}</h4> 
+				<h4 class={`${o.data.value.taught ? 'bg-green-300 text-green-800' : 'bg-amber-200 text-amber-800'} p-1 px-2 rounded-md`}>{o.topic}</h4> 
 				)}
 			</div>
 		</details>

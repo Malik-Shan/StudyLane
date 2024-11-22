@@ -18,7 +18,7 @@ interface JSONData {
 		};
 	}>;
 };
-const githubmode: GitHubConfig['storage'] = { kind: 'github', repo: 'Malik-Shan/StudyLane', branchPrefix: 'update/' };
+const githubmode: GitHubConfig['storage'] = { kind: 'github', repo: { owner: 'Malik-Shan', name: 'StudyLane' } };
 const localmode: LocalConfig['storage'] = { kind: 'local' };
 export default config({
 	storage: import.meta.env.PROD ? githubmode : localmode,
@@ -41,10 +41,75 @@ export default config({
 			institue: [
 				'faculty', 'designations',
 			],
-			settings: ['navigation'],
+			settings: ['navigation', 'topheader'],
 		},
 	},
 	singletons: {
+		topheader: singleton({
+			label: "Top Header",
+			path: "src/data/cms/topheader",
+			format: { data: 'json' },
+			schema: {
+				logo: fields.object({
+					light: fields.object({
+						large: fields.object({
+							src: fields.pathReference({
+								label: "Src",
+								pattern: "public/assets/images/official/*",
+							}),
+							alt: fields.text({
+								label: "Alt.",
+							}),
+						}, { layout: [6, 6], label: "Large Icon" }),
+						small: fields.object({
+							src: fields.pathReference({
+								label: "Src",
+								pattern: "public/assets/images/official/*",
+							}),
+							alt: fields.text({
+								label: "Alt.",
+							}),
+						}, { layout: [6, 6], label: "Small Icon" }),
+					}, {
+						label: "Lightmode Image",
+						description: "Site icon you want to use.",
+					}),
+					dark: fields.object({
+						large: fields.object({
+							src: fields.pathReference({
+								label: "Src",
+								pattern: "public/assets/images/official/*",
+							}),
+							alt: fields.text({
+								label: "Alt.",
+							}),
+						}, { layout: [6, 6], label: "Large Icon" }),
+						small: fields.object({
+							src: fields.pathReference({
+								label: "Src",
+								pattern: "public/assets/images/official/*",
+							}),
+							alt: fields.text({
+								label: "Alt.",
+							}),
+						}, { layout: [6, 6], label: "Small Icon" }),
+					}, {
+						label: "Darkmode Image",
+						description: "Site icon you want to use.",
+					}),
+				}),
+				navigation: fields.relationship({
+					label: "Navigation",
+					description: "Path to the navigation",
+					collection: "navigation"
+				}),
+				backicon: fields.text({
+					label: "Back Icon",
+					description: "Icon you want for the back button.",
+					validation: { isRequired: true },
+				})
+			}
+		}),
 		study_categories: singleton({
 			label: "Subject Categories",
 			path: "src/data/cms/study_categories",
@@ -200,15 +265,15 @@ export default config({
 						label: "Position",
 						description: "The position the image will use.",
 						options: [
-							{ label: "Left Top", value: "left-top" },
+							{ label: "Left Top", value: "left top" },
 							{ label: "Top", value: "top" },
-							{ label: "Right Top", value: "right-top" },
+							{ label: "Right Top", value: "right top" },
 							{ label: "Left", value: "left" },
 							{ label: "Center", value: "center" },
 							{ label: "Right", value: "right" },
-							{ label: "Left Bottom", value: "left-bottom" },
+							{ label: "Left Bottom", value: "left bottom" },
 							{ label: "Bottom", value: "bottom" },
-							{ label: "Right Bottom", value: "right-bttom" },
+							{ label: "Right Bottom", value: "right bttom" },
 						],
 						defaultValue: 'center'
 					}),
@@ -234,7 +299,7 @@ export default config({
 					options: [
 						{ label: "None", value: "none" },
 						...SubjectCategories.categories.map((c) => (
-							{ label: c.category.name, value: c.category.name }
+							{ label: c.category.name, value: c.category.slug }
 						)),
 					],
 					defaultValue: 'none',
@@ -432,7 +497,7 @@ export default config({
 						options: [
 							{ label: "None", value: "none" },
 							...SubjectCategories.categories.map((c) => (
-								{ label: c.category.name, value: c.category.name }
+								{ label: c.category.name, value: c.category.slug }
 							)),
 						],
 						defaultValue: 'none',
@@ -496,7 +561,58 @@ export default config({
 									<p>Name: {props.value.name}</p>
 									<p>Type: {props.value.type}</p>
 								</div>),
-						})
+						}),
+						YoutubeVideo: block({
+							label: "Youtube Video",
+							schema: {
+								videoId: fields.text({
+									label: "Video ID",
+									validation: { isRequired: true },
+								}),
+								position: fields.select({
+									label: "Position",
+									description: "Position for the video.",
+									options: [
+										{ label: "Left", value: "left" },
+										{ label: "Center", value: "center" },
+										{ label: "Right", value: "right" },
+									],
+									defaultValue: 'center',
+								}),
+								timestamp: fields.object({
+									hour: fields.integer({
+										label: "Hour",
+										description: "Hour of the video",
+										defaultValue: 0,
+										validation: { isRequired: true },
+									}),
+									minute: fields.integer({
+										label: "Minute",
+										description: "Minute of the video",
+										defaultValue: 0,
+										validation: { isRequired: true },
+									}),
+									second: fields.integer({
+										label: "Second",
+										description: "Second of the video",
+										defaultValue: 0,
+										validation: { isRequired: true },
+									}),
+								}, {
+									label: "Timestamp",
+									layout: [4, 4, 4],
+								})
+							},
+							ContentView: (props) => (
+								<div>
+									<iframe className={`w-full max-w-[800px] rounded-md mb-4 aspect-video ml-auto mr-auto ${props.value.position === 'left' && 'mr-auto'} ${props.value.position === 'right' && 'ml-auto'} ${props.value.position === 'center' && 'mx-auto'}`} src={`https://www.youtube.com/embed/${props.value.videoId}${(props.value.timestamp.hour * 60 * 60) + (props.value.timestamp.minute * 60) + props.value.timestamp.second !== 0 ? `?start=${(props.value.timestamp.hour * 60 * 60) + (props.value.timestamp.minute * 60) + props.value.timestamp.second}` : ''}`} title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+									<p>ID: {props.value.videoId}</p>
+									<p>Position: {props.value.position}</p>
+									<p>Hour: {props.value.timestamp.hour}</p>
+									<p>Minute: {props.value.timestamp.minute}</p>
+									<p>Secdon: {props.value.timestamp.second}</p>
+								</div>),
+						}),
 					},
 				})
 			},
@@ -511,6 +627,39 @@ export default config({
 					label: "Draft",
 					description: "Make a draft of this course",
 					defaultValue: false,
+				}),
+				img: fields.object({
+					src: fields.image({
+						label: "Src",
+						description: "Choose image that best fit the course.",
+						directory: "src/assets/images/course",
+						publicPath: "../../../assets/images/course/",
+						validation: { isRequired: true },
+					}),
+					alt: fields.text({
+						label: "Alt",
+						description: "Text to show for the image for accessibility.",
+						validation: { isRequired: true },
+					}),
+					position: fields.select({
+						label: "Position",
+						description: "Choose the postion that will best show the content",
+						options: [
+							{ label: "Left Top", value: "left top" },
+							{ label: "Top", value: "top" },
+							{ label: "Right Top", value: "right top" },
+							{ label: "Left", value: "left" },
+							{ label: "Center", value: "center" },
+							{ label: "Right", value: "right" },
+							{ label: "Left Bottom", value: "left bottom" },
+							{ label: "Bottom", value: "bottom" },
+							{ label: "Right Bottom", value: "right bttom" },
+						],
+						defaultValue: "center",
+					})
+				}, {
+					label: "Course Image",
+					layout: [4, 4, 4],
 				}),
 				abbreviation: fields.text({
 					label: 'Course Abbreviation',
@@ -560,12 +709,13 @@ export default config({
 						],
 						defaultValue: 'none',
 					}),
-					duration: fields.integer({
+					duration: fields.number({
 						label: 'Duration (Year)',
-						description: "Duration to complete course",
+						description: "Years on left and months within decimal point. Avoid trailing zeros. e.g 1.20 = 1.2 1.00 = 1 etc.",
+						step: 0.1,
 						validation: {
 							isRequired: true,
-							min: 1,
+							min: 0.1,
 							max: 5,
 						},
 					}),

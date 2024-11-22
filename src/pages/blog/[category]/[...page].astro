@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import {getCollection} from 'astro:content';
 import {formatAllPosts} from '../../../lib/util';
 import type {Page} from '../../../lib/interface.ts';
+type ContentData = CollectionEntry<'subject_blog'>;
 
 import DefaultLayout from '@layouts/DefaultLayout.astro';
 import NoticeCard from '@components/NoticeCard.astro';
@@ -18,20 +19,20 @@ export async function getStaticPaths({paginate}){
 		const filteredData = subject_blog.filter((s)=>s.data.category.some((cat:string)=> cat.toLowerCase() === category.toString().toLowerCase()))
 		return paginate(filteredData,{
 			params:{category:category.toLowerCase()},
-			props:{categoryName:category,blog:filteredData},
 			pageSize:12,
 		})
 
 	});
 }
 const {category} = Astro.params;
-const {categoryName,blog,page} = Astro.props;
+const {page}= Astro.props;
+const CapCategory = category[0].toUpperCase() + category.slice(1);
 ---
-<DefaultLayout title='Subject Blogs'>
+<DefaultLayout title={`${CapCategory} Blogs`}>
 	<section class='newsSection container p-2 pt-8 mx-auto'>
 		<div class='newsCollection mb-4 grid grid-cols-2 max-lg:grid-cols-1 gap-2'>
 			{
-			page.data.map((n) => (
+			page.data.map((n:ContentData) => (
 			<NoticeCard title={n.data.title} link={`/blog/read/${n.slug}`} date={n.data.published} category={n.data.category} position={n.data.postedBy}/>
 			))
 			}
