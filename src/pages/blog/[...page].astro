@@ -21,7 +21,7 @@ const { page }: { page: Page } = Astro.props;
 
 <DefaultLayout title="Subject Blogs">
 	<section class="newsSection container p-2 pt-8 mx-auto">
-		<CategoryTagCollection />
+		<CategoryTagCollection current='all'/>
 		<div
 			class="newsCollection mb-4 grid grid-cols-2 max-lg:grid-cols-1 gap-2"
 		>

@@ -16,6 +16,57 @@ Object Oriented Programming is a programming technique in which programs are wri
 
 Object Oriented Programming is a powerful technique to develop software. It is used to analyze and design the applications in terms of objects. It deals with data and the procedures that process that data as a single object.
 
+For OOP we first create a class. It's a prototype containing the properties and functions. The objects are than made using the class.
+
+Class of car having properties of Brand, Doors & Color. It contains the functions of forward, break & back.
+
+**Class Car:**
+
+![prototype map of car class](../../assets/images/blog/subject_blog/introduction-to-oop-in-cpp/car-class.webp)
+
+Using the class as prototype we create objects with their brand, doors & color.
+
+**Object1:**
+
+![drawing of a blue car](../../assets/images/blog/subject_blog/introduction-to-oop-in-cpp/suzuki-object.webp)
+
+**Object2:**
+
+![drawing of a grey car](../../assets/images/blog/subject_blog/introduction-to-oop-in-cpp/bmw-object.webp)
+
+Code representation
+
+```cpp
+#include <iostream>
+using namespace std;
+class Car{
+    private:
+        string Brand;
+        string Color
+        int Doors;
+    public:
+        Human(string b,string c, int d) : Brand(b), Color(c), Doors(d){};
+        void show(){
+            cout<< Brand <<endl;
+            cout<< Color <<endl;
+            cout<< Doors <<endl;
+        };
+};
+int main() {
+    Car object1("Suzuki","Blue",4);
+    Car object2("BMW","Grey",4);
+    object1.show();
+    object2.show();
+    return 0;
+};
+// Suzuki
+// Blue
+// 4
+// BMW
+// Grey
+// 4
+```
+
 Some examples of object oriented programming are as follows:
 
 - C++
