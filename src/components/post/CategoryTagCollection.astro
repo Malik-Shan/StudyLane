@@ -12,11 +12,13 @@ const processedCategories = allCategories.reduce((acc,cat)=>{
 		[cat]:val + 1
 	};
 },{});
+const {current} = Astro.props;
 ---
 <div class="flex flex-row justify-end flex-wrap gap-2 mb-4">
+	<a data-astro-prefetch='hover' href="/blog" class:list={["inline p-1 px-2 rounded-md border",current === "all" ? 'primaryBtn pointer-events-none' : 'secondaryBtn']}>all - {allCategories.length}</a>
 	{
 	Object.entries(processedCategories).map(([key,value]) => (
-	<a data-astro-prefetch='hover' href={`/blog/${key.toLowerCase()}`} class="inline p-1 px-2 rounded-md secondaryBtn border">
+	<a data-astro-prefetch='hover' href={`/blog/${key.toLowerCase()}`} class:list={["inline p-1 px-2 rounded-md border",current === key.toLowerCase() ? 'primaryBtn pointer-events-none' : 'secondaryBtn']}>
 		{key.toLowerCase()} - {value}
 	</a>
 	))
