@@ -1,0 +1,94 @@
+---
+draft: false
+readtime: true
+title: Static Data Member & Functions
+published: 2024-11-25T20:36:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - programming
+tag: []
+postedBy: admin
+---
+### Static Data Member
+
+A type of data member that is shared among all the object of a class is known as static **data member**. The static data member is defined in the class with `static` keyword. When a data member is defined as static, only one variable is created in the memory even if there are many objects of that class.
+
+The characteristics of a static data member are same as normal static variable. It is visible only in the class in which it is defined but its lifetime start when the program starts its execution. Its lifetime ends when program is terminated. It is normally used to share the data among all the objects of a particular class.
+
+The main difference between normal data member and static data member is that each object has its own variable of normal data. On the other hand, static member is shared among all the objects of the class. Only one memory location is created for static data member that is shared among all objects.
+
+![Diagram showing difference between static and normal data members](../../assets/images/blog/subject_blog/static-data-member-and-functions/staticmember-light.png)
+
+```cpp
+// Static Data Member
+#include <iostream>
+using namespace std;
+class Student{
+    private:
+    static int n;
+    string name;
+    int rollnum;
+    public:
+    Student(string name):name(name){
+        rollnum = n;
+        n++;
+    };
+    void show(){
+        cout << "Name: " << name << endl;
+        cout << "Roll Number: " << rollnum << endl;
+    };
+};
+int Student::n = 1;
+int main() {
+    Student s1("Ali");
+    Student s2("Usman");
+    s1.show();
+    s2.show();
+    return 0;
+};
+```
+
+[Execute Code](https://www.programiz.com/online-compiler/1yAr06IM6dgrN)
+
+### Static Functions
+
+A type of member function that can be accessed without creating any object of that class is called **static function**. Normally, a member function of any class can not be accessed or executed without creating an object of that class. In some situations, a member function has to be executed without referencing any object.
+
+The static adta members of a class are not created for each object. The class creates only one data member for all objects. The static data member is defined when program is executed.The program may required to access a static data member before creating an object. The static member functions can be used to access a static data member.
+
+```cpp
+// Static Function
+#include <iostream>
+using namespace std;
+class Student{
+    private:
+    static int n;
+    string name;
+    int rollnum;
+    public:
+    Student(string name):name(name){
+        rollnum = n;
+        n++;
+    };
+    void show(){
+        cout << "Name: " << name << endl;
+        cout << "Roll Number: " << rollnum << endl;
+    };
+    static int showcount(){
+        return n;
+    };
+};
+int Student::n = 1;
+int main() {
+    cout << "Count: " << Student::showcount() << endl;
+    Student s1("Ali");
+    Student s2("Usman");
+    s1.show();
+    s2.show();
+    cout << "Count: " << Student::showcount() << endl;
+    return 0;
+};
+```
+
+[Execute Code](https://www.programiz.com/online-compiler/0G4JHr2YhNWM3)

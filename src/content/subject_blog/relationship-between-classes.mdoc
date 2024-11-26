@@ -1,0 +1,101 @@
+---
+draft: false
+readtime: true
+title: Relationship between Classes
+published: 2024-11-26T00:01:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - programming
+tag: []
+postedBy: admin
+---
+In object-oriented programming, class is a blueprint for objects that we want to create. One class can be related to another class or not. Generally, there are some relations between classes in oop, which are :
+
+- aggregation
+- composition
+- inheritance
+
+## Aggregation
+
+<img src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fcuat83eulk17ubj0g17x.PNG" alt="Aggregation implementation image" />
+
+Aggregation is a Has-A relationship between two objects where each object can exist without another object. In other words, these objects are independent. For example, the relationship between employee and department. An employee can stand alone without a department, so does the department.
+
+```cpp
+public class Employee {
+    private String name;
+    private double salary;
+
+    public Employee() {}
+}
+
+public class Department {
+    public String name;
+    public List<Employee> employees;
+
+    public Department() {}
+}
+```
+
+The source code above is an example of the implementation of aggregation. The Department class has a relationship with the Employee class. Department object can have a list of employees or not at all. Employee object might belong to Department object or not. There is no restriction in the aggregation relationship.
+
+## Composition
+
+<img src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fcuat83eulk17ubj0g17x.PNG" alt="Composition implementation image" />
+
+Composition is a Has-A relationship between classes where both classes are dependent on each other. One object cannot exist without the existence of another object. For example, the relation between Laptop and its Processor. A laptop cannot exist without its processor.
+
+```cpp
+public class Processor {
+    private String modelName;
+    private int frequency;
+
+    public Processor () {}
+}
+
+public class Laptop {
+   private Processor processor = new Processor();
+
+   public Laptop () {}
+}
+```
+
+The source code above is an example of the implementation of composition in java. The Laptop class has a relationship with the Processor class. When a laptop object is created, a processor object that belongs to that laptop is automatically created.
+
+## Inheritance
+
+<img src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fcuat83eulk17ubj0g17x.PNG" alt="Inheritance implementation image" />
+
+Inheritance is an Is-A relationship between classes where parent class is a general class and child class is a specific class. For example, the relation between cat, dog, and its general class, which is animal. An animal can be specified as a cat or dog. Cat and dog can be generalized as an animal.
+
+```cpp
+public class Animal {
+    protected weight;
+    protected color;
+
+    public Animal () {}
+
+    public void talk () {
+        System.out.println("It is animal");
+    }
+}
+
+public class Cat extend Animal {
+    public Cat () {}
+
+    public void talk () {
+        System.out.println("meow");
+    }
+}
+
+public class Dog extend Animal {
+    public Dog () {}
+
+    public void talk () {
+        System.out.println("bark");
+    }
+}
+```
+
+The source code above is an example of the implementation of inheritance in java. The Cat and The Dog both have properties of weight and color. To generalize those properties of Cat and Dog, we can create one parent class that can represent both cat and dog with those properties, which is Animal class.

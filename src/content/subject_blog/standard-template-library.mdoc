@@ -1,0 +1,346 @@
+---
+draft: false
+readtime: true
+title: Standard Template Library
+published: 2024-11-26T02:14:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - programming
+tag: []
+postedBy: admin
+---
+STL is a library that consist of different **data structures** and **algorithms** to effectively store and manipulate data.
+
+Data structures are used to store and organize data. An array is an example of a data structure, which allows multiple elements to be stored in a single variable.
+
+If we say that data structures store data, we can say that algorithms are used to solve different problems, often by searching through and manipulating those data structures.
+
+Using the right data structure and algorithm makes your program run faster, especially when working with lots of data.
+
+{% table %}
+- Data Structure
+- Description
+---
+- Vector
+- Stores elements like an array but can dynamically change in size. Adding and removing of elements are usually done at the end. Elements can be accessed by index.
+---
+- List
+- Stores elements sequentially, where each element is connected to the next. Adding and removing of elements can be done at both ends. Not accessible by index.
+---
+- Stack
+- Stores elements in a specific order, called LIFO (Last In, First Out), where elements can only be added and removed from the top. Not accessible by index.
+---
+- Queue
+- Stores elements in a specific order, called FIFO (First In, First Out), where elements are added at the end and removed from the front. Not accessible by index.
+---
+- Deque
+- Stores elements in a double-ended queue, where elements can be added and removed from both ends. Elements can be accessed by index.
+---
+- Set
+- Stores unique elements. Not accessible by index.
+---
+- Map
+- Stores elements in "key/value" pairs. Accessible by keys (not by index).
+{% /table %}
+
+## Key Concepts of the STL
+
+The key components of the STL consist of **containers**, **iterators,** and **algorithms**, and the relationship betweem them:
+
+- **Containers** are data structures that provides a way to store data, like vectors, lists, etc.
+- **Iterators** are objects used to access elements of a data structure.
+- **Algorithms** include functions, like `sort()` and `find()`, that perform operations on data structures through **iterators**.
+
+{% table %}
+- Function / Property
+- Description
+---
+- Header File
+- Used to import the required library file
+---
+- Index [number / key]
+- Suare brackets can be used to index an element using it's index position or key in data structure
+---
+- [number / key] add
+- The brackets can be used to add elements to maps.
+---
+- Index `.at()`
+- The .at() function is also used to index specific element. It's preferred over brackets as it can throw error. Like if it's out of range.
+---
+- `.at()` `[number / key]` modify
+- We can use .at() or [number/key] to modify the element at the specific position.
+---
+- `.front()` `.back()` functions
+- The .front() and .back() functions are used to access the first and last element of a data structure.
+---
+- `.begin()` `.end()` functions
+- These functions return the pointer to the first and one element after the last element of a data structure.
+---
+- `.rbegin()` `.rend()` functions
+- These functions return the pointer to the last and one element before the first element of a data structure.
+---
+- `.push_front()` `.push_back()` functions
+- The .push_front() and .push_back() functions are used to add element to the front or back of the data structure.
+---
+- `.pop_front()` `.pop_back()` functions
+- The .pop_front() and .pop_back() functions are used to remove the first and last elements of a data structure.
+---
+- `.push()` `.pop()` functions
+- These functions are used to add or remove elements from a data structure.
+---
+- `.insert()` function
+- It's used to add element to a data structure
+---
+- `.erase()` function
+- Used to remove element from data structure.
+---
+- `.clear()` function
+- It's used to remove all elements.
+---
+- `.count(key)` function
+- It's used to check if an element exist in map. 1(true) , 0 (false)
+---
+- `.size()` function
+- It tells us about the number of elements within a data structure.
+---
+- `.empty()` function
+- It tells us whether a data structure is empty or not. 1 (true) , 0 (false)
+---
+- `for` Loop
+- It's used to loop over the element of data structure
+---
+- `for-each` Loop
+- It's used to loop over the elements of data structure
+---
+- `iterator`
+- It's used to iterate or loop over the elements of data structure using pointers to its elements.
+---
+- `auto` keyword
+- This keyword allows compiler to automatically determine the data type.
+{% /table %}
+
+### Vectors
+
+- Same as array but grows dynamically
+- Include header file `#include <vector>`
+- Create vector using `vector<type> vectorname;`
+- To add elements at the time of declaration use curly brakctes {}
+- Access specific element by index number using square brackets [index]
+- `.at()` function to access specific element by index number. Its preferred over bracket as it throws error
+- `.front()` `.back()` give first and last element
+- `.push_back()` used to add element to end
+- `.pop_back(`) removes element from the end
+- `.size()` shows total element
+- `.empty()` check if vector is empty.
+- `for` loop , `for-each` loop and `iterator` can be used to loop over
+
+### List
+
+- Same as array but grows dynamically & unlike vector can add or remove elements from both ends
+- Doesn't support random access by index number
+- Include header file `#include <list>`
+- Create list using `list<type> listname;`
+- To add elements at the time of declaration use curly brakctes {}
+- `.front()` `.back()` give first and last element
+- `.push_back()` `.push_front()` used to add element to end or start
+- `.pop_back(`) `.pop_front()` removes element from the end or start
+- `.size()` shows total element
+- `.empty()` check if vector is empty.
+- `for-each` loop and `iterator` can be used to loop over
+
+### Stacks
+
+- Stores elements in specific order, called **LIFO** (Last In First Out) e.g like the layers of pancake.
+- Doesn't support random access by index number as elements are add or removed from top.
+- Include header file `#include <stack>`
+- Create stack using `stack<type> stackname;`
+- Can not add elements at the time of declaration
+- `.push()` adds element to the stack
+- `.pop()` removes last added element from the stack
+- `.top()` to access the top element
+- `.size()` shows total element
+- `.empty()` check if vector is empty.
+- Can't be looped over using for , for-each or iterators
+
+### Queues
+
+- Stores elements in specific order, called **FIFO** (First In First Out) e.g like queue of a market.
+- Doesn't support random access by index number as elements are add or removed from top.
+- Include header file `#include <queue>`
+- Create queue using `queue<type> queuename;`
+- Can not add elements at the time of declaration
+- `.front()` `.back()` give first and last element
+- `.push()` adds element to the queue after declaration
+- `.pop()` removes first & oldest element from the queue
+- `.size()` shows total element
+- `.empty()` check if vector is empty.
+- Can't be looped over using `for` , `for-each` or `iterators`
+
+### Deque
+
+- Elements can be added or removed from both ends. It's a double ended queue.
+- Elements can be accessed by index number
+- Include header file `#include <deque>`
+- Create deque using `deque<type> dequename;`
+- To add elements at the time of declaration use curly brakctes {}
+- Access specific element by index number using square brackets [index]
+- `.at()` function to access specific element by index number. Its preferred over bracket as it throws error
+- `.front()` `.back()` give first and last element
+- `.push_back()` `.push_front()` used to add element to end or start
+- `.pop_back(`) `.pop_front()` removes element from the end or start
+- `.size()` shows total element
+- `.empty()` check if vector is empty.
+- `for` loop,`for-each` loop and `iterator` can be used to loop over
+
+### Sets
+
+- Unique, non-duplicate value, ordered in ascending order
+- Values can be added or removed but not changed
+- Elements can be accessed by index number as order is based on sorting and not indexing
+- Include header file `#include <set>`
+- Create set using `set<type> setname;`
+- To add elements at the time of declaration use curly brakctes {}
+- Type can not be changed after declaration
+- `greater<type>` to order in descending order. `set<type, greater<type>> setname;`
+- Duplicate values are ignored if added
+- `.insert(value)` to add elements
+- `.erase(value)` to remove elements
+- `.clear()` to remove all the elements
+- `.size()` shows total element
+- `.empty()` check if vector is empty.
+- `for-each` loop and `iterator` can be used to loop over
+
+### Map
+
+- Store elements in **key/value** pairs, ascending order by key
+- Elements can be accessed by index number but by their key
+- Include header file `#include <map>`
+- Create map using `map<keytype , valuetype> mapname;`
+- To add elements at the time of declaration use curly brakctes {}
+- `greater<type>` to order in descending order. `map<keytype,valuetype, greater<keytype>> setname;`
+- Access elements using their key in brackets []
+- .at() to access elements by their key value. It also throws error and is preferred
+- `greater<type>` to order in descending order. `set<type, greater<type>> setname;`
+- Duplicate values are ignored if added
+- `.insert({key,value})` to add elements
+- `.erase(key)` to remove elements
+- `.clear()` to remove all the elements
+- `.size()` shows total element
+- `.empty()` check if vector is empty.
+- `.count()` to check if element exists
+- `for-each` loop and `iterator` can be used to loop over
+
+### Iterators
+
+Iterators are used to loop through the elements of data structures (like vector,map etc.) by creating pointer to it's elements. It's called itertors because it iterates over meaing "loop over" the elements.
+
+```cpp
+// Create a vector called cars that will store strings
+vector<string> cars = {"Volvo", "BMW", "Ford", "Mazda"};
+// Create a vector iterator called it
+vector<string>::iterator it;
+// Loop through the vector with the iterator
+for (it = cars.begin(); it != cars.end(); ++it) {
+  cout << *it << "\n";
+}
+```
+
+1. First we create a vector of strings to store the names of different car manufactures.
+1. Then we create a "vector iterator" called `it`, that we will use to loop through the vector.
+1. Next, we use a `for` loop to loop through the vector with the iterator. The iterator (`it`) points to the first element in the vector (`cars.begin()`) and the loop continues as along as `it` is not equal to `cars.end()`.
+1. The increment operator (`++it`) moves the iterator to the next element in the vector.
+1. The dereference operator (`*it`) accesses the element the iterator points to.
+
+#### .begin() and .end()
+
+These are the functions of data structure that creates a pointer to the elements of it.
+
+- `.begin()` creates a pointer to the first element
+- `.end()` creates a pointer to the element after the last element. It indicates the end of the data structure. `.end() - 1` (points to last element)
+- `.rbegin()` creates pointer to the last element
+- `.rend()` creates pointer to the element before first element
+
+#### Using `auto` keyword
+
+The `auto` keyword allows the compiler to automatically determine the correct data type, which simplifies the code and makes it more readable:
+
+Instead of this
+
+```cpp
+vector<string>::iterator it = cars.begin();
+```
+
+Use this
+
+```cpp
+auto it = cars.begin();
+
+for (auto it = cars.begin(); it != cars.end(); ++it) {
+  cout << *it << "\n";
+}
+```
+
+## Algorithms
+
+```
+Another important feature of iterators is that they are used with different algorithm functions, such as sort() and find() (found in the <algorithm> library), to sort and search for elements in a data structure.
+```
+
+For example, the `sort()` function takes iterators (typically returned by `begin()` and `end()`) as parameters to sort elements in a data structure from the beginning to the end.
+
+#### Sort
+
+To sort structure in ascending order
+
+```
+sort( vec.begin(), vec.end());
+```
+
+#### Copy
+
+Give range of one structure to another
+
+```
+copy(vec.begin(), vec.end(), result.begin());
+```
+
+#### Move
+
+Moves element from one structure to another
+
+```
+move(vec.begin(), vec.end(), result.begin());
+```
+
+#### Swap
+
+It swaps the content of two same data types
+
+```
+swap(vectorOne, vectorTwo);
+```
+
+#### Merge
+
+It merges two structure into a new structure of same type
+
+```
+merge(v1.begin(), v1.end(), v2.begin(),  b2.end(), result.begin());
+```
+
+#### Replace
+
+It replaces all the occurences of an element with a new value
+
+```
+replace(vec.begin(), vec.end(), old_value, new_value);
+```
+
+#### Remove
+
+It removes the first occurance of element from structure
+
+```
+remove(vec.begin(), vec.end(), val);
+```

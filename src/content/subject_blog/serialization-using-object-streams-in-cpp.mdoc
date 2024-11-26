@@ -1,0 +1,268 @@
+---
+draft: false
+readtime: true
+title: Serialization Using Object Streams in C++
+published: 2024-11-24T00:06:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - programming
+tag: []
+postedBy: admin
+---
+### Serialization
+
+*"The process of converting data or object into a form that can be easily **stored**, **transmitted** & **reconstructed** later."*
+
+**Example:** Binary, text like xml, json etc.
+
+In simple words, lets say I write a message onto an assembled puzzle. I disassemble it after writing the message as it's easier to transport or store it that way. This will be the serialization. The receiver will assemble the puzzle according to the instructions to get the message. This is called deserialization.
+
+### Stream
+
+A stream is a series of bytes associated with a file. It consists of data that is transferred from one location to another. Each stream is associated with a specific file by using the **open** opeartion. The information can be exchanged between a file and the program once a file is opened. The exchange is performed with the help of streams.
+
+#### Types of Streams
+
+There are two main types of streams. They're automatically established when a program starts execution.
+
+1. Input Stream
+1. Output Stream
+
+Types of streams in C++:
+
+#### Standard Input Stream
+
+Standard input stream is used to input data. It establishes a connection between the standard input devices and program. The act of reading from an input stream is called **extraction**. It is performed using **extraction operator** `<<`with `cin`object. The `cin`is an object of **stream** and handles input.
+
+#### Standard Output Stream
+
+Standard output stream is used to output data. It establishes a connection between the standard output devices and program. The act of writing data to an output stream is called **insertion**. It is performed using **insertion operator** `>>`with `cout`object. The `cout`is an object of **ostream** and handles output.
+
+{% table %}
+- Stream Name
+- Used For
+- Linked to
+---
+- cin
+- Standard input
+- Keyboard
+---
+- cout
+- Standard output
+- Monitor
+---
+- cerr
+- Standard error
+- Monitor
+---
+- clog
+- Buffered error dispay
+- Monitor
+{% /table %}
+
+- **cin:** It is an object of **istream** class. It is connected to the standard input device such as keyboard.
+- **cout:** It is an object of **ostream** class. It is connected to the standard output device such as monitor.
+- **cerr:** It is an object of **ostream** class. It is connected to the standard error device. The output through **cerr** is unbuffered. It means that the output will appear immediately on the screen. It is used to inform the user about some error that has occured.
+- **clog:** It is similar to **cerr** object but **clog** is buffered. It means that the output will held in the buffer till the buffer becomes full or it is flushed.
+
+The standard streams described above can be redirected to other devices or file. The **cerr** object is similar to **cout** object. The difference is that even if **cerr** is redirected by the user to some other device, the error message will be displayed on the screen.
+
+#### Stream Class Hierarchy
+
+![](../../assets/images/blog/subject_blog/serialization-using-object-streams-in-cpp/streamclass.png)
+
+C++ classes to perform output and input of characters with files:
+
+- **ofstream:** This stream class is used to write on files
+- **ifstream:** This stream class is used to read from files
+- **fstream:** This stream class is used to both read and write from / to files
+
+### Opening File
+
+A file should be open before it can be processed. A file pointer is declared associated with the file to be opened. A file can be opened by creating an object of **ifstream**, **ofstream** or **fstream**. An open file is represented by stream in a program. An input or output operation performed on this stream object is applied to the physical file associated with it.
+
+#### Syntax
+
+`stream_class variable_name;`
+
+`variable_name.open( filename, mode);`
+
+another way
+
+`stream_class variable_name(filename,mode);`
+
+**stream\_class:** Name of the class of which object you're creating. e.g ifstream,ofstream etc.
+
+**variable\_name:** Name of the variable for the file object.
+
+**filename:** Name of the file along with it's extension you want to use.
+
+**mode:** It is the mode in which the file is to be opened. It is optional parameter.
+
+{% table %}
+- Mode
+- Description
+---
+- ios::in
+- It's usd to open a file for input operations.
+---
+- ios::out
+- It's used to open a file for output operations.
+---
+- ios::binary
+- It's used to open a file in binary mode.
+---
+- ios::ate
+- It's used to set the initial position at the end of the file. If this flag is not set to any value, the initial position is the beginning of the file.
+---
+- ios::app
+- It is used to perform all output operations at the end of file, appending the content to current content of file. It can only be used in the streams that are opened for output-only operations.
+---
+- ios::trunc
+- It is used to delete the previous contents of a file if the file opened for output operations already exists.
+---
+- ios::nocreate
+- It's used to open file only if it exists. The file is not created if it does not exist.
+---
+- ios::noreplace
+- It is used to open a file only if the file doesn't exist otherwise open fails.
+{% /table %}
+
+#### Code
+
+```cpp
+ofstream file(filename, ios::binary);
+//2nd way
+ofstream file2;
+file2.open(filename,ios::binary);
+```
+
+Both ways are correct for opening the file. The first method have constructor that automatically calls the `open()`member function.
+
+Default modes of classes are as follows:
+
+{% table %}
+- Class
+- Default mode parameter
+---
+- ofstream
+- ios::out
+---
+- ifstream
+- ios::in
+---
+- fstream
+- ios::in | ios::out
+{% /table %}
+
+The default value is used only if the `open()`function is called without any value for the mode parameter.
+
+### Verifying File Open
+
+The function `is_open()`is used to check if a stream object has opened a file successfully. The function has no parameter and returns a value of **true** if the file is open. It returns **false** if the file is not opened.
+
+```cpp
+if (!file.is_open()) {
+    cerr << "Error: Failed to open file for writing." << endl;
+    return;
+};
+```
+
+### Writing To File
+
+The **insertion operator** `<<`is used with **cout** object. It is frequently used in programming to write the output on the screen. The same operator can be used to write the data in files. The operator is used with a stream object of **ofstream** or **fstream** to write data to files.
+
+```cpp
+int n = 10;
+char ch = '*'
+double d = 38.125;
+ofstream file("text.txt");
+if(!file.is_open()){
+   cerr << "Failed to open file" << endl;
+   return;
+};
+file << n << ' ' << ch << ' ' << d;
+```
+
+Now the **text.txt** file contains the text of '10 * 38.125'.
+
+### Closing File
+
+The opened file should be closed when the input or output operations on the file are finished. The file should be closed so that its resources become available again. The memeber function `close()`of stream object is used to close a file. It takes no parameters. The function is used as follows:
+
+```cpp
+int n = 10;
+char ch = '*'
+double d = 38.125;
+ofstream file("text.txt");
+if(!file.is_open()){
+   cerr << "Failed to open file" << endl;
+   return;
+};
+file << n << ' ' << ch << ' ' << d;
+file.close();
+```
+
+The stream object associated with a file becomes available to open another file when the first file is closed. The file also becomes available again to be opened by other processes. If an object is destroyed while it was associated with an open file, the destructor automatically calls the member function `close()`function.
+
+#### Serialization & Deserialization of Object
+
+```cpp
+#include <fstream>
+#include <iostream>
+using namespace std;
+
+class Serializable {
+private:
+    string name;
+    int age;
+
+public:
+    Serializable(){};
+    Serializable(const string& name, int age) : name(name), age(age){};
+
+    string getName() const { return name; }
+    int getAge() const { return age; }
+
+    void serialize(const string& filename)
+    {
+        ofstream file(filename, ios::binary);
+        if (!file.is_open()) {
+            cerr << "Error: Failed to open file for writing." << endl;
+            return;
+        };
+        file.write(reinterpret_cast<const char*>(this), sizeof(*this));
+        file.close();
+        cout << "Object serialized successfully." << endl;
+    };
+
+    static Serializable deserialize(const string& filename)
+    {
+        Serializable obj("", 0);
+        ifstream file(filename, ios::binary);
+        if (!file.is_open()) {
+            cerr << "Error: Failed to open file for reading." << endl;
+            return obj;
+        }
+        file.read(reinterpret_cast<char*>(&obj), sizeof(obj));
+        file.close();
+        cout << "Object deserialized successfully." << endl;
+        return obj;
+    };
+};
+
+int main()
+{
+    Serializable original("Alice", 25);
+    original.serialize("data.bin");
+
+    Serializable restored = Serializable::deserialize("data.bin");
+
+    cout << "Deserialized Object:\n";
+    cout << "Name: " << restored.getName() << endl;
+    cout << "Age: " << restored.getAge() << endl;
+
+    return 0;
+};
+```
