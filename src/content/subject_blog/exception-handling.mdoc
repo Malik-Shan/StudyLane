@@ -1,0 +1,211 @@
+---
+draft: false
+readtime: true
+title: Exception Handling
+published: 2024-11-26T11:54:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - programming
+tag: []
+postedBy: admin
+---
+An **exception** is an unexpected event that occurs during program execution that terminates the program. It occur during the runtime of program.
+
+In C++, exceptions are runtime anomalies or abnormal conditions that a program encounters during its execution. The process of handling these exceptions is called **exception handling.** Using the exception handling mechanism, the control from one part of the program where the exception occurred can be transferred to another part of the code.
+
+So basically using exception handling in C++, we can handle the exceptions so that our program keeps running.
+
+There are two types of exceptions in C++
+
+1. **Synchronous:** Exceptions that happen when something goes wrong because of a mistake in the input data or when the program is not equipped to handle the current type of data it’s working with, such as dividing a number by zero.
+1. **Asynchronous**: Exceptions that are beyond the program’s control, such as disc failure, keyboard interrupts, etc.
+
+### Handling
+
+In C++, we handle exceptions with the help of the `try` and `catch` blocks, along with the `throw` keyword.
+
+- `try` **-** code that may raise an exception
+- `throw` - throws an exception when an error is detected
+- `catch` - code that handles the exception thrown by the `throw` keyword
+
+```cpp
+try {
+    throw argument;
+} catch (exception) {
+    // code to handle exception
+};
+```
+
+#### Some Exception Examples
+
+Catching int exception
+
+```cpp
+try {
+    throw 0;
+} catch (int num_exception) {
+    // code to handle exception
+};
+```
+
+Catching string exception
+
+```cpp
+try {
+    throw "Error message";
+} catch (const char* e) {
+    // code to handle exception
+};
+```
+
+If we do not know the types of exceptions that can occur in our `try` block, then we can use the ellipsis symbol `...` as our `catch` parameter.
+
+```cpp
+try {
+    throw 0;
+} catch (...) {
+    // code to handle exception
+};
+```
+
+### Multiple Catch Statements
+
+In C++, we can use multiple `catch` statements for different kinds of exceptions that can result from a single block of code.
+
+```cpp
+try {
+    // code
+} 
+catch (exception1) {
+    // code
+} 
+catch (exception2) {
+    // code
+} 
+catch (...) {
+    // code
+}
+```
+
+Here, our program catches `exception1` if that exception occurs. If not, it will catch `exception2` if it occurs.
+
+If there is an error that is neither `exception1` nor `exception2`, then the code inside of `catch (...) {}` is executed.
+
+### Standard Exception
+
+Sometimes these header might be included by some other header and you might not need to add them. But here is what these header file contain:
+
+#### <stdexception>
+
+**Logical Errors**
+
+{% table %}
+- Error
+- Description
+---
+- logic_error
+- Logic error exception (class)
+---
+- domain_error
+- Domain error exception (class)
+---
+- invalid_argument
+- Invalid argument exception (class)
+---
+- length_error
+- Length error exception (class)
+---
+- out_of_range
+- Out-of-range exception (class)
+{% /table %}
+
+**Runtime Errors**
+
+{% table %}
+- Error
+- Description
+---
+- runtime_error
+- Runtime error exception (class)
+---
+- range_error
+- Range error exception (class)
+---
+- overflow_error
+- Overflow error exception (class)
+---
+- underflow_error
+- Underflow error exception (class)
+{% /table %}
+
+#### <exception>
+
+**Types**
+
+{% table %}
+- Error
+- Description
+---
+- exception
+- Standard exception class
+---
+- bad_exception
+- Exception thrown by unexpected handler
+---
+- nested_exception
+- Nested exception class
+---
+- exception_ptr
+- Type of terminate handler function
+---
+- unexpected_handler
+- Type of unexpected handler function
+{% /table %}
+
+**Functions**
+
+{% table %}
+- Error
+- Description
+---
+- terminate
+- Function handling termination on exception
+---
+- get_terminate
+- Get terminate handler function
+---
+- set_terminate
+- Set terminate function
+---
+- unexpected
+- Function handling unexpected exceptions
+{% /table %}
+
+Here is an example on how to handle these exceptions
+
+```cpp
+#include <iostream>
+#include <stdexcept> // may or may not be needed
+using namespace std;
+int main()
+{
+    try {
+        int numerator = 10;
+        int denominator = 0;
+        int res;
+        if (denominator == 0) {
+            throw runtime_error(
+                "Division by zero not allowed!");
+        }
+        res = numerator / denominator;
+        cout << "Result after division: " << res << endl;
+    } catch (const exception& e) {
+        cout << "Exception " << e.what() << endl;
+    };
+
+    return 0;
+};
+```
+
+Here the `runtime_error` is thrown which is received by the catch as a referrence of the copy of that exception.
