@@ -209,7 +209,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
@@ -227,7 +227,7 @@
       "data": {
         "discriminant": false,
         "value": {
-          "taught": false
+          "taught": true
         }
       }
     },
