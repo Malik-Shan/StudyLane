@@ -1,0 +1,94 @@
+---
+draft: false
+readtime: true
+title: Friend Functions & Class
+published: 2024-11-25T20:10:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - programming
+tag: []
+postedBy: admin
+---
+### Friend Functions
+
+A type of function that can access the **private** and **protected** members of a particular class from outside the class is called a **friend function**. Normally, the private and protected data members are not accessible from outside the class. In some situations, we might want to access these members.
+
+Friend functions are functions declared in a class with a `friend`keyword. It makes the function friend of that class. It enables the function to access the private and protected members of that class.
+
+Let's say a function takes two different classes as paramters of a function. It has to access the private members of these classes and show the result. It is not possible for function that are not member of that class to access it private or protected members. It's solved by declaring that function as a friend function to both the classes, allowing it to access the private and protected members of both the classes.
+
+```cpp
+// Friend Function
+#include <iostream>
+using namespace std;
+class B;
+class A{
+    private:
+        int a;
+        friend void result(A,B);
+    public:
+        A():a(10){};
+};
+class B{
+    private:
+        int b;
+        friend void result(A,B);
+    public:
+        B():b(20){};
+};
+void result(A obj1,B obj2){
+    int r = obj1.a + obj2.b;
+    cout << "Class A value: " << obj1.a << endl;
+    cout << "Class B value: " << obj2.b << endl;
+    cout << "Result: " << r << endl;
+};
+int main() {
+    A obj1;
+    B obj2;
+    result(obj1,obj2);
+    return 0;
+}
+```
+
+[Execute Code](https://www.programiz.com/online-compiler/8K0uFifEp1iiN)
+
+We've to use both classes as parameter there we first declared the **class B** as it had to be used as parameter and than later defined it.
+
+### Friend Classes
+
+A type of class whose member functions can access the **private** and **protected** members of a particular class is called **friend class.** Normally, the private and protected members of any class can not be access from outside the class. In some situations a program may require to access these members. The use of friend class allows a class to access these members of another class.
+
+Friend classe declared in another class with a `friend`keyword and becomes the friend of that class.
+
+```cpp
+// Friend Class
+#include <iostream>
+using namespace std;
+class B;
+class A{
+    private:
+        int a;
+        friend class B;
+    public:
+        A():a(10){};
+};
+class B{
+    private:
+        int b;
+    public:
+        B():b(20){};
+        void add(A obj){
+            int r = b + obj.a;
+            cout << r << endl;
+        };
+};
+int main() {
+    A obj1;
+    B obj2;
+    obj2.add(obj1);
+    return 0;
+};
+```
+
+[Execute Code](https://www.programiz.com/online-compiler/8c2q7ODfjgQ6M)

@@ -16,7 +16,7 @@ const {page}:{page:Page} = Astro.props;
 		<div class='course_container grid gap-4 grid-cols-6 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-md:gap-2 mb-4'>
 			{page.data.map((d) => 
 			<a data-astro-prefetch='hover' href={`/course/${d.slug}`} class='flex flex-col items-start p-2 border-2 rounded-md shadow-black/25 hover:shadow-md hover:-translate-y-1 transition-all'>
-				<Image class:list={['w-full aspect-[9/10] rounded-md mb-2 object-cover']} style=`object-position:${d.data.img.position};` src={d.data.img.src} alt={d.data.img.alt} />
+				<Image width={250} class:list={['w-full aspect-[9/10] rounded-md mb-2 object-cover']} style=`object-position:${d.data.img.position};` src={d.data.img.src} alt={d.data.img.alt} />
 				<div class='flex flex-row gap-2 mb-2'>
 					<span class='p-1 px-2 bg-[--clr-primary] font-bold rounded-md text-white text-sm'>{d.data.information.type}</span>
 					<span class='p-1 px-2 bg-[--clr-primary] font-bold rounded-md text-white text-sm'>{d.data.abbreviation}</span>

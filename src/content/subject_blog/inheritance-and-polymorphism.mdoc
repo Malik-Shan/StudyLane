@@ -31,8 +31,26 @@ class Child: public Parent{
 
 Types of inheritance:
 
+- Single Inheritance
 - Multilevel Inheritance
 - Multiple Inheritance
+- Hierarchical Inheritance
+- Hybrid Inheritance
+
+#### Single Inheritance:
+
+It's the most primitive type of inheritance, in which a class inherit from a base class. All the data members are accessible to the derived class according to access specifier.
+
+```cpp
+// Base Class
+class Parent{
+   // codeblock
+};
+// Derived Class
+class Child: public Parent{
+   // codeblock
+};
+```
 
 #### Multilevel Inheritance:
 
@@ -53,9 +71,9 @@ class Child: public Parent{
 };
 ```
 
-#### Multiple Inheritance:
+#### Muiple Inheritance:
 
-When a class is derived from multiple classes it's called multiple inheritance. The classes are separated using comma `,` .
+When a class is derived from multiple classes it's called **multiple inheritance**. The classes are separated using comma `,` .
 
 ```cpp
 //Base Class
@@ -69,6 +87,40 @@ class WingedAnimal{
 class Bat: public Mammal, public WingedAnimal{
   //codeblock
 };
+```
+
+#### **Hierarchical Inheritance:**
+
+In hierarchial inheritance a class is inherited by multiple classes. It's a tree-like structure where each class acts as base class for one or more classes.
+
+```cpp
+class class_A {};
+
+class class_B: public class_A {};
+
+class class_C : public class_A {};
+
+class class_D: public class_B {};
+
+class class_E: public class_C {}; 
+```
+
+#### **Hybrid Inheritance:**
+
+Hybrid inheritance is a combination of two or more type of inheritance. **For Example** a program showing both single inheritance and hierarchial inheritance is a hybrid inheritance.
+
+```cpp
+class class_A {};
+
+class class_B {};
+
+class class_C {};
+
+class class_D: public class_A, public class_B, public class_C {};
+
+class class_E: public class_D {};
+
+class class_F: public class_D {};
 ```
 
 ## public, protected and private inheritance in C++
@@ -162,7 +214,9 @@ class PrivateDerived: private Base {
 
 ## Polymorphism
 
-Polymorphism comes from a greek word meaning "many shapes/many forms". It's a concept in object-oriented programming that's used when multiple classes are related using inheritance. As the name suggests the polymorphism allows us to redefine a function. It gives us the ability to perform the same function but in different ways.
+Polymorphism comes from a **greek** word meaning "*many shapes/many forms*". It's a concept in object-oriented programming that's used when multiple classes are related using inheritance. As the name suggests the polymorphism allows us to redefine a function. It gives us the ability to perform the same function but in different ways. It allows a programmer to reuse and extend that code. The same code acts differently depending on the situation.
+
+The user does not have to know the exact type of the object in advance. The behaviour of the object can be implemented at run time. It is called **late binding** or **dynamic binding**. Polymorphism is implemented by using **virtual functions**.
 
 ```cpp
 #include <iostream>
@@ -209,3 +263,13 @@ int main() {
 // Meow
 // Quack
 ```
+
+#### Early Binding
+
+The assignment of types to variables and expression at compilation time is known as **early binding**. It is also called **static binding**. The early binding occurs when everything required to call a function is known at compile time. Early binding enables the compiler to know exactly which function will be called when a certain statement is executed.
+
+When a program is compiled, the compiler checks the function call and decides which function is to be executed. This process takes place during compilation in normal programs with function.
+
+#### Late Binding
+
+The assignmen of types to variables and expression at execution time is known as **late binding**. It is also called **dynamic binding**. The late binding occurs when some information to call a function is decided at run time. The compiler does not know at compile time which function will be executed. It provides more flexibility.
