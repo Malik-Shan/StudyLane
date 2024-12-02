@@ -92,6 +92,10 @@
 }
 
 @layer components {
+	.copybtn {
+		@apply block px-2 py-1 ml-auto mb-1 border rounded-md hover:bg-white/30
+	}
+
 	.hoverEffect {
 		@apply shadow-black/25 hover:shadow-md hover:-translate-y-1 transition-all;
 	}

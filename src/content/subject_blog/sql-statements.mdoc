@@ -1,0 +1,205 @@
+---
+draft: false
+readtime: true
+title: SQL Statements & Commands
+published: 2024-12-02T16:37:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+SQL is used for dealing with Relational Databases.
+
+SQL is used to insert,delete,update and search records.
+
+#### Key Points
+
+1. In SQL keywords are not case sensitive: `select` and `SELECT` both mean the same thing.
+1. It requires semicolon `;` at the end of statement.
+1. Semicolon is used to separate statements and allows more than one statement execution.
+
+You can try all the commands online on [programiz](https://www.programiz.com/sql/online-compiler/).
+
+### SQL Commands
+
+**1) SELECT**
+
+**Purpose:** Retrieve data from a database.
+
+**Usage:**
+
+```sql
+SELECT column1, column2 FROM table_name;
+```
+
+Retrieves specific columns. Use `*` to select all columns:
+
+```sql
+SELECT * FROM table_name;
+```
+
+**2) DELETE**
+
+**Purpose:** Remove data from a table.
+
+**Usage:**
+
+```sql
+DELETE FROM table_name WHERE condition;
+```
+
+Deletes rows matching the condition. Omitting `WHERE` will delete all rows:
+
+```sql
+DELETE FROM table_name;
+```
+
+**3) INSERT**
+
+**Purpose:** Add new data to a table.
+
+**Usage:**
+
+```sql
+INSERT INTO table_name (column1, column2) VALUES (value1, value2);
+```
+
+You can also insert into all columns:
+
+```sql
+INSERT INTO table_name VALUES (value1, value2, ...);
+```
+
+**4) UPDATE**
+
+**Purpose:** Modify existing data in a table.
+
+**Usage:**
+
+```sql
+UPDATE table_name SET column1 = value1, column2 = value2 WHERE condition;
+```
+
+Without **`WHERE`**, all rows are updated:
+
+```sql
+UPDATE table_name SET column1 = value1;
+```
+
+**5) FROM**
+
+**Purpose:** Specify the table(s) to retrieve data from.
+
+**Usage:**
+
+  ```sql
+  SELECT * FROM table_name;
+  ```
+
+**6) WHERE**
+
+**Purpose:** Filter records based on a condition.
+
+**Usage:**
+
+  ```sql
+  SELECT * FROM table_name WHERE column1 = value;
+  ```
+
+  Supports multiple conditions:
+
+  ```sql
+  SELECT * FROM table_name WHERE column1 = value1 AND column2 = value2;
+  ```
+
+**7) JOIN**
+
+**Purpose:** Combine rows from two or more tables based on related columns.
+
+**Usage:**
+
+  ```sql
+  SELECT columns FROM table1 INNER JOIN table2 ON table1.column = table2.column;
+  ```
+
+  Types of JOIN: INNER, LEFT, RIGHT, FULL.
+
+**8) GROUP BY**
+
+**Purpose:** Group rows sharing a value in specified columns.
+
+**Usage:**
+
+  ```sql
+  SELECT column1, COUNT(*) FROM table_name GROUP BY column1;
+  ```
+
+**9) ORDER BY**
+
+**Purpose:** Sort results in ascending or descending order.
+
+**Usage:**
+
+  ```sql
+  SELECT * FROM table_name ORDER BY column1 ASC;
+  ```
+
+  Use **`DESC`** for descending order:
+
+  ```sql
+  SELECT * FROM table_name ORDER BY column1 DESC;
+  ```
+
+**10) HAVING**
+
+**Purpose:** Filter groups after applying **`GROUP BY`**.
+
+**Usage:**
+
+  ```sql
+  SELECT column1, COUNT(*) FROM table_name GROUP BY column1 HAVING COUNT(*) > 1;
+  ```
+
+**11) LIMIT**
+
+**Purpose:** Limit the number of returned rows.
+
+**Usage:**
+
+  ```sql
+  SELECT * FROM table_name LIMIT 10;
+  ```
+
+**12) DISTINCT**
+
+**Purpose:** Retrieve unique values.
+
+**Usage:**
+
+  ```sql
+  SELECT DISTINCT column1 FROM table_name;
+  ```
+
+**13) LIKE**
+
+**Purpose:** Filter data based on patterns.
+
+**Usage:**
+
+  ```sql
+  SELECT * FROM table_name WHERE column1 LIKE 'pattern%';
+  ```
+
+  **`%`** matches any sequence of characters; **`_`** matches a single character.
+
+**14) IS NULL / IS NOT NULL**
+
+**Purpose:** Check for **`NULL`** values.
+
+**Usage:**
+
+  ```sql
+  SELECT * FROM table_name WHERE column1 IS NULL;
+  ```

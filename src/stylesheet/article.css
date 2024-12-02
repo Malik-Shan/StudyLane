@@ -54,7 +54,9 @@
 		@apply w-full;
 	}
 
-	article p code {
+	article p code,
+	article li code,
+	article td code {
 		@apply text-white bg-slate-600 rounded-md px-1 py-0.5;
 	}
 
