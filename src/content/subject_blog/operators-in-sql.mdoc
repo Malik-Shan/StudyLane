@@ -25,7 +25,9 @@ Mathematical operators are the symbols that are used to perform arithmetic opera
 
 Write a query that displays ENAME, annual salary and COMM from EMP table
 
-`SELECT ENAME, SAL * 12, COMM FROM EMP;`
+```sql
+SELECT ENAME, SAL * 12, COMM FROM EMP;
+```
 
 #### Operator Precedence
 
@@ -33,13 +35,17 @@ The order in which different types of operations in an expression are evaluated 
 
 **Example**
 
-`SELECT ENAME,SAL+250*12 FROM EMP;`
+```sql
+SELECT ENAME,SAL+250*12 FROM EMP;
+```
 
 In above example, multiplication (250*12) is evaluated first. The salary value is then added to the result of multiplication.
 
 **Example**
 
-`SELECT ENAME, (SAL+250)*12 FROM EMP;`
+```sql
+SELECT ENAME, (SAL+250)*12 FROM EMP;
+```
 
 In above example parentheses may be used to specify the order in which operations are executed. Becuase of parentheses, addition takes priority over multiplication.
 
@@ -62,7 +68,9 @@ Following are the list of Relational Operators
 
 Write a query that display names, job and departments of all clerks.
 
-`SELECT ENAME, JOB, DEPT FROM EMP WHERE JOB='CLERK';`
+```sql
+SELECT ENAME, JOB, DEPT FROM EMP WHERE JOB='CLERK';
+```
 
 #### Comparing One Column with Another
 
@@ -72,7 +80,9 @@ A column can be compared with another column in the same row as well as with a c
 
 Write a query that displays those employees whose commission is greater than their salary:
 
-`SELECT ENAME, SAL,COMM FROM EMP WHERE COMM>SAL;`
+```sql
+SELECT ENAME, SAL,COMM FROM EMP WHERE COMM>SAL;
+```
 
 ### LOGICAL Operators
 
@@ -86,7 +96,9 @@ Logical operators are used to evaluate compound conditions. The logical operator
 
 Write a query that dislpays all clerks who earn between 1000 and 2000.
 
-`SELECT EMPNO,ENAME, JOB,SAL FROM EMP WHERE SAL BETWEEN 1000 AND 2000 AND JOB='CLERK';`
+```sql
+SELECT EMPNO,ENAME, JOB,SAL FROM EMP WHERE SAL BETWEEN 1000 AND 2000 AND JOB='CLERK';
+```
 
 ### Other Operators
 
@@ -98,13 +110,17 @@ The **BETWEEN...AND** operator retrives a range of data between two values. The 
 
 **Syntax**
 
-`SELECT column_name FROM table_name WHERE column_name BETWEEN value1 AND value2;`
+```sql
+SELECT column_name FROM table_name WHERE column_name BETWEEN value1 AND value2;
+```
 
 **Example**
 
 write a query that displays those Employees whose salary is between 1000 and 2000.
 
-`SELECT ENAME, SAL FROM EMP WHERE SAL BETWEEN 1000 AND 2000;`
+```sql
+SELECT ENAME, SAL FROM EMP WHERE SAL BETWEEN 1000 AND 2000;
+```
 
 #### IN Operator
 
@@ -114,7 +130,9 @@ The **IN** Operator is used to test for values in specified list. It can be used
 
 Write a query that displays all Employees who have one of three MGR Numbers.
 
-`SELECT EMPNO, ENAME, SAL,MGR FROM EMP WHERE MRG IN (8902,7566,7788);`
+```sql
+SELECT EMPNO, ENAME, SAL,MGR FROM EMP WHERE MRG IN (8902,7566,7788);
+```
 
 #### LIKE Operator
 
@@ -125,19 +143,25 @@ The **LIKE** operator is used to specify a search for a pattern in a column. The
 
 **Syntax**
 
-`SELECT column FROM table WHERE column LIKE pattern;`
+```sql
+SELECT column FROM table WHERE column LIKE pattern;
+```
 
 **Example**
 
 Write a query that display all Employees whose name starts with an S.
 
-`SELECT ENAME FROM EMP WHERE ENAME LIKE S%;`
+```sql
+SELECT ENAME FROM EMP WHERE ENAME LIKE S%;
+```
 
 **Example**
 
 Write a query that displays employee names whose names consist of four characters.
 
-`SELECT ENAME FROM EMP WHERE ENAME LIKE '_ _ _ _';`
+```sql
+SELECT ENAME FROM EMP WHERE ENAME LIKE '____';
+```
 
 #### IS NULL Operator
 
@@ -145,4 +169,6 @@ The **IS NULL** operator is usedto test Null value.
 
 **Example**
 
-`SELECT ENAME , MGR FROM EMP WHERE MGR IS NOT NULL;`
+```sql
+SELECT ENAME , MGR FROM EMP WHERE MGR IS NOT NULL;
+```
