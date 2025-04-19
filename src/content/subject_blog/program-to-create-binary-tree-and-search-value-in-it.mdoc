@@ -1,0 +1,125 @@
+---
+draft: false
+readtime: true
+title: Program To Create Binary Tree & Search Value In It
+published: 2025-04-19T19:02:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - none
+tag: []
+postedBy: admin
+---
+# Binary Tree Creation & Searching Value
+
+```cpp
+#include <iostream>
+using namespace std;
+
+// Node structure
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int value) {
+        data = value;
+        left = right = nullptr;
+    }
+};
+
+// Binary Tree class with insert and search as class functions
+class BinaryTree {
+private:
+    Node* root;
+
+public:
+    BinaryTree() {
+        root = nullptr;
+    }
+
+    // Insert a value into the tree
+    void insert(int value) {
+        if (root == nullptr) {
+            root = new Node(value);
+            return;
+        }
+
+        Node* current = root;
+        while (true) {
+            if (value < current->data) {
+                if (current->left == nullptr) {
+                    current->left = new Node(value);
+                    break;
+                }
+                current = current->left;
+            } else {
+                if (current->right == nullptr) {
+                    current->right = new Node(value);
+                    break;
+                }
+                current = current->right;
+            }
+        }
+    }
+
+    // Search for a value in the tree
+    bool search(int value) {
+        Node* current = root;
+
+        while (current != nullptr) {
+            if (current->data == value) {
+                return true;
+            } else if (value < current->data) {
+                current = current->left;
+            } else {
+                current = current->right;
+            }
+        }
+
+        return false;
+    }
+
+    // Display the tree using inorder traversal
+    void displayInorder() {
+        inorderTraversal(root);
+        cout << endl;
+    }
+
+private:
+    void inorderTraversal(Node* node) {
+        if (node == nullptr) return;
+        inorderTraversal(node->left);
+        cout << node->data << " ";
+        inorderTraversal(node->right);
+    }
+};
+
+int main() {
+    BinaryTree tree;
+
+    // Inserting values
+    tree.insert(50);
+    tree.insert(30);
+    tree.insert(70);
+    tree.insert(20);
+    tree.insert(40);
+    tree.insert(60);
+    tree.insert(80);
+
+    cout << "Inorder traversal of the tree: ";
+    tree.displayInorder();
+
+    int value;
+    cout << "Enter a value to search: ";
+    cin >> value;
+
+    if (tree.search(value)) {
+        cout << value << " found in the tree." << endl;
+    } else {
+        cout << value << " not found in the tree." << endl;
+    }
+
+    return 0;
+}
+```
