@@ -14,6 +14,12 @@
     },
     {
       "category": {
+        "name": "Data Structure",
+        "slug": "data-structure"
+      }
+    },
+    {
+      "category": {
         "name": "CS",
         "slug": "cs"
       }
@@ -52,12 +58,6 @@
       "category": {
         "name": "Islamic Studies",
         "slug": "islamic-studies"
-      }
-    },
-    {
-      "category": {
-        "name": "Data Structure",
-        "slug": "data-structure"
       }
     }
   ]
