@@ -53,6 +53,12 @@
         "name": "Islamic Studies",
         "slug": "islamic-studies"
       }
+    },
+    {
+      "category": {
+        "name": "Data Structure",
+        "slug": "data-structure"
+      }
     }
   ]
 }
