@@ -1,0 +1,85 @@
+---
+draft: false
+readtime: true
+title: Breath First Search (Program)
+published: 2025-05-01T21:36:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+```cpp
+#include <iostream>
+#include <list>
+#include <map>
+#include <queue>
+#include <set>
+using namespace std;
+
+class Graph {
+    map<int, list<int>> adjList; // adjacency list
+
+public:
+    // Add edge to the graph (undirected)
+    void add_edge(int u, int v) {
+        adjList[u].push_back(v);
+        adjList[v].push_back(u); // for undirected graph
+    }
+
+    // Perform BFS from a given source node
+    void BFS(int start) {
+        set<int> visited;         // to keep track of visited nodes
+        queue<int> q;             // for BFS queue
+
+        visited.insert(start);    // mark start node as visited
+        q.push(start);            // enqueue start node
+
+        cout << "BFS traversal starting from node " << start << ": ";
+
+        while (!q.empty()) {
+            int current = q.front();
+            q.pop();
+            cout << current << " ";
+
+            for (auto neighbor : adjList[current]) {
+                if (visited.find(neighbor) == visited.end()) {
+                    visited.insert(neighbor);
+                    q.push(neighbor);
+                }
+            }
+        }
+
+        cout << endl;
+    }
+
+    // Optional: print adjacency list
+    void print() {
+        cout << "Adjacency List:" << endl;
+        for (auto i : adjList) {
+            cout << i.first << " -> ";
+            for (auto j : i.second) {
+                cout << j << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+int main() {
+    Graph g;
+
+    // Add edges
+    g.add_edge(0, 1);
+    g.add_edge(0, 2);
+    g.add_edge(1, 3);
+    g.add_edge(2, 3);
+    g.add_edge(3, 4);
+
+    g.print();        // optional
+    g.BFS(0);         // run BFS starting from node 0
+
+    return 0;
+}
+
+```
