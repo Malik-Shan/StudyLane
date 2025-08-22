@@ -1,0 +1,91 @@
+{
+  "draft": false,
+  "name": "Entrepreneurship",
+  "code": "ge-202",
+  "credit_hours": {
+    "discriminant": true,
+    "value": "2(2-0)"
+  },
+  "reference_materials": [],
+  "outline": [
+    {
+      "topic": "Evolution and Importance of Entrepreneurship",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Difference between Intrapreneurship and Entrepreneurship",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Entrepreneurial process",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Agribusiness ventures",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Practice and Characteristics",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Methods of new idea generation",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Opportunities",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Innovations",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Change",
+            "taught": false
+          },
+          {
+            "topic": "Fantasies",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Environment of small business in agriculture",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Sources and resolutions",
+            "taught": false
+          }
+        ]
+      }
+    }
+  ]
+}
