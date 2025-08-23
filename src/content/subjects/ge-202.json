@@ -140,6 +140,200 @@
           "taught": false
         }
       }
+    },
+    {
+      "topic": "Product servicing concepts and opportunities",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Infrastructure of services",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Product development life cycle",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Product protection",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Trade mark and patents",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Validity of property rights and accessign government information",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Human resource side of enterprise",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Types of service venture",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Success factors",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Marketing and new venture development",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Situation analysis for new venture",
+            "taught": false
+          },
+          {
+            "topic": "Marketing concepts",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Startup of marketing research",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Market focused on organization",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Marketing strategies",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Functions and product concepts",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Changing international ventures",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Entrepreneurial team and business formation",
+            "taught": false
+          },
+          {
+            "topic": "Human resource and relations",
+            "taught": false
+          },
+          {
+            "topic": "Board of directions",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Legal aspects",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Evaluation of aquisition opportunities and methods of valuation",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Financial resources and asset management",
+            "taught": false
+          },
+          {
+            "topic": "Different type of financing",
+            "taught": false
+          },
+          {
+            "topic": "Buy or Lease",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Organization cycle and growth of organization",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Strategic management for success of enterprise",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
     }
   ]
 }
