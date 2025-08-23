@@ -1,0 +1,202 @@
+{
+  "draft": false,
+  "name": "Computer Organization and Assembly Language",
+  "code": "CS 202",
+  "credit_hours": {
+    "discriminant": true,
+    "value": "3(2-3)"
+  },
+  "reference_materials": [],
+  "outline": [
+    {
+      "topic": "Introduction to Computer Systems",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Information is bits + context ",
+            "taught": false
+          },
+          {
+            "topic": "Programs are translated by other programs into different forms",
+            "taught": false
+          },
+          {
+            "topic": "It Pays to understand how compilation system works",
+            "taught": false
+          },
+          {
+            "topic": "Processor read and intercept instructions stored in memory",
+            "taught": false
+          },
+          {
+            "topic": "Caches matter",
+            "taught": false
+          },
+          {
+            "topic": "Storage devices form a hierarchy",
+            "taught": false
+          },
+          {
+            "topic": "The operating system manages the hardware",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "System communication with other systems using networks",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Representing and Manipulating Information",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Information storage",
+            "taught": false
+          },
+          {
+            "topic": "Integer represenations",
+            "taught": false
+          },
+          {
+            "topic": "Integer arithematic",
+            "taught": false
+          },
+          {
+            "topic": "Floating point",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Machine-level represenation of programs",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "A historical perspective",
+            "taught": false
+          },
+          {
+            "topic": "Program encodings",
+            "taught": false
+          },
+          {
+            "topic": "Data formats",
+            "taught": false
+          },
+          {
+            "topic": "Accessing information",
+            "taught": false
+          },
+          {
+            "topic": "Arithmetic and logical operations",
+            "taught": false
+          },
+          {
+            "topic": "Control",
+            "taught": false
+          },
+          {
+            "topic": "Procedures",
+            "taught": false
+          },
+          {
+            "topic": "Array allocation and access",
+            "taught": false
+          },
+          {
+            "topic": "Heterogenous data structures",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Putting in together",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Understanding pointers",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Life in the real word",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Using the gdb debugger",
+            "taught": false
+          },
+          {
+            "topic": "Out of-bounds memory references and buffer overflow",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "x86-61",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Extending ia32 to 64 bits",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Machine level represenations of floating-point programs",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Processor architecture",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "The Y86 instruction set architecture",
+            "taught": false
+          },
+          {
+            "topic": "Logic design and the Hardware Control Language HCL",
+            "taught": false
+          },
+          {
+            "topic": "Sequential Y86 Implementations",
+            "taught": false
+          },
+          {
+            "topic": "General principles of Pipelining ",
+            "taught": false
+          },
+          {
+            "topic": "Pipelined Y86 Implementations",
+            "taught": false
+          }
+        ]
+      }
+    }
+  ]
+}
