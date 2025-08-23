@@ -86,6 +86,60 @@
           }
         ]
       }
+    },
+    {
+      "topic": "Corporate Entrepreneurship in Business Sector",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Risk failure and new venture unit",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Feasibility and concepts of planning",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Stages of growth model",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Responsibility of feasibility plan",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Product and services concepts",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
     }
   ]
 }
