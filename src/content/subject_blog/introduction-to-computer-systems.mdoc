@@ -1,0 +1,290 @@
+---
+draft: false
+readtime: true
+title: Introduction To Computer Systems
+published: 2025-08-26T20:42:00.000Z
+bannerImg:
+  discriminant: true
+  value:
+    image: >-
+      ../../assets/images/blog/subject_blog/introduction-to-computer-systems/bannerImg/value/image.jpg
+    alt: Bits picture
+category:
+  - cs
+tag: []
+postedBy: admin
+---
+## Information is Bits + Context
+
+- **Bit:** the smallest unit of information, can hold value 0 or 1.
+
+- **Bytes:** group of 8 bits; larger data represented in multiples of bytes.
+
+- Representation depends on context:
+
+  **Numbers** → Binary, Octal, Decimal, Hexadecimal.
+
+  **Characters** → ASCII (7-bit), Unicode (16-bit).
+
+  **Images** → Pixels encoded as RGB values.
+
+  **Audio/Video** → Waveforms encoded as digital samples.
+
+- Without context, bits have no meaning.
+
+## Programs and Compilation Systems
+
+A program written in a high-level language cannot run directly on hardware. It must go through a translation process:
+
+### Compilation Flow:
+
+**Preprocessor**
+Handles macros, header files, directives (#include, #define).
+
+**Compiler**
+Translates high-level source code into assembly language.
+Performs optimization.
+
+**Assembler**
+Converts assembly into machine code (object code).
+
+**Linker**
+Combines multiple object files, resolves library calls.
+
+**Loader**
+Places executable into memory for execution.
+
+⚡ Importance: Understanding this flow allows better debugging, optimization, and system-level programming.
+
+## Processor and Memory Interaction
+
+**CPU Components:**
+
+- **Arithmetic Logic Unit (ALU**) → performs addition, subtraction, logic ops.
+- **Control Unit (CU)** → directs instruction execution (fetch, decode, execute).
+- **Registers** → temporary, high-speed storage inside CPU.
+
+**Instruction Execution Cycle:**
+
+- **Fetch** – CPU reads instruction from memory.
+- **Decode** – CU interprets opcode and operands.
+- **Execute** – ALU performs operation, result stored in registers or memory.
+- **Storage** – store result in permanent memory.
+
+⚡ **Example:**
+Instruction: ADD AX, BX
+
+1. Fetch instruction.
+1. Decode → opcode = ADD, operands = AX,
+1. BX. Execute → AX ← AX + BX.
+
+## Memory Hierarchy & Caches
+
+**Memory Hierarchy (Speed vs Capacity):**
+
+- **Registers** – Fastest, inside CPU, very small.
+- **Cache (L1, L2, L3)** – Small, very fast memory close to CPU.
+- **Main Memory (RAM)** – Larger, slower than cache.
+- **Secondary Storage (HDD, SSD)** – Large, much slower.
+- **Tertiary Storage** – Backup (tapes, cloud).
+
+**Cache Principles:**
+
+- **Temporal Locality** → recently used instructions/data will be used again.
+- **Spatial Locality** → nearby memory addresses will be used soon.
+
+⚡ Caches improve performance by reducing average memory access time.
+
+## Computer System Architecture (M. Morris Mano)
+
+### Basic Organization:
+
+- **Input Unit** → keyboard, mouse, scanners.
+- **Output Unit** → monitors, printers.
+- **Memory Unit** → holds programs/data.
+- **ALU** → executes arithmetic/logic operations.
+- **Control Unit** → manages all CPU activities.
+- **Registers** → temporary storage for fast access.
+
+### Types of Architecture:
+
+**Von Neumann Architecture:**
+
+- Single memory for instructions + data.
+- Sequential instruction execution.
+
+**Harvard Architecture:**
+
+- Separate memory for instructions and data.
+- Parallel fetch of instructions/data → faster.
+
+## Assembly Language Programming for Intel
+
+### Assembly Basics:
+
+- Low-level language close to machine code.
+- Uses mnemonics instead of binary opcodes.
+
+**Example:**
+
+MOV AX, 5     ; Load value 5 into register AX
+
+ADD AX, 3     ; Add 3 to AX
+
+### Assembly Language?
+
+- Assembly Language is a low-level programming language that is closely related to machine code.
+- Unlike binary (0s and 1s), assembly uses mnemonics (human-readable symbols) to represent instructions.
+- Each instruction corresponds directly to a single machine instruction.
+
+👉 Example:
+
+- **Machine code:** 10110000 00000101
+- **Assembly code:** MOV AL, 5
+
+Here, MOV is the mnemonic, AL is a CPU register, and 5 is the data.
+
+## Features of Assembly Language:
+
+- **Close to hardware** → direct access to CPU, memory, and hardware devices.
+- **One-to-one mapping** → each assembly instruction maps to one machine instruction.
+- **Efficient** → allows fast execution and full hardware control.
+- **Complex** → programmer must manage memory, registers, and instructions manually.
+
+## Components of Assembly Language
+
+### a) Mnemonics Short codes for instructions.
+
+**Examples:**
+
+- MOV → move data
+- ADD → add numbers
+- SUB → subtract numbers
+- JMP → jump to another instruction
+
+### b)Registers
+
+Small, high-speed storage inside CPU.
+
+**Intel x86 example:**
+
+- **General Purpose:** AX, BX, CX, DX.
+- **Segment Registers:** CS, DS, SS, ES.
+- **Instruction Pointer:** IP.
+- **Flags Register:** status of operations (Zero, Carry, Sign, etc.).
+
+### c)Operands
+
+Data or addresses used in instructions.
+
+**Example:**
+
+```asm
+MOV AX, BX (here AX and BX are operands). 
+```
+
+### d) Directives
+
+Commands for the assembler (not machine instructions).
+
+**Examples:**
+
+```asm
+.DATA → data segment declaration. 
+```
+
+```asm
+.CODE → code segment declaration. 
+```
+
+### e) Structure of an Assembly Program
+
+Typical Assembly program has 3 sections:
+
+**Data Section** → define variables
+
+```asm
+DATA SEGMENT
+NUM1 DB 05h
+NUM2 DB 07h
+DATA ENDS
+```
+
+**Code Section** → program logic
+
+```asm
+CODE SEGMENT
+MAIN PROC
+    MOV AX, DATA
+    MOV DS, AX
+    ; program instructions here
+    MOV AX, 4C00h ; exit to DOS
+    INT 21h
+MAIN ENDP
+CODE ENDS
+END MAIN
+```
+
+## Advantages of Assembly Language
+
+1. Fast and efficient (runs close to hardware).
+1. Gives full control over hardware (used in OS, drivers, embedded systems).
+1. Memory efficient.
+
+## Disadvantages of Assembly Language
+
+1. Difficult to learn and debug.
+1. Not portable (depends on CPU architecture, e.g., Intel vs ARM).
+1. Time-consuming to write compared to high-level languages.
+
+## Applications of Assembly Language
+
+1. Operating Systems (low-level routines).
+1. Embedded Systems (microcontrollers, IoT devices).
+1. Device Drivers (control hardware).
+1. Real-time systems (robots, aerospace).
+1. Performance-critical software (graphics engines, cryptography).
+
+### Registers in Intel Architecture:
+
+- **General Purpose Registers:** AX, BX, CX, DX.
+- **Segment Registers:** CS (Code), DS (Data), SS (Stack), ES (Extra).
+- **Instruction Pointer (IP)** → address of next instruction.
+- **Flags Register** → stores status (Zero flag, Carry flag, Sign flag).
+
+### Instruction Types:
+
+- **Data Transfer:** MOV, PUSH, POP.
+- **Arithmetic:** ADD, SUB, MUL, DIV.
+- **Logic:** AND, OR, XOR, NOT.
+- **Control Flow:** JMP, CALL, RET, LOOP.
+
+**Example Program (Add Two Numbers):**
+
+```asm
+MOV AX, 5     ; load 5 into AX
+MOV BX, 7     ; load 7 into BX
+ADD AX, BX    ; AX = AX + BX
+```
+
+Output → AX = 12.
+
+### Importance of Understanding Systems
+
+- **Performance optimization** → writing faster code by leveraging caches and registers.
+- **System-level programming** → required in operating systems, device drivers, embedded systems.
+- **Debugging** → knowledge of machine instructions helps track low-level errors.
+
+## Install emu8086
+
+**Print Hello Word**
+
+```asm
+.model small
+.stack 100h
+.code 
+main proc 
+print "hello word"
+main endp
+end main
+```
