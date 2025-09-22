@@ -59,6 +59,12 @@
         "name": "Data Structure",
         "slug": "data-structure"
       }
+    },
+    {
+      "category": {
+        "name": "Social Science",
+        "slug": "social-science"
+      }
     }
   ]
 }
