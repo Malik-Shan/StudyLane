@@ -65,6 +65,12 @@
         "name": "Social Science",
         "slug": "social-science"
       }
+    },
+    {
+      "category": {
+        "name": "Entrepreneurship",
+        "slug": "entrepreneurship"
+      }
     }
   ]
 }
