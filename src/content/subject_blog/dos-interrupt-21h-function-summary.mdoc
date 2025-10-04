@@ -1,0 +1,231 @@
+---
+draft: false
+readtime: true
+title: DOS Interrupt 21h — Function Summary
+published: 2025-10-05T02:45:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - cs
+tag: []
+postedBy: admin
+---
+{% table %}
+- AH value
+- Function
+- Description
+- Input Registers
+- Output
+---
+- **01h**
+- **Read Character from Keyboard (with Echo)**
+- Waits for a key press, returns ASCII value, and *displays it on screen*.
+- —
+- AL = ASCII code of key
+---
+- **02h**
+- **Display Character**
+- Prints one character from DL.
+- DL = ASCII code of character
+- —
+---
+- **09h**
+- **Display String**
+- Prints a `$`-terminated string from memory.
+- DX = address of string
+- —
+---
+- **0Ah**
+- **Buffered Keyboard Input**
+- Reads a line of text into a buffer.
+- DX = address of buffer
+- Buffer filled
+---
+- **4Ch**
+- **Terminate Program**
+- Exits program and returns to DOS.
+- AL = return code (usually 0)
+- —
+---
+- **0Ch**
+- **Clear Keyboard Buffer and Call Input Function**
+- Clears any leftover keystrokes.
+- AL = next input function (like 01h or 0Ah)
+- Depends on function
+---
+- **06h**
+- **Direct Console I/O**
+- Input/output without echo or buffering.
+- DL = 0xFF to read; DL = char to write
+- AL = read char (if available)
+---
+- **07h**
+- **Direct Character Input (no echo)**
+- Waits for key press but doesn’t display it.
+- —
+- AL = ASCII code
+---
+- **08h**
+- **Character Input (no echo)**
+- Waits for key press, doesn’t show it.
+- —
+- AL = ASCII code
+---
+- **0Eh**
+- **Select Disk**
+- Sets default drive (A=0, B=1, etc.)
+- DL = drive number
+- AL = drive code
+---
+- **19h**
+- **Get Current Default Drive**
+- Returns current drive.
+- —
+- AL = 0=A, 1=B, etc.
+---
+- **25h**
+- **Set Interrupt Vector**
+- Installs your own interrupt handler.
+- AL = int number, DS:DX = address
+- —
+---
+- **35h**
+- **Get Interrupt Vector**
+- Returns address of an interrupt handler.
+- AL = int number
+- ES:BX = handler address
+---
+- **3Ch**
+- **Create File**
+- Creates a new file.
+- DS:DX = filename, CX = attributes
+- AX = file handle
+---
+- **3Dh**
+- **Open File**
+- Opens existing file.
+- DS:DX = filename, AL = access mode
+- AX = handle
+---
+- **3Eh**
+- **Close File**
+- Closes file handle.
+- BX = handle
+- —
+---
+- **3Fh**
+- **Read File**
+- Reads bytes from file.
+- BX = handle, CX = count, DS:DX = buffer
+- AX = bytes read
+---
+- **40h**
+- **Write File/Device**
+- Writes bytes to file/device.
+- BX = handle, CX = count, DS:DX = buffer
+- AX = bytes written
+---
+- **41h**
+- **Delete File**
+- Deletes file by name.
+- DS:DX = filename
+- Carry Flag = error
+---
+- **4Eh**
+- **Find First File (Search)**
+- Find first file matching pattern.
+- DS:DX = filename pattern
+- Carry Flag = error
+---
+- **4Fh**
+- **Find Next File**
+- Continue previous search.
+- —
+- Carry Flag = error
+{% /table %}
+
+### The Ones You’ll Use Most Often (as a beginner)
+
+{% table %}
+- AH
+- Use
+- Example
+---
+- **01h**
+- Read a character (shows on screen)
+- `mov ah,01h` → `int 21h` → `AL` = char
+---
+- **02h**
+- Print a single character
+- `mov dl,'A'` → `mov ah,02h` → `int 21h`
+---
+- **09h**
+- Print a string
+- `lea dx,msg` → `mov ah,09h` → `int 21h`
+---
+- **4Ch**
+- Exit program
+- `mov ah,4Ch` → `int 21h`
+{% /table %}
+
+## 🧩 Examples
+
+### 1️⃣ Print a single character
+
+```asm
+mov dl, 'A'      ; ASCII for 'A'
+mov ah, 02h
+int 21h
+
+```
+
+### 2️⃣ Read a character and show it
+
+```asm
+mov ah, 01h
+int 21h
+; now AL = char
+mov dl, al
+mov ah, 02h
+int 21h
+
+```
+
+### 3️⃣ Print a string
+
+```asm
+.data
+msg db 'Hello, world!$', 0
+.code
+mov ah, 09h
+lea dx, msg
+int 21h
+```
+
+### 4️⃣ Exit program
+
+```asm
+mov ah, 4Ch
+mov al, 0
+int 21h
+```
+
+---
+
+## ⚙️ Quick ASCII Tip
+
+If you ever get “weird” characters printed — it’s because `int 21h/02h` prints the **ASCII symbol** for the number in `DL`.\
+So:
+
+```asm
+mov dl, 2
+```
+
+prints nothing visible (ASCII 2 = control code),\
+but
+
+```asm
+mov dl, '2'
+```
+
+prints the visible digit 2 (ASCII 50 decimal, 32h hex).
