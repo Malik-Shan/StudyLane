@@ -1,0 +1,460 @@
+---
+draft: false
+readtime: true
+title: Server Configuration and Security
+published: 2025-10-13T01:42:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - cs
+tag: []
+postedBy: admin
+---
+## 🧭 8.1 Introduction
+
+Once web applications are developed, they must be **hosted and served** securely to users around the world.\
+This involves:
+
+- Configuring **web servers** correctly,
+- Securing them from attacks,
+- Understanding how **web browsers** interpret and execute content, and
+- Implementing **active browser pages** that interact dynamically with users.
+
+This chapter gives you the full 360° picture of **how the modern web runs in real time** — from the server’s core to the browser’s rendering engine.
+
+---
+
+## 🖥️ 8.2 Server Configuration
+
+### **Definition**
+
+**Server configuration** refers to the process of setting up a web server to handle client requests efficiently, securely, and correctly.\
+It involves defining server behavior through configuration files, specifying directories, handling virtual hosts, enabling security modules, and tuning performance parameters.
+
+---
+
+### **Common Web Servers**
+
+1. **Apache HTTP Server** — open-source, modular, runs on Linux/Windows.
+1. **Nginx (pronounced “Engine-X”)** — lightweight, high-performance reverse proxy and load balancer.
+1. **Microsoft IIS (Internet Information Services)** — part of Windows Server environment.
+1. **LiteSpeed** — optimized commercial server known for handling high traffic.
+
+---
+
+### **Basic Server Configuration Tasks**
+
+{% table %}
+- Configuration Area
+- Purpose
+- Example
+---
+- **Document Root**
+- Defines folder where website files are stored
+- `/var/www/html`
+---
+- **Port and Protocols**
+- Defines ports for HTTP (80) and HTTPS (443)
+- `Listen 80`
+---
+- **Virtual Hosts**
+- Host multiple domains on same machine
+- `ServerName www.site.com`
+---
+- **Directory Permissions**
+- Restricts or allows access
+- `AllowOverride All`
+---
+- **Logging**
+- Tracks server requests and errors
+- `ErrorLog /var/log/apache/error.log`
+---
+- **MIME Types**
+- Defines content types
+- `AddType text/css .css`
+{% /table %}
+
+---
+
+### **Example: Apache Virtual Host Configuration**
+
+```xml
+<VirtualHost *:80>
+  ServerName www.example.com
+  DocumentRoot /var/www/example
+  ErrorLog ${APACHE_LOG_DIR}/error.log
+  CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+This configuration tells the Apache server to:
+
+- Listen on port 80,
+- Serve files from `/var/www/example`, and
+- Maintain logs for errors and access.
+
+---
+
+### **Example: Nginx Server Block**
+
+```
+server {
+  listen 80;
+  server_name mysite.com;
+  root /usr/share/nginx/html;
+  index index.html index.php;
+}
+```
+
+Nginx uses lightweight “server blocks” instead of virtual hosts, improving concurrency and speed.
+
+---
+
+### **Performance Configuration**
+
+Modern servers use:
+
+- **Caching** (to store frequently accessed files),
+- **Compression** (using Gzip),
+- **Connection pooling**, and
+- **Load balancing** (distributing traffic across multiple servers).
+
+These features reduce latency and improve user experience.
+
+---
+
+## 🔒 8.3 Server Security
+
+Security is the **most vital part** of any server setup.\
+A poorly secured server can be exploited through data theft, malware injection, denial-of-service attacks, or unauthorized access.
+
+---
+
+### **Key Security Layers**
+
+#### 1. **Operating System Hardening**
+
+- Regularly update and patch software.
+- Disable unnecessary services and ports.
+- Use strong admin passwords.
+- Restrict SSH access (prefer key-based login).
+- Configure firewalls (e.g., `iptables`, `ufw`).
+
+#### 2. **Web Server Security**
+
+- Use **HTTPS (SSL/TLS)** to encrypt communication.
+- Disable directory listing.
+- Set proper file permissions (`644` for files, `755` for directories).
+- Limit upload sizes to prevent DoS attacks.
+- Hide server version in headers to reduce exposure.
+
+---
+
+### **3. Secure Sockets Layer (SSL) / Transport Layer Security (TLS)**
+
+These are cryptographic protocols that secure communication between clients and servers by encrypting data in transit.
+
+#### **How SSL/TLS Works**
+
+1. **Handshake:**\
+   Browser and server exchange keys and agree on encryption method.
+1. **Certificate Verification:**\
+   Server sends an SSL certificate (issued by a trusted Certificate Authority).
+1. **Encryption:**\
+   Data exchanged between browser and server is encrypted using symmetric keys.
+
+---
+
+### **Example: HTTPS Request**
+
+```
+GET /login HTTP/1.1
+Host: www.securebank.com
+```
+
+This is transmitted over TLS (port 443) ensuring the credentials remain private.
+
+---
+
+### **4. Authentication & Authorization**
+
+- **Authentication:** Verifies identity (login credentials).
+- **Authorization:** Grants permission (access levels).\
+  Techniques include:
+- Session-based authentication
+- Token-based (JWT)
+- OAuth2 (for third-party logins)
+
+---
+
+### **5. Firewall and Intrusion Detection**
+
+- **Firewalls** filter incoming/outgoing traffic.
+- **IDS/IPS** (Intrusion Detection/Prevention Systems) monitor suspicious patterns.\
+  Examples: Snort, Fail2Ban.
+
+---
+
+### **6. Backup and Recovery**
+
+- Regularly backup data to offsite servers.
+- Automate incremental backups using tools like rsync.
+- Test disaster recovery procedures.
+
+---
+
+### **Best Practices for Web Server Security**
+
+{% table %}
+- Area
+- Practice
+---
+- **Software**
+- Keep OS, server, and applications up to date
+---
+- **Network**
+- Limit open ports
+---
+- **SSL/TLS**
+- Use strong encryption (TLS 1.2 or above)
+---
+- **Access Control**
+- Use least privilege principle
+---
+- **Monitoring**
+- Enable access/error logging
+---
+- **Response**
+- Regularly audit and patch vulnerabilities
+{% /table %}
+
+---
+
+## 🌍 8.4 Web Browser Architecture and Processes
+
+Web browsers are the **gateway to the Internet**. They interpret HTML, CSS, JavaScript, and other web technologies to render webpages.
+
+---
+
+### **Definition**
+
+A **web browser** is a client-side application that retrieves, interprets, and displays content from web servers using HTTP or HTTPS protocols.
+
+Examples: Chrome, Firefox, Edge, Safari, Opera.
+
+---
+
+### **Core Components of a Browser**
+
+{% table %}
+- Component
+- Function
+---
+- **User Interface**
+- Displays address bar, back/forward buttons, bookmarks, etc.
+---
+- **Browser Engine**
+- Translates user actions into network or rendering instructions.
+---
+- **Rendering Engine**
+- Parses HTML, CSS, and builds the visual layout.
+---
+- **Networking Module**
+- Manages HTTP requests, caching, and cookies.
+---
+- **JavaScript Engine**
+- Executes client-side scripts (e.g., V8 in Chrome).
+---
+- **UI Backend**
+- Draws widgets and components on the screen.
+---
+- **Data Storage**
+- Manages cache, cookies, IndexedDB, localStorage.
+{% /table %}
+
+---
+
+### **Rendering Process (How a Page Loads)**
+
+1. **DNS Resolution:** Convert domain name to IP.
+1. **HTTP Request Sent:** Browser requests the resource.
+1. **Server Response:** HTML received.
+1. **Parsing HTML:** Browser builds the **DOM Tree**.
+1. **Parsing CSS:** Builds **CSSOM Tree**.
+1. **Rendering Tree:** Combines DOM + CSSOM → visual layout.
+1. **Painting:** Renders pixels on the screen.
+1. **JavaScript Execution:** Handles interactivity.
+1. **Reflow/Repaint:** Page updates dynamically when DOM changes.
+
+---
+
+### **Browser Multi-Process Architecture**
+
+Modern browsers (like Chrome) use **multi-process** designs:
+
+- One **main process** handles UI and tabs.
+- Each tab runs in a **separate rendering process**.
+- **Sandboxing** isolates processes to prevent security breaches.
+
+This model improves stability (a crash in one tab doesn’t affect others) and security (limited access to OS resources).
+
+---
+
+### **Example of Browser Engines**
+
+{% table %}
+- Browser
+- Rendering Engine
+- JavaScript Engine
+---
+- Chrome
+- Blink
+- V8
+---
+- Firefox
+- Gecko
+- SpiderMonkey
+---
+- Safari
+- WebKit
+- JavaScriptCore
+---
+- Edge (Chromium)
+- Blink
+- V8
+{% /table %}
+
+---
+
+## ⚡ 8.5 Active Browser Pages
+
+### **Definition**
+
+**Active Browser Pages** are web pages that use **client-side scripting and asynchronous communication** to provide dynamic, interactive user experiences without reloading.
+
+These rely heavily on **DHTML (Dynamic HTML)**, **AJAX**, and **JavaScript APIs**.
+
+---
+
+### **How Active Pages Work**
+
+1. **JavaScript** manipulates the **DOM (Document Object Model)** dynamically.
+1. **AJAX** or **Fetch API** sends asynchronous requests to the server.
+1. **Server responds** with data (usually JSON).
+1. The page updates parts of itself (without a full reload).
+
+---
+
+### **Example: Active Page Using JavaScript**
+
+```html
+<h2 id="time"></h2>
+<script>
+  function showTime() {
+    document.getElementById("time").innerHTML = new Date().toLocaleTimeString();
+  }
+  setInterval(showTime, 1000);
+</script>
+```
+
+The time on the webpage updates every second — no reload needed.
+
+---
+
+### **Example: AJAX in Action**
+
+```html
+<button onclick="loadData()">Get Data</button>
+<div id="info"></div>
+
+<script>
+function loadData() {
+  fetch('https://api.example.com/info')
+  .then(response => response.json())
+  .then(data => document.getElementById("info").innerText = data.message);
+}
+</script>
+```
+
+Here, clicking the button fetches data from the server asynchronously and displays it — this is the foundation of **modern single-page applications (SPAs)**.
+
+---
+
+### **Features of Active Pages**
+
+- Asynchronous requests.
+- Real-time updates.
+- Interactive forms and dashboards.
+- Seamless user experience without page reloads.
+- Event-driven UI (responds to clicks, input, timers).
+
+---
+
+### **Technologies Enabling Active Pages**
+
+{% table %}
+- Technology
+- Role
+---
+- **JavaScript**
+- Logic and interactivity
+---
+- **DOM API**
+- Modifies page structure dynamically
+---
+- **AJAX / Fetch API**
+- Communicates with server asynchronously
+---
+- **JSON / XML**
+- Data exchange formats
+---
+- **CSS3 + Animations**
+- Smooth transitions and effects
+{% /table %}
+
+---
+
+### **Advantages**
+
+- Faster response times.
+- Reduces server load by reusing existing page structure.
+- Better UX (no full refresh).
+- Supports live updates and dashboards.
+
+### **Disadvantages**
+
+- Requires JavaScript (won’t work if disabled).
+- Heavier client-side processing.
+- More complex debugging and maintenance.
+
+---
+
+## 🧠 8.6 Summary
+
+{% table %}
+- Concept
+- Description
+---
+- **Server Configuration**
+- Setting up web servers for hosting and routing requests
+---
+- **Server Security**
+- Protecting servers using encryption, authentication, and firewalls
+---
+- **Web Browser Architecture**
+- Internal components like rendering and JavaScript engines
+---
+- **Active Browser Pages**
+- Dynamic, interactive pages powered by JS and AJAX
+{% /table %}
+
+---
+
+### **In Summary**
+
+> Servers deliver the content,\
+browsers render it,\
+security protects it,\
+and active pages bring it all to life.
+
+Together, they form the operational backbone of the modern Internet — stable, secure, and interactive.
