@@ -299,15 +299,13 @@ JavaScript can then draw lines, shapes, and animations inside the canvas.
 HTML5 is designed to be **extensible and backward-compatible**.\
 This means:
 
-- Unknown tags are ignored gracefully.
+1. Unknown tags are ignored gracefully.
+1. Future browsers can introduce new tags without breaking old pages.
+1. Custom data attributes (`data-*`) can be defined by developers:
 
-- Future browsers can introduce new tags without breaking old pages.
-
-- Custom data attributes (`data-*`) can be defined by developers:
-
-  ```html
-  <div data-user="davidjohn" data-role="editor"></div>
-  ```
+```html
+<div data-user="davidjohn" data-role="editor"></div>
+```
 
 ---
 
