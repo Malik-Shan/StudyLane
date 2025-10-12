@@ -10,7 +10,9 @@ category:
 tag: []
 postedBy: admin
 ---
-(Processing HTTP Requests and Responses, Cookie Coordination, Privacy and P3P, Complex HTTP Interactions, and Dynamic Content Delivery)
+### (Processing HTTP Requests and Responses, Cookie Coordination, Privacy and P3P, Complex HTTP Interactions, and Dynamic Content Delivery)
+
+---
 
 ## 🌐 7.1 Introduction
 
@@ -42,34 +44,34 @@ An HTTP request consists of three main parts:
 
 1. **Request Line**
 
-   ```
-   GET /index.html HTTP/1.1
-   ```
+```
+GET /index.html HTTP/1.1
+```
 
-   - **Method:** The action (GET, POST, PUT, DELETE, etc.)
-   - **Path/Resource:** The file or API endpoint requested
-   - **HTTP Version:** Communication protocol version
+- **Method:** The action (GET, POST, PUT, DELETE, etc.)
+- **Path/Resource:** The file or API endpoint requested
+- **HTTP Version:** Communication protocol version
 
-1. **Headers**
+2. **Headers**
 
-   ```
-   Host: www.example.com
-   User-Agent: Mozilla/5.0
-   Accept-Language: en-US
-   Content-Type: application/json
-   ```
+```
+Host: www.example.com
+User-Agent: Mozilla/5.0
+Accept-Language: en-US
+Content-Type: application/json
+```
 
-   Headers provide **metadata** about the request — the client type, accepted content, session details, etc.
+Headers provide **metadata** about the request — the client type, accepted content, session details, etc.
 
-1. **Body (optional)**\
+3. **Body (optional)**\
    The body contains additional data (used in POST, PUT, PATCH requests).
 
-   ```json
-   {
-     "username": "demo",
-     "password": "1234"
-   }
-   ```
+```json
+{
+  "username": "demo",
+  "password": "1234"
+}
+```
 
 ---
 
@@ -129,28 +131,28 @@ Once the server receives a request, it processes it and sends back an **HTTP res
 
 1. **Status Line**
 
-   ```
-   HTTP/1.1 200 OK
-   ```
+```
+HTTP/1.1 200 OK
+```
 
-   - Protocol version
-   - Status code
-   - Status message
+- Protocol version
+- Status code
+- Status message
 
-1. **Headers**
+2. **Headers**
 
-   ```
-   Content-Type: text/html
-   Content-Length: 4520
-   Set-Cookie: sessionId=abc123
-   ```
+```
+Content-Type: text/html
+Content-Length: 4520
+Set-Cookie: sessionId=abc123
+```
 
-1. **Body**\
+3. **Body**\
    The main content — could be HTML, JSON, XML, or media.
 
-   ```html
-   <html><body><h1>Welcome User</h1></body></html>
-   ```
+```html
+<html><body><h1>Welcome User</h1></body></html>
+```
 
 ---
 
@@ -230,19 +232,18 @@ A **cookie** is a small name–value pair stored in the browser, sent automatica
 
 1. **Server sends a cookie in the response:**
 
-   ```
-   Set-Cookie: sessionId=abc123; Path=/; HttpOnly
-   ```
+```
+Set-Cookie: sessionId=abc123; Path=/; HttpOnly
+```
 
-1. **Browser stores it locally.**
-
+2. **Browser stores it locally.**
 1. **Browser automatically includes it in future requests:**
 
-   ```
-   Cookie: sessionId=abc123
-   ```
+```
+Cookie: sessionId=abc123
+```
 
-1. The server uses this cookie to identify the session.
+4. The server uses this cookie to identify the session.
 
 ---
 
@@ -321,20 +322,19 @@ It’s like a “contract” that explains:
 ### **How P3P Works**
 
 1. A website hosts a **P3P policy file** (`/w3c/p3p.xml`) describing data practices.
-
 1. The server references this policy in the HTTP header:
 
-   ```
-   P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"
-   ```
+```
+P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"
+```
 
-1. The browser reads the policy and decides whether to accept or block cookies based on user settings.
+3. The browser reads the policy and decides whether to accept or block cookies based on user settings.
 
 ---
 
 ### **Example P3P Policy (Simplified)**
 
-```xml
+```
 <META xmlns="http://www.w3.org/2002/01/P3Pv1">
   <POLICY>
     <ENTITY>
