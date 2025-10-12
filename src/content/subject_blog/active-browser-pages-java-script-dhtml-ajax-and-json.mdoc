@@ -1,0 +1,452 @@
+---
+draft: false
+readtime: true
+title: Active Browser Pages — JavaScript, DHTML, AJAX, and JSON
+published: 2025-10-13T01:52:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - cs
+tag: []
+postedBy: admin
+---
+## 🌐 8.1 Introduction to Active Browser Pages
+
+“Active Browser Pages” refers to **interactive, dynamic web pages** that change content, layout, or behavior **after loading**, based on user actions or external data — all without needing a full reload.
+
+This interactivity is achieved through **client-side technologies** that work together:
+
+{% table %}
+- Technology
+- Role
+---
+- **JavaScript**
+- Core scripting logic and interactivity
+---
+- **DHTML**
+- Dynamic layout manipulation using HTML + CSS + JS
+---
+- **AJAX**
+- Asynchronous data fetching from server
+---
+- **JSON**
+- Lightweight data format for communication
+{% /table %}
+
+These technologies form the foundation of modern **interactive web applications**.
+
+---
+
+## ⚙️ 8.2 JavaScript — The Core of the Active Web
+
+### **Definition**
+
+**JavaScript** is a **client-side scripting language** that enables dynamic and interactive content in web pages.\
+It runs inside the browser, allowing developers to **manipulate page elements, validate forms, handle events, and communicate with servers** — all in real time.
+
+It’s the **programming language of the web**, standardized under the **ECMAScript** specification.
+
+---
+
+### **Why JavaScript Is Important**
+
+- Turns static HTML into dynamic web experiences.
+- Communicates with servers (via AJAX and APIs).
+- Manipulates the **DOM (Document Object Model)** to update page content instantly.
+- Powers front-end frameworks (React, Angular, Vue).
+- Can also run on the server using **Node.js**.
+
+---
+
+### **JavaScript Syntax Basics**
+
+#### **1. Variables**
+
+Used to store data values.
+
+```js
+let name = "Sara";
+const age = 22;
+var country = "Pakistan";
+```
+
+#### **2. Data Types**
+
+- String: `"Hello"`
+- Number: `42`
+- Boolean: `true` or `false`
+- Array: `["HTML", "CSS", "JS"]`
+- Object: `{ name: "Sara", age: 22 }`
+
+---
+
+#### **3. Operators**
+
+Arithmetic: `+ - * / %`\
+Comparison: `== != === > <`\
+Logical: `&& || !`
+
+---
+
+#### **4. Conditional Statements**
+
+```js
+let marks = 80;
+if (marks >= 50) {
+  console.log("Pass");
+} else {
+  console.log("Fail");
+}
+```
+
+---
+
+#### **5. Loops**
+
+```js
+for (let i = 1; i <= 5; i++) {
+  console.log("Number " + i);
+}
+```
+
+---
+
+#### **6. Functions**
+
+Reusable blocks of code.
+
+```js
+function greet(name) {
+  return "Hello, " + name;
+}
+console.log(greet("Sara"));
+```
+
+---
+
+### **Event Handling**
+
+JavaScript reacts to user actions — called **events** — like clicks, keypresses, or form submissions.
+
+```html
+<button onclick="alert('Button Clicked!')">Click Me</button>
+```
+
+Other event examples:
+
+- `onmouseover`
+- `onchange`
+- `onsubmit`
+- `onkeydown`
+
+---
+
+### **DOM Manipulation**
+
+The **Document Object Model** (DOM) is the structured representation of an HTML document.\
+JavaScript can read and modify it dynamically.
+
+**Example:**
+
+```html
+<p id="text">Original content</p>
+<button onclick="updateText()">Change</button>
+
+<script>
+function updateText() {
+  document.getElementById("text").innerHTML = "Content changed dynamically!";
+}
+</script>
+```
+
+---
+
+### **Advantages of JavaScript**
+
+- Fast (runs directly in browser).
+- Rich interactivity and animation.
+- Universal (supported by all browsers).
+- Integrates easily with HTML and CSS.
+- Can run on both client and server (via Node.js).
+
+### **Disadvantages**
+
+- Security risks (visible to users).
+- Dependent on browser compatibility.
+- Can be misused for intrusive pop-ups or ads.
+
+---
+
+## 💡 8.3 DHTML — Dynamic HTML
+
+### **Definition**
+
+**DHTML (Dynamic HTML)** is a concept, not a language — it combines **HTML, CSS, JavaScript, and the DOM** to create **interactive and animated web pages** that respond instantly to user actions.
+
+In other words:
+
+> DHTML = HTML + CSS + JavaScript + DOM manipulation.
+
+---
+
+### **DHTML Capabilities**
+
+- Change text, images, or styles dynamically.
+- Move elements (animations).
+- Create interactive menus or tooltips.
+- Validate forms before submission.
+
+---
+
+### **Example: DHTML in Action**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DHTML Demo</title>
+  <style>
+    #box { width: 100px; height: 100px; background: blue; }
+  </style>
+</head>
+<body>
+  <div id="box"></div>
+  <button onclick="resizeBox()">Resize</button>
+
+  <script>
+    function resizeBox() {
+      let box = document.getElementById("box");
+      box.style.width = "200px";
+      box.style.height = "200px";
+      box.style.background = "green";
+    }
+  </script>
+</body>
+</html>
+```
+
+Here, a static HTML box becomes “active” — it changes size and color when clicked.
+
+---
+
+### **Advantages of DHTML**
+
+- Real-time, dynamic user experience.
+- Reduces need for server reloads.
+- Creates visually appealing web pages.
+
+### **Disadvantages**
+
+- Code complexity increases with animations.
+- Browser inconsistencies.
+- Heavy client-side processing can slow older systems.
+
+---
+
+## 🔄 8.4 AJAX — Asynchronous JavaScript and XML
+
+### **Definition**
+
+**AJAX** (Asynchronous JavaScript and XML) is a technique that enables a web page to **communicate with the server in the background**, allowing partial page updates instead of full reloads.
+
+---
+
+### **How AJAX Works**
+
+1. A JavaScript function triggers an AJAX request.
+1. The browser sends a background request to the server.
+1. The server processes and returns data (usually JSON).
+1. The browser updates the webpage dynamically.
+
+---
+
+### **Example: AJAX Using Fetch API**
+
+```html
+<button onclick="getData()">Load Info</button>
+<p id="result"></p>
+
+<script>
+async function getData() {
+  const response = await fetch("data.json");
+  const info = await response.json();
+  document.getElementById("result").innerText = info.message;
+}
+</script>
+```
+
+**data.json:**
+
+```json
+{ "message": "Hello from the server!" }
+```
+
+No reload occurs — data is fetched asynchronously.
+
+---
+
+### **Applications of AJAX**
+
+- Live search boxes (Google autocomplete).
+- Auto-updating feeds.
+- Real-time validation (checking username availability).
+- Chat applications.
+- Online dashboards.
+
+---
+
+### **Advantages**
+
+- Faster and smoother UI.
+- Reduces server load.
+- Ideal for single-page applications.
+
+### **Disadvantages**
+
+- Doesn’t work if JavaScript is disabled.
+- Difficult to debug asynchronous code.
+- Potential security risks (must validate data carefully).
+
+---
+
+## 📦 8.5 JSON — JavaScript Object Notation
+
+### **Definition**
+
+**JSON** is a **lightweight text format** used for data exchange between client and server.\
+It’s derived from JavaScript’s object syntax, but supported by all languages (Python, PHP, Java, etc.).
+
+---
+
+### **Structure of JSON**
+
+- Data is stored as **key–value pairs**.
+- Objects `{}` and arrays `[]` organize data.
+- Keys are always in quotes.
+
+**Example:**
+
+```json
+{
+  "user": {
+    "name": "Ayesha",
+    "age": 20,
+    "skills": ["HTML", "CSS", "JS"]
+  }
+}
+```
+
+---
+
+### **Using JSON in JavaScript**
+
+```js
+let data = '{"name": "Ayesha", "city": "Lahore"}';
+let obj = JSON.parse(data);  // Convert JSON → object
+console.log(obj.name);       // Output: Ayesha
+```
+
+**Convert Object → JSON**
+
+```js
+let person = { name: "Ayesha", age: 20 };
+let jsonString = JSON.stringify(person);
+```
+
+---
+
+### **Why JSON Replaced XML**
+
+{% table %}
+- Feature
+- JSON
+- XML
+---
+- **Syntax**
+- Simple
+- Verbose
+---
+- **Readability**
+- Easy
+- Complex
+---
+- **Size**
+- Smaller
+- Larger
+---
+- **Parsing Speed**
+- Fast
+- Slower
+---
+- **Supported By**
+- All modern APIs
+- Legacy systems
+{% /table %}
+
+---
+
+### **Example: AJAX + JSON**
+
+```js
+fetch('https://api.example.com/data')
+  .then(response => response.json())
+  .then(info => console.log(info));
+```
+
+**Server Response:**
+
+```json
+{ "status": "success", "user": "Ali" }
+```
+
+---
+
+### **Advantages of JSON**
+
+- Lightweight and fast.
+- Easy to parse.
+- Works seamlessly with JavaScript.
+- Universal across programming languages.
+
+### **Disadvantages**
+
+- No built-in schema or validation.
+- Purely text-based — can’t store binary data.
+- Comments not allowed.
+
+---
+
+## 🧠 8.6 Summary
+
+{% table %}
+- Concept
+- Definition
+- Primary Use
+---
+- **JavaScript**
+- Browser scripting language
+- Core logic and interactivity
+---
+- **DHTML**
+- Dynamic manipulation of HTML and CSS
+- Real-time UI changes
+---
+- **AJAX**
+- Asynchronous data exchange
+- Partial page updates
+---
+- **JSON**
+- Lightweight data format
+- Client-server communication
+{% /table %}
+
+---
+
+### **In Summary**
+
+> JavaScript gives the web its logic.\
+DHTML gives it life.\
+AJAX gives it speed.\
+JSON gives it simplicity.
+
+Together, these technologies make web pages **active, responsive, and intelligent** — forming the foundation of today’s **interactive web experience**.
