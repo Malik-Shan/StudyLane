@@ -25,12 +25,17 @@ In the simplest sense:
 
 At its core, a web server performs **three main functions**:
 
-1. **Store Content:**\
-   It keeps the website’s files — HTML documents, CSS styles, scripts, and images — in a structured directory.
-1. **Process Requests:**\
-   It listens for incoming requests (usually on port **80** for HTTP and **443** for HTTPS) from clients (browsers, apps).
-1. **Deliver Responses:**\
-   It sends the appropriate response — either a static file or dynamically generated content from an application.
+1. **Store Content:**
+
+It keeps the website’s files — HTML documents, CSS styles, scripts, and images — in a structured directory.
+
+2. **Process Requests:**
+
+It listens for incoming requests (usually on port **80** for HTTP and **443** for HTTPS) from clients (browsers, apps).
+
+3. **Deliver Responses:**
+
+It sends the appropriate response — either a static file or dynamically generated content from an application.
 
 ---
 
@@ -42,39 +47,43 @@ Let’s understand the typical communication process when you visit a website, s
 https://www.wikipedia.org
 ```
 
-1. **You enter the URL:**\
-   Your browser forms an HTTP request for the main page (`GET /`).
+1. **You enter the URL:**
 
-1. **DNS resolution:**\
-   The domain name is translated to an IP address (e.g., `208.80.154.224`).
+Your browser forms an HTTP request for the main page (`GET /`).
 
-1. **Connection establishment:**\
-   The browser opens a **TCP connection** with the web server at that IP (port 443 for HTTPS).
+2. **DNS resolution:**
 
-1. **Request transmission:**\
-   The browser sends:
+The domain name is translated to an IP address (e.g., `208.80.154.224`).
 
-   ```
-   GET / HTTP/1.1
-   Host: www.wikipedia.org
-   ```
+3. **Connection establishment:**
 
-1. **Server processing:**\
-   The web server (e.g., Apache or Nginx) checks its file system or runs server-side scripts (PHP, Python, etc.) to generate the response.
+The browser opens a **TCP connection** with the web server at that IP (port 443 for HTTPS).
 
-1. **Response sent back:**
+4. **Request transmission:**
 
-   ```
-   HTTP/1.1 200 OK
-   Content-Type: text/html
-   Content-Length: 8423
-   
-   ```
+The browser sends:
 
-   Followed by the HTML content of the Wikipedia homepage.
+```
+GET / HTTP/1.1
+Host: www.wikipedia.org
+```
 
-1. **Browser renders:**\
-   The browser interprets the HTML and displays the page to you.
+5. **Server processing:**
+
+The web server (e.g., Apache or Nginx) checks its file system or runs server-side scripts (PHP, Python, etc.) to generate the response.
+
+6. **Response sent back:**
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 8423
+```
+
+Followed by the HTML content of the Wikipedia homepage.
+
+**Browser renders:**\
+The browser interprets the HTML and displays the page to you.
 
 ---
 
@@ -143,7 +152,6 @@ Example flow:
 
 ```
 GET /product?id=25 → Apache → PHP interpreter → Database → HTML response generated
-
 ```
 
 ### **5. Sending the Response**
@@ -202,12 +210,11 @@ Dynamic pages are produced using programming languages like **PHP**, **Python (F
 
 **Example Apache configuration snippet:**
 
-```
+```xml
 <VirtualHost *:80>
     ServerName example.com
     DocumentRoot /var/www/example
 </VirtualHost>
-
 ```
 
 ---
@@ -227,7 +234,6 @@ server {
     server_name example.com;
     root /usr/share/nginx/html;
 }
-
 ```
 
 ---
@@ -252,20 +258,33 @@ server {
 
 A well-configured web server performs much more than just serving files. It handles complex tasks like:
 
-1. **Virtual Hosting:**\
-   Hosting multiple websites on the same machine (each with different domain names or IP addresses).
-1. **Authentication and Authorization:**\
-   Restricting access using username/password or token-based credentials.
-1. **SSL/TLS Encryption:**\
-   Encrypting communication for HTTPS websites.
-1. **Compression:**\
-   Reducing file sizes (using gzip or Brotli) before transmission to save bandwidth.
-1. **Caching:**\
-   Storing frequently requested files in memory to serve them faster.
-1. **Logging and Monitoring:**\
-   Recording every request, error, and access event for analysis and security auditing.
-1. **Load Balancing:**\
-   Distributing traffic among multiple servers to improve speed and reliability.
+1. **Virtual Hosting:**
+
+Hosting multiple websites on the same machine (each with different domain names or IP addresses).
+
+2. **Authentication and Authorization:**
+
+Restricting access using username/password or token-based credentials.
+
+3. **SSL/TLS Encryption:**
+
+Encrypting communication for HTTPS websites.
+
+4. **Compression:**
+
+Reducing file sizes (using gzip or Brotli) before transmission to save bandwidth.
+
+5. **Caching:**
+
+Storing frequently requested files in memory to serve them faster.
+
+6. **Logging and Monitoring:**
+
+Recording every request, error, and access event for analysis and security auditing.
+
+7. **Load Balancing:**
+
+Distributing traffic among multiple servers to improve speed and reliability.
 
 ---
 
@@ -299,7 +318,6 @@ Each with separate directories and configurations.
     ServerName store.com
     DocumentRoot /var/www/store
 </VirtualHost>
-
 ```
 
 ---
@@ -322,7 +340,6 @@ Serve Static File OR Pass to Interpreter
 Generate Response
      ↓
 Send Back to Client
-
 ```
 
 This pipeline ensures that security, routing, and performance optimizations are consistently applied.
@@ -370,7 +387,6 @@ Example Response:
 ```
 HTTP/1.1 404 Not Found
 Content-Type: text/html
-
 ```
 
 ---
@@ -382,12 +398,17 @@ When enabled, data such as passwords, credit card details, and cookies are prote
 
 ### **How HTTPS Works:**
 
-1. **Handshake:**\
-   The client and server exchange certificates and keys.
-1. **Encryption:**\
-   The connection is encrypted using symmetric keys.
-1. **Verification:**\
-   The browser verifies the server’s identity through a certificate authority (CA).
+1. **Handshake:**
+
+The client and server exchange certificates and keys.
+
+2. **Encryption:**
+
+The connection is encrypted using symmetric keys.
+
+3. **Verification:**
+
+The browser verifies the server’s identity through a certificate authority (CA).
 
 This is essential for **e-commerce, banking, and login systems**.
 
