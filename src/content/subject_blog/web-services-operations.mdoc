@@ -42,39 +42,36 @@ It’s the starting point of almost every web interaction.
 
 An HTTP request consists of three main parts:
 
-1. **Request Line**
+**Request Line**
 
-   ```
-   GET /index.html HTTP/1.1
-   
-   ```
+```
+GET /index.html HTTP/1.1
+```
 
-   - **Method:** The action (GET, POST, PUT, DELETE, etc.)
-   - **Path/Resource:** The file or API endpoint requested
-   - **HTTP Version:** Communication protocol version
+- **Method:** The action (GET, POST, PUT, DELETE, etc.)
+- **Path/Resource:** The file or API endpoint requested
+- **HTTP Version:** Communication protocol version
 
-1. **Headers**
+**Headers**
 
-   ```
-   Host: www.example.com
-   User-Agent: Mozilla/5.0
-   Accept-Language: en-US
-   Content-Type: application/json
-   
-   ```
+```
+Host: www.example.com
+User-Agent: Mozilla/5.0
+Accept-Language: en-US
+Content-Type: application/json
+```
 
-   Headers provide **metadata** about the request — the client type, accepted content, session details, etc.
+Headers provide **metadata** about the request — the client type, accepted content, session details, etc.
 
-1. **Body (optional)**\
-   The body contains additional data (used in POST, PUT, PATCH requests).
+**Body (optional)**\
+The body contains additional data (used in POST, PUT, PATCH requests).
 
-   ```
-   {
-     "username": "demo",
-     "password": "1234"
-   }
-   
-   ```
+```json
+{
+  "username": "demo",
+  "password": "1234"
+}
+```
 
 ---
 
@@ -120,7 +117,6 @@ Content-Type: application/x-www-form-urlencoded
 Content-Length: 27
 
 username=user&password=123
-
 ```
 
 ---
@@ -133,33 +129,30 @@ Once the server receives a request, it processes it and sends back an **HTTP res
 
 ### **Structure of an HTTP Response**
 
-1. **Status Line**
+**Status Line**
 
-   ```
-   HTTP/1.1 200 OK
-   
-   ```
+```
+HTTP/1.1 200 OK
+```
 
-   - Protocol version
-   - Status code
-   - Status message
+- Protocol version
+- Status code
+- Status message
 
-1. **Headers**
+**Headers**
 
-   ```
-   Content-Type: text/html
-   Content-Length: 4520
-   Set-Cookie: sessionId=abc123
-   
-   ```
+```
+Content-Type: text/html
+Content-Length: 4520
+Set-Cookie: sessionId=abc123
+```
 
-1. **Body**\
-   The main content — could be HTML, JSON, XML, or media.
+**Body**\
+The main content — could be HTML, JSON, XML, or media.
 
-   ```
-   <html><body><h1>Welcome User</h1></body></html>
-   
-   ```
+```html
+<html><body><h1>Welcome User</h1></body></html>
+```
 
 ---
 
@@ -237,23 +230,21 @@ A **cookie** is a small name–value pair stored in the browser, sent automatica
 
 ### **How Cookies Work**
 
-1. **Server sends a cookie in the response:**
+**Server sends a cookie in the response:**
 
-   ```
-   Set-Cookie: sessionId=abc123; Path=/; HttpOnly
-   
-   ```
+```
+Set-Cookie: sessionId=abc123; Path=/; HttpOnly
+```
 
-1. **Browser stores it locally.**
+**Browser stores it locally.**
 
-1. **Browser automatically includes it in future requests:**
+**Browser automatically includes it in future requests:**
 
-   ```
-   Cookie: sessionId=abc123
-   
-   ```
+```
+Cookie: sessionId=abc123
+```
 
-1. The server uses this cookie to identify the session.
+The server uses this cookie to identify the session.
 
 ---
 
@@ -304,7 +295,6 @@ Set-Cookie: sessionId=xyz789; HttpOnly; Secure
 
 Client: GET /dashboard
 Cookie: sessionId=xyz789
-
 ```
 
 The server identifies the session from the cookie and serves personalized data.
@@ -332,16 +322,15 @@ It’s like a “contract” that explains:
 
 ### **How P3P Works**
 
-1. A website hosts a **P3P policy file** (`/w3c/p3p.xml`) describing data practices.
+A website hosts a **P3P policy file** (`/w3c/p3p.xml`) describing data practices.
 
-1. The server references this policy in the HTTP header:
+The server references this policy in the HTTP header:
 
-   ```
-   P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"
-   
-   ```
+```
+P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"
+```
 
-1. The browser reads the policy and decides whether to accept or block cookies based on user settings.
+The browser reads the policy and decides whether to accept or block cookies based on user settings.
 
 ---
 
@@ -359,7 +348,6 @@ It’s like a “contract” that explains:
     </ENTITY>
   </POLICY>
 </META>
-
 ```
 
 **Explanation:**
@@ -405,7 +393,6 @@ Unlike static pages (fixed HTML files), dynamic pages are generated **on-the-fly
 
 ```
 Browser → HTTP Request → Server Script → Database → Dynamic Response → Browser
-
 ```
 
 ---
@@ -433,19 +420,17 @@ Browser → HTTP Request → Server Script → Database → Dynamic Response →
 
 ### **Example: Server-Side Dynamic Page (PHP)**
 
-```
+```php
 <?php
 $user = "John";
 echo "<h1>Welcome, " . $user . "!</h1>";
 ?>
-
 ```
 
 Output:
 
 ```
 Welcome, John!
-
 ```
 
 The same page shows different output for different users.
