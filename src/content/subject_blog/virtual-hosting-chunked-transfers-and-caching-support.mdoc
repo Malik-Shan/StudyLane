@@ -191,29 +191,29 @@ Chunked Transfer solves this by **sending data progressively**, with each chunk 
 
 1. The server sends the response header with:
 
-   ```
-   HTTP/1.1 200 OK
-   Transfer-Encoding: chunked
-   ```
+```
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+```
 
-1. Then it sends data in **chunks**, each preceded by the chunk size in hexadecimal:
+2. Then it sends data in **chunks**, each preceded by the chunk size in hexadecimal:
 
-   ```
-   4\r\n
-   Wiki\r\n
-   5\r\n
-   pedia\r\n
-   0\r\n
-   \r\n
-   ```
+```
+4\r\n
+Wiki\r\n
+5\r\n
+pedia\r\n
+0\r\n
+\r\n
+```
 
-   Breakdown:
+Breakdown:
 
-   - `4` means the next 4 bytes (“Wiki”)
-   - `5` means next 5 bytes (“pedia”)
-   - `0` marks the end of the data stream.
+- `4` means the next 4 bytes (“Wiki”)
+- `5` means next 5 bytes (“pedia”)
+- `0` marks the end of the data stream.
 
-1. The browser reads and renders the chunks as they arrive — allowing **real-time display** of partial content (like live chat or video buffering).
+3. The browser reads and renders the chunks as they arrive — allowing **real-time display** of partial content (like live chat or video buffering).
 
 ---
 
