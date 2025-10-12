@@ -1,0 +1,450 @@
+---
+draft: false
+readtime: true
+title: Web Services — SOAP, REST, WML, and XSL
+published: 2025-10-12T20:45:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - cs
+tag: []
+postedBy: admin
+---
+## 🧭 6.1 Introduction to Web Services
+
+Modern web applications don’t exist in isolation — they **communicate and share data** with other systems across the Internet.\
+This intercommunication is made possible by **Web Services**.
+
+### **Definition**
+
+A **Web Service** is a standardized way for two applications (possibly written in different programming languages or running on different platforms) to **exchange data over a network**, usually the Internet.
+
+It acts as a **bridge between systems**, allowing information to flow automatically between websites, databases, mobile apps, and other services.
+
+---
+
+### **Real-World Examples**
+
+- When a travel website shows live flight prices, it fetches them from an airline’s API (web service).
+- Payment gateways (PayPal, Stripe) use web services to process online transactions.
+- Weather apps retrieve live data from weather APIs using REST or SOAP.
+
+---
+
+### **Characteristics of Web Services**
+
+1. **Interoperability** — Work across platforms and programming languages.
+1. **Standardized Communication** — Use XML, JSON, HTTP, or SOAP standards.
+1. **Machine-to-Machine Interaction** — No user interface; systems communicate directly.
+1. **Modular & Reusable** — Each service performs a specific function (e.g., login validation, product lookup).
+1. **Discoverable** — Many services are registered and can be found online (e.g., via WSDL or APIs).
+
+---
+
+### **Basic Web Service Architecture**
+
+```
+[Client Application] ⇄ [Internet] ⇄ [Web Server / Service Provider]
+```
+
+1. **Client:** Sends a request (e.g., “Get product details”).
+1. **Server:** Processes the request and sends a response (usually XML or JSON).
+1. **Communication:** Happens using HTTP, and data is encoded in XML (for SOAP) or JSON (for REST).
+
+---
+
+## 💡 6.2 Types of Web Services
+
+There are two primary types of web services:
+
+{% table %}
+- Type
+- Description
+- Format
+---
+- **SOAP (Simple Object Access Protocol)**
+- Protocol-based, uses XML messages
+- XML
+---
+- **REST (Representational State Transfer)**
+- Architectural style, uses HTTP verbs
+- JSON / XML
+{% /table %}
+
+Other related technologies in this chapter — **WML** and **XSL** — extend these concepts to mobile environments and data presentation.
+
+---
+
+## ⚙️ 6.3 SOAP — Simple Object Access Protocol
+
+### **Definition**
+
+**SOAP** is a **protocol** used for structured information exchange in web services.\
+It relies on **XML** for message formatting and typically uses **HTTP** or **SMTP** for message transport.
+
+SOAP was designed for **enterprise-level, secure, and formal communication** between systems.
+
+---
+
+### **SOAP Architecture**
+
+SOAP consists of:
+
+1. **SOAP Envelope:** Defines the start and end of the message.
+1. **SOAP Header:** Contains optional metadata (like authentication info).
+1. **SOAP Body:** Holds the main data or function call.
+1. **SOAP Fault:** Carries error information if something goes wrong.
+
+---
+
+### **Example: SOAP Request and Response**
+
+**Request (sent from client):**
+
+```xml
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+  <soap:Header>
+    <authToken>ABCD12345</authToken>
+  </soap:Header>
+  <soap:Body>
+    <getUserDetails>
+      <userId>105</userId>
+    </getUserDetails>
+  </soap:Body>
+</soap:Envelope>
+```
+
+**Response (from server):**
+
+```xml
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+  <soap:Body>
+    <getUserDetailsResponse>
+      <name>John</name>
+      <email>john@example.com</email>
+    </getUserDetailsResponse>
+  </soap:Body>
+</soap:Envelope>
+```
+
+---
+
+### **Advantages of SOAP**
+
+- **Platform-Independent:** Works across all operating systems and programming languages.
+- **High Security:** Built-in support for WS-Security (encryption, authentication).
+- **Formal Error Handling:** Uses `<Fault>` element for detailed error messages.
+- **Reliable Messaging:** Supports guaranteed delivery and transaction control.
+
+---
+
+### **Disadvantages**
+
+- **Complexity:** XML-based syntax is verbose.
+- **Performance:** Slower due to heavy message formatting.
+- **Overhead:** Requires strict standards (WSDL, XML Schema).
+
+---
+
+### **SOAP Service Components**
+
+- **WSDL (Web Services Description Language):** Describes how to call the SOAP service — including data types, endpoints, and operations.
+- **UDDI (Universal Description, Discovery, and Integration):** Registry that stores service details for discovery by clients.
+
+---
+
+## 🔄 6.4 REST — Representational State Transfer
+
+### **Definition**
+
+**REST** is an **architectural style** that uses **HTTP** and standard web operations (GET, POST, PUT, DELETE) to interact with resources.\
+It is simpler and more lightweight than SOAP.
+
+Instead of XML, REST services often use **JSON** — making them faster and easier to parse.
+
+---
+
+### **Core Principles of REST**
+
+1. **Statelessness:** Each request contains all necessary information; the server doesn’t store session data.
+1. **Resource-Based:** Everything (user, product, article) is treated as a resource identified by a **URL**.
+1. **Uniform Interface:** Uses HTTP methods to perform CRUD operations:
+   - GET → Retrieve
+   - POST → Create
+   - PUT → Update
+   - DELETE → Remove
+1. **Cacheable:** Responses can be stored for performance.
+
+---
+
+### **Example: RESTful API**
+
+**Request:**
+
+```
+GET https://api.store.com/products/120
+```
+
+**Response (JSON):**
+
+```json
+{
+  "id": 120,
+  "name": "Wireless Mouse",
+  "price": 25.99
+}
+```
+
+**Request to Create New Product:**
+
+```
+POST https://api.store.com/products
+```
+
+**Body:**
+
+```json
+{
+  "name": "Keyboard",
+  "price": 15.99
+}
+```
+
+---
+
+### **Advantages of REST**
+
+- Lightweight and fast.
+- Easy to understand and use.
+- Uses existing HTTP infrastructure.
+- Works well for mobile and web apps.
+
+### **Disadvantages**
+
+- No strict standardization (unlike SOAP).
+- Security and transaction handling depend on HTTPS and external mechanisms.
+
+---
+
+### **SOAP vs REST Comparison**
+
+{% table %}
+- Feature
+- SOAP
+- REST
+---
+- Type
+- Protocol
+- Architectural Style
+---
+- Data Format
+- XML
+- JSON or XML
+---
+- Transport
+- HTTP, SMTP, JMS
+- HTTP
+---
+- Complexity
+- High
+- Low
+---
+- Performance
+- Slower
+- Faster
+---
+- Caching
+- Not supported
+- Supported
+---
+- Security
+- WS-Security
+- HTTPS-based
+---
+- Common Use
+- Banking, Enterprise Apps
+- Web APIs, Mobile Apps
+{% /table %}
+
+---
+
+## 📱 6.5 WML — Wireless Markup Language
+
+### **Definition**
+
+**WML (Wireless Markup Language)** is an XML-based markup language used for creating web pages that can be displayed on **mobile devices** (especially early WAP`[Wireless Application Protocol]` phones).
+
+It was developed by the **WAP Forum** (now part of OMA — Open Mobile Alliance) and was the predecessor of **XHTML-MP**.
+
+---
+
+### **Purpose**
+
+Before smartphones and modern browsers, WML allowed text-based Internet access on basic mobile devices through **WAP (Wireless Application Protocol)**.
+
+---
+
+### **Structure of WML Document**
+
+A WML document consists of one or more **cards** — each representing a single screen of content.
+
+**Example:**
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 1.1//EN"
+"http://www.wapforum.org/DTD/wml_1.1.xml">
+<wml>
+  <card id="card1" title="Welcome">
+    <p>Welcome to the Mobile Portal</p>
+    <do type="accept" label="Continue">
+      <go href="next.wml"/>
+    </do>
+  </card>
+</wml>
+```
+
+### **Explanation:**
+
+- `<wml>` → Root element
+- `<card>` → Represents one screen or page
+- `<p>` → Displays text
+- `<do>` → Defines a button or action
+
+---
+
+### **Advantages of WML**
+
+- Lightweight, perfect for low-bandwidth networks.
+- Structured for tiny screens and keypads.
+- Compatible with early WAP browsers.
+
+### **Disadvantages**
+
+- Very limited design capability.
+- No support for multimedia or interactivity.
+- Obsolete today (replaced by XHTML-MP and HTML5).
+
+---
+
+## 📑 6.6 XSL — Extensible Stylesheet Language
+
+### **Definition**
+
+**XSL** is a **family of XML-based languages** used to transform and style XML documents for display.\
+It consists of three key components:
+
+1. **XSLT (Transformations):** Converts XML into HTML or another XML format.
+1. **XPath:** Navigates and selects parts of an XML document.
+1. **XSL-FO (Formatting Objects):** Used for formatting XML data into print-ready forms (like PDFs).
+
+---
+
+### **Purpose of XSL**
+
+XML stores data — but not how it should look.\
+XSL is used to **present** XML data in a readable, formatted way for users or systems.
+
+---
+
+### **Example: Transforming XML with XSLT**
+
+**XML Source:**
+
+```xml
+<students>
+  <student>
+    <name>Ali</name>
+    <grade>A</grade>
+  </student>
+  <student>
+    <name>Fatima</name>
+    <grade>B</grade>
+  </student>
+</students>
+```
+
+**XSL Stylesheet:**
+
+```xml
+<xsl:stylesheet version="1.0"
+ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+ <xsl:template match="/">
+   <html>
+     <body>
+       <h2>Student Grades</h2>
+       <xsl:for-each select="students/student">
+         <p><xsl:value-of select="name"/> - 
+         <xsl:value-of select="grade"/></p>
+       </xsl:for-each>
+     </body>
+   </html>
+ </xsl:template>
+</xsl:stylesheet>
+```
+
+**Resulting HTML Output:**
+
+```html
+<h2>Student Grades</h2>
+<p>Ali - A</p>
+<p>Fatima - B</p>
+```
+
+---
+
+### **Advantages of XSL**
+
+- Separates **data** (XML) from **presentation** (HTML).
+- Automates report generation and data transformation.
+- Can convert XML into various output formats (HTML, PDF, etc.).
+- Works well for structured data presentation in enterprises.
+
+---
+
+### **Disadvantages**
+
+- Requires learning multiple components (XSLT, XPath, XSL-FO).
+- Processing large XML documents can be slow.
+- Complex for beginners.
+
+---
+
+## 🧠 6.7 Summary
+
+{% table %}
+- Technology
+- Purpose
+- Data Format
+- Typical Use
+---
+- **SOAP**
+- Protocol for structured data exchange
+- XML
+- Enterprise systems, secure apps
+---
+- **REST**
+- Lightweight API communication
+- JSON/XML
+- Web & mobile applications
+---
+- **WML**
+- Mobile markup for WAP devices
+- XML
+- Early mobile web pages
+---
+- **XSL**
+- Styles and transforms XML data
+- XML
+- Data display and conversion
+{% /table %}
+
+---
+
+### In essence:
+
+> SOAP and REST enable communication,\
+WML brought the web to mobile phones,\
+and XSL made XML data visually meaningful.
+
+Together, these technologies form the **integration and presentation layer** of the modern web — ensuring that data can move, display, and adapt seamlessly across platforms.
