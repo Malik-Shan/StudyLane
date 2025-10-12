@@ -1,0 +1,320 @@
+---
+draft: false
+readtime: true
+title: Search Technologies
+published: 2025-10-13T02:08:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - cs
+tag: []
+postedBy: admin
+---
+## 🧭 11.1 Introduction
+
+The Internet contains billions of interconnected web pages, files, databases, and media. Finding relevant information among this massive sea of data would be **impossible** without the help of *search technologies*.
+
+These technologies power not only search engines like Google or Bing but also **internal enterprise systems, e-commerce websites, document repositories**, and **digital libraries**.
+
+In essence:
+
+> **Search technology** is the science and engineering of locating relevant information from large, distributed, and heterogeneous data sources quickly and efficiently.
+
+---
+
+## 🧩 11.2 What Are Search Technologies?
+
+### **Definition**
+
+Search technology refers to the **methods, algorithms, and systems** used to **retrieve and rank relevant information** from a vast collection of digital content in response to a user’s query.
+
+It involves:
+
+- Data collection (via crawlers, sensors, or APIs)
+- Data organization (indexing)
+- Query processing and matching
+- Relevance ranking and presentation of results
+
+---
+
+### **Core Goal**
+
+To deliver the *most relevant*, *accurate*, and *useful* information to the user **as fast as possible**, usually in less than a second.
+
+---
+
+## ⚙️ 11.3 Components of a Search Engine
+
+A **search engine** is a complex information retrieval system that uses multiple interacting components.
+
+Below is the **high-level architecture** of a web search engine:
+
+```
+                 ┌────────────────────┐
+                 │   User Interface   │
+                 └────────┬───────────┘
+                          │ Query
+                          ▼
+               ┌────────────────────┐
+               │ Query Processor    │
+               └────────┬───────────┘
+                        │
+              ┌─────────▼─────────┐
+              │ Ranking Algorithm │
+              └─────────┬─────────┘
+                        │
+              ┌─────────▼─────────┐
+              │  Index Database   │
+              └─────────┬─────────┘
+                        │
+              ┌─────────▼─────────┐
+              │  Web Crawler/Spider │
+              └────────────────────┘
+```
+
+---
+
+### **1️⃣ Web Crawler (Spider or Bot)**
+
+A crawler automatically browses the web to **collect content** for indexing.
+
+#### **Functions**
+
+- Downloads web pages.
+- Follows links recursively to discover new pages.
+- Detects updates or deletions.
+- Stores raw HTML copies in a temporary cache.
+
+**Example:** Google’s crawler is called **Googlebot**.
+
+---
+
+### **2️⃣ Indexer**
+
+The **indexer** processes the collected pages and builds an **inverted index** — a database structure optimized for fast lookup.
+
+#### **Process:**
+
+1. Extracts text, metadata, and keywords.
+1. Removes stopwords (“the”, “is”, “and”).
+1. Stems words (e.g., “running” → “run”).
+1. Stores word → page mappings.
+
+**Example:**
+
+```
+Keyword → [Page List]
+"web" → page1.html, page3.html
+"technology" → page2.html, page3.html
+```
+
+This allows the search engine to find all documents containing a specific term almost instantly.
+
+---
+
+### **3️⃣ Query Processor**
+
+Handles user queries, interprets intent, and retrieves relevant documents from the index.
+
+#### **Steps:**
+
+1. **Parse** user input (e.g., "latest AI news").
+1. **Apply normalization** (convert to lowercase, remove punctuation).
+1. **Expand query** using synonyms or related terms (e.g., “AI” → “artificial intelligence”).
+1. **Send** query to ranking engine.
+
+---
+
+### **4️⃣ Ranking Algorithm**
+
+Ranks results based on **relevance, quality, and authority**.
+
+#### **Factors Considered:**
+
+- **Keyword relevance**: Frequency and placement of query terms.
+- **Page authority**: Based on backlinks and domain reputation.
+- **Freshness**: How recently the content was updated.
+- **User behavior**: Clicks, dwell time, bounce rate.
+- **Content quality**: Length, readability, multimedia, etc.
+
+**Output:** Ordered list of web pages (Search Engine Results Page — SERP).
+
+---
+
+### **5️⃣ User Interface (Front-End)**
+
+Displays the search results, snippets, and previews.\
+It also supports **query suggestions, filters, and personalization** (like “Did you mean…” or “People also ask”).
+
+---
+
+## 🔍 11.4 The Process of Information Retrieval (IR)
+
+Search technologies are based on **Information Retrieval (IR)** — a subfield of computer science and artificial intelligence that focuses on finding relevant information in large datasets.
+
+---
+
+### **Steps in IR**
+
+1. **Document Representation:** Convert text into structured tokens and metadata.
+1. **Indexing:** Build efficient lookup tables.
+1. **Query Formulation:** User types query, which is processed and normalized.
+1. **Matching:** Retrieve documents that match the query terms.
+1. **Ranking:** Assign relevance scores.
+1. **Retrieval:** Display ordered results.
+
+---
+
+### **Document Ranking (Simplified Formula)**
+
+A simplified *TF–IDF (Term Frequency–Inverse Document Frequency)* scoring system is often used:
+
+Score(q,d)=∑t∈qTF(t,d)×IDF(t)\text{Score}(q, d) = \sum_{t \in q} \text{TF}(t,d) \times \text{IDF}(t)Score(q,d)=t∈q∑​TF(t,d)×IDF(t)
+
+Where:
+
+- **TF (Term Frequency)** = How often a term appears in a document.
+- **IDF (Inverse Document Frequency)** = How unique that term is across all documents.
+
+This gives higher weight to rare but important words.
+
+---
+
+### **Modern Ranking Enhancements**
+
+- **Natural Language Processing (NLP):** Understands meaning and intent, not just keywords.
+- **Machine Learning (ML):** Models user preferences and context.
+- **Vector Search / Embeddings:** Represents text as mathematical vectors for semantic similarity search (used by Google’s BERT or OpenAI’s models).
+
+---
+
+## 🌍 11.5 Types of Search Systems
+
+### **1️⃣ Web Search Engines**
+
+Global search systems that crawl and index the entire Internet.\
+**Examples:** Google, Bing, DuckDuckGo, Baidu.
+
+### **2️⃣ Enterprise Search**
+
+Used within organizations to search through internal documents, emails, or databases.\
+**Examples:** SharePoint Search, ElasticSearch.
+
+### **3️⃣ Desktop Search**
+
+Indexes files and applications on a personal computer.\
+**Example:** Windows Search, Spotlight (Mac).
+
+### **4️⃣ Vertical or Domain-Specific Search**
+
+Focused on a single subject area.\
+**Examples:**
+
+- PubMed → Medical articles
+- Expedia → Travel deals
+- Indeed → Job listings
+
+### **5️⃣ Semantic Search**
+
+Goes beyond keywords to understand **intent and meaning**.\
+Used in systems like Google Knowledge Graph, Siri, or ChatGPT.
+
+---
+
+## ⚡ 11.6 Advanced Search Concepts
+
+### **A. Crawling Policies**
+
+- **Breadth-First Crawling:** Cover maximum breadth of sites.
+- **Depth-Limited Crawling:** Explore only up to certain link depth.
+- **Focused Crawling:** Target specific topics or domains.
+- **Incremental Crawling:** Update old pages instead of re-downloading everything.
+
+---
+
+### **B. Handling Duplicate Content**
+
+Search engines use **fingerprinting** and **hashing algorithms** to identify duplicate or near-duplicate pages to prevent spam and redundancy.
+
+---
+
+### **C. Handling Multimedia**
+
+Search technologies for images, audio, and video use **metadata** (tags, filenames, captions) and **AI models** for content recognition.
+
+**Example:**\
+Google Image Search uses visual pattern recognition (machine learning) to find visually similar images.
+
+---
+
+### **D. Personalization**
+
+Modern search engines customize results based on:
+
+- User’s search history
+- Location (local SEO)
+- Device type (mobile vs desktop)
+- Language preferences
+
+This makes results more relevant but raises **privacy concerns**.
+
+---
+
+## 🔐 11.7 Challenges in Search Technologies
+
+{% table %}
+- Challenge
+- Description
+---
+- **Data Explosion**
+- Constantly growing web size makes crawling harder.
+---
+- **Content Freshness**
+- Need to keep indexes updated continuously.
+---
+- **Spam & Black Hat SEO**
+- Manipulative tactics distort relevance.
+---
+- **Multilingual Content**
+- Requires translation and language understanding.
+---
+- **Privacy & Ethics**
+- Personalization must balance data protection.
+---
+- **AI Bias**
+- Algorithmic decisions can reinforce biased content.
+{% /table %}
+
+---
+
+## 🧠 11.8 Summary
+
+{% table %}
+- Concept
+- Description
+---
+- **Search Technologies**
+- Systems that locate and retrieve relevant information
+---
+- **Core Components**
+- Crawler, Indexer, Query Processor, Ranking Algorithm
+---
+- **IR Models**
+- Use TF–IDF, NLP, and ML for relevance scoring
+---
+- **Types**
+- Web, Enterprise, Desktop, Domain-Specific, Semantic
+---
+- **Challenges**
+- Data scale, spam, privacy, multilingual processing
+{% /table %}
+
+---
+
+### **In Summary**
+
+> Search technologies form the *engine of discovery* on the web.\
+They crawl, analyze, and rank the ocean of information —\
+turning chaos into instant answers.
+
+Every search result you see is the product of complex engineering, mathematics, and linguistic intelligence working behind the scenes.
