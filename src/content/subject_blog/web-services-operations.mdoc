@@ -10,7 +10,9 @@ category:
 tag: []
 postedBy: admin
 ---
-(Processing HTTP Requests and Responses, Cookie Coordination, Privacy and P3P, Complex HTTP Interactions, and Dynamic Content Delivery)
+### (Processing HTTP Requests and Responses, Cookie Coordination, Privacy and P3P, Complex HTTP Interactions, and Dynamic Content Delivery)
+
+---
 
 ## 🌐 7.1 Introduction
 
@@ -44,6 +46,7 @@ An HTTP request consists of three main parts:
 
    ```
    GET /index.html HTTP/1.1
+   
    ```
 
    - **Method:** The action (GET, POST, PUT, DELETE, etc.)
@@ -57,6 +60,7 @@ An HTTP request consists of three main parts:
    User-Agent: Mozilla/5.0
    Accept-Language: en-US
    Content-Type: application/json
+   
    ```
 
    Headers provide **metadata** about the request — the client type, accepted content, session details, etc.
@@ -64,11 +68,12 @@ An HTTP request consists of three main parts:
 1. **Body (optional)**\
    The body contains additional data (used in POST, PUT, PATCH requests).
 
-   ```json
+   ```
    {
      "username": "demo",
      "password": "1234"
    }
+   
    ```
 
 ---
@@ -115,6 +120,7 @@ Content-Type: application/x-www-form-urlencoded
 Content-Length: 27
 
 username=user&password=123
+
 ```
 
 ---
@@ -131,6 +137,7 @@ Once the server receives a request, it processes it and sends back an **HTTP res
 
    ```
    HTTP/1.1 200 OK
+   
    ```
 
    - Protocol version
@@ -143,13 +150,15 @@ Once the server receives a request, it processes it and sends back an **HTTP res
    Content-Type: text/html
    Content-Length: 4520
    Set-Cookie: sessionId=abc123
+   
    ```
 
 1. **Body**\
    The main content — could be HTML, JSON, XML, or media.
 
-   ```html
+   ```
    <html><body><h1>Welcome User</h1></body></html>
+   
    ```
 
 ---
@@ -232,6 +241,7 @@ A **cookie** is a small name–value pair stored in the browser, sent automatica
 
    ```
    Set-Cookie: sessionId=abc123; Path=/; HttpOnly
+   
    ```
 
 1. **Browser stores it locally.**
@@ -240,6 +250,7 @@ A **cookie** is a small name–value pair stored in the browser, sent automatica
 
    ```
    Cookie: sessionId=abc123
+   
    ```
 
 1. The server uses this cookie to identify the session.
@@ -293,6 +304,7 @@ Set-Cookie: sessionId=xyz789; HttpOnly; Secure
 
 Client: GET /dashboard
 Cookie: sessionId=xyz789
+
 ```
 
 The server identifies the session from the cookie and serves personalized data.
@@ -326,6 +338,7 @@ It’s like a “contract” that explains:
 
    ```
    P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"
+   
    ```
 
 1. The browser reads the policy and decides whether to accept or block cookies based on user settings.
@@ -334,7 +347,7 @@ It’s like a “contract” that explains:
 
 ### **Example P3P Policy (Simplified)**
 
-```xml
+```
 <META xmlns="http://www.w3.org/2002/01/P3Pv1">
   <POLICY>
     <ENTITY>
@@ -346,6 +359,7 @@ It’s like a “contract” that explains:
     </ENTITY>
   </POLICY>
 </META>
+
 ```
 
 **Explanation:**
@@ -391,6 +405,7 @@ Unlike static pages (fixed HTML files), dynamic pages are generated **on-the-fly
 
 ```
 Browser → HTTP Request → Server Script → Database → Dynamic Response → Browser
+
 ```
 
 ---
@@ -418,17 +433,19 @@ Browser → HTTP Request → Server Script → Database → Dynamic Response →
 
 ### **Example: Server-Side Dynamic Page (PHP)**
 
-```php
+```
 <?php
 $user = "John";
 echo "<h1>Welcome, " . $user . "!</h1>";
 ?>
+
 ```
 
 Output:
 
 ```
 Welcome, John!
+
 ```
 
 The same page shows different output for different users.
