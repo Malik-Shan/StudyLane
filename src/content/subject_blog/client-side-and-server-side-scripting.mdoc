@@ -1,7 +1,7 @@
 ---
 draft: false
 readtime: true
-title: Client-Side and Server-Side Scripting
+title: Extensibility — SGML, HTML5, and CSS3
 published: 2025-10-12T18:48:00.000Z
 bannerImg:
   discriminant: false
@@ -10,331 +10,491 @@ category:
 tag: []
 postedBy: admin
 ---
-## 🌍 5.1 Introduction
-
-The web isn’t just static pages of text and images anymore. It’s alive, responsive, and interactive — able to validate forms, handle user input, retrieve data from servers in real time, and even process logic without reloading a page.
-
-This interactivity is made possible through **scripting languages** — lightweight, interpreted programming languages that execute either in the **browser** (client-side) or on the **server** (server-side).
-
-Before we explore their differences, let’s define what *scripting* really means.
-
----
-
-## 🧠 5.2 What Is Scripting?
+## 🌐 4.1 Introduction to Extensibility
 
 ### **Definition**
 
-A **script** is a small program written to automate tasks, add logic, or control behavior in another software environment.\
-When applied to web technologies, a **web script** is code that enables interactivity, automation, or content generation within a website or web application.
+**Extensibility** in web technologies refers to the ability of a markup or design language to **adapt, expand, or evolve** over time — allowing developers to define new tags, structures, or features without breaking existing systems.
 
-Unlike compiled languages (like C++ or Java, which are converted to machine code before execution), scripts are **interpreted at runtime** — meaning they are executed directly by an interpreter such as the **browser’s JavaScript engine** or the **server’s runtime environment** (e.g., PHP interpreter or Node.js).
-
----
-
-### **Why Scripting Is Needed**
-
-Imagine a simple login page:
-
-- You enter your username and password.
-- The browser checks if you filled both fields before sending them.
-- The server verifies if your credentials match what’s in the database.
-- Then it either logs you in or shows an error.
-
-This simple flow already requires both:
-
-- **Client-side scripting** (to validate input instantly on the browser)
-- **Server-side scripting** (to securely check credentials against the database)
-
-Hence, both sides work **together** to create a smooth and secure user experience.
+The web started as a collection of static HTML documents, but as applications grew complex, the need for more **flexible, structured, and semantically rich markup** emerged. This is where extensible systems like **SGML**, **XML**, **HTML5**, and **CSS3** come into play.
 
 ---
 
-## 🧩 5.3 Client-Side Scripting
+### **Why Extensibility Matters**
+
+- The Internet changes constantly — new media types, devices, and standards appear every few years.
+- Extensible formats allow backward compatibility — older browsers can ignore unknown tags without breaking pages.
+- Extensible markup ensures **standardization** while still allowing **innovation**.
+
+In short:
+
+> Extensibility ensures that the web can evolve without collapsing.
+
+---
+
+## 🧩 4.2 SGML — Standard Generalized Markup Language
 
 ### **Definition**
 
-Client-side scripting refers to code that runs **on the user’s device**, inside the web browser.\
-It’s primarily used to make web pages **interactive**, **responsive**, and **dynamic** — without needing to communicate with the server for every small task.
+**SGML (Standard Generalized Markup Language)** is a **meta-markup language** — meaning it is not used directly to mark up documents but to **define other markup languages** like HTML and XML.
 
-### **Languages Used**
-
-The primary and nearly universal client-side scripting language is **JavaScript**, supported by all modern browsers.\
-Other technologies that support it include:
-
-- **HTML** (markup language for structure)
-- **CSS** (style and design)
-- **JavaScript frameworks**: React, Angular, Vue.js
-- **Web APIs**: DOM (Document Object Model), Fetch API, Web Storage, etc.
+It was developed in the 1980s (ISO 8879 standard, 1986) to describe document structure in a **platform-independent** way.
 
 ---
 
-### **Execution Process**
+### **Purpose of SGML**
 
-When a browser loads a webpage:
+SGML was designed to:
 
-1. It reads and parses the **HTML** file.
-1. It downloads and applies **CSS** styles.
-1. When it encounters a `<script>` tag (JavaScript), it executes that code using its built-in JavaScript engine (e.g., V8 for Chrome, SpiderMonkey for Firefox).
-1. The script can then manipulate the HTML structure, respond to user actions, or fetch data asynchronously (using AJAX).
+- Separate *content* from *presentation*.
+- Define *document structure rules* (e.g., what tags can appear inside what elements).
+- Allow organizations to design their own document formats (called **Document Type Definitions – DTDs**).
 
 ---
 
-### **Example: JavaScript Form Validation**
+### **How SGML Works**
 
-```
-<form onsubmit="return validateForm()">
-  <input type="text" id="username" placeholder="Enter username">
-  <input type="password" id="password" placeholder="Enter password">
-  <input type="submit" value="Login">
-</form>
+SGML allows you to define:
 
-<script>
-function validateForm() {
-  var user = document.getElementById("username").value;
-  var pass = document.getElementById("password").value;
-  if (user === "" || pass === "") {
-    alert("Both fields are required!");
-    return false;
-  }
-  return true;
-}
-</script>
+1. **Element Types** — the tags used (like `<title>`, `<para>`).
+1. **Attributes** — additional properties of those tags.
+1. **Rules (DTD)** — define which elements are allowed within others.
 
+---
+
+### **Example: Simplified SGML Document**
+
+```html
+<!DOCTYPE ARTICLE SYSTEM "article.dtd">
+<ARTICLE>
+  <TITLE>History of the Internet</TITLE>
+  <AUTHOR>Arslan Akbar</AUTHOR>
+  <BODY>
+    <P>The Internet was born from ARPANET...</P>
+  </BODY>
+</ARTICLE>
 ```
 
-Here, the script runs *inside the browser*, preventing the form from being submitted if fields are empty — saving a round trip to the server.
+Here:
+
+- The `<!DOCTYPE>` line references a **DTD** file defining the structure.
+- `<ARTICLE>` is a user-defined element — SGML allows that flexibility.
 
 ---
 
-### **Advantages of Client-Side Scripting**
+### **Advantages of SGML**
 
-1. **Improved User Experience:**\
-   Immediate feedback (no page reloads for validation or UI updates).
-1. **Reduced Server Load:**\
-   Many small tasks are handled locally on the browser.
-1. **Asynchronous Communication:**\
-   With AJAX or Fetch API, the browser can update data from the server dynamically.
-1. **Rich Interactivity:**\
-   Enables animations, drag-and-drop, dynamic forms, and modern UIs.
+- Highly structured and extensible.
+- Standardized way to represent complex documents.
+- Platform and device independent.
+- Ideal for organizations like government, defense, and research institutions needing reusable documentation systems.
 
 ---
 
 ### **Disadvantages**
 
-1. **Security Risks:**\
-   Source code is visible to users (anyone can view it via browser developer tools).
-1. **Dependency on Browser Support:**\
-   Different browsers may interpret scripts differently (though modern standards minimize this).
-1. **No Direct Database Access:**\
-   For security, client-side code can’t directly connect to databases or the file system.
-1. **Disabled JavaScript:**\
-   If the user disables JavaScript, many site features may stop working.
+- Too **complex** for web use.
+- Hard to implement in browsers.
+- Parsing SGML is resource-heavy — not suitable for real-time web rendering.
+
+Hence, the web community simplified SGML into a lighter, more usable form — **HTML**.
 
 ---
 
-## ⚙️ 5.4 Server-Side Scripting
+## 🌍 4.3 HTML — The Web’s Child of SGML
 
-### **Definition**
+### **How HTML Originated from SGML**
 
-Server-side scripting refers to code that runs **on the web server**, before any content is sent to the browser.\
-It’s responsible for **data processing, authentication, business logic, and database interaction**.
+In the early 1990s, **Tim Berners-Lee** created the **World Wide Web** using HTML, which was based on SGML principles but simplified for online use.
 
-The output of server-side scripting is typically **HTML or JSON**, which is then sent to the client.
+**HTML (HyperText Markup Language)** adopted SGML’s core idea — marking up content using tags — but removed complex DTDs and formal declarations.
 
 ---
 
-### **Languages Used**
-
-Common server-side scripting languages include:
+### **HTML Evolution Timeline**
 
 {% table %}
-- Language
-- Typical Use
-- Example Frameworks
+- Version
+- Year
+- Key Features
 ---
-- **PHP**
-- Classic web server scripting
-- Laravel, CodeIgniter
+- HTML 1.0
+- 1991
+- Basic text, links, images
 ---
-- **Python**
-- Data-driven and modern web apps
-- Django, Flask
+- HTML 2.0
+- 1995
+- Forms, basic structure
 ---
-- **JavaScript (Node.js)**
-- Event-driven applications
-- Express.js
+- HTML 3.2
+- 1997
+- Tables, scripting support
 ---
-- **Ruby**
-- Elegant, fast development
-- Ruby on Rails
+- HTML 4.01
+- 1999
+- CSS support, separation of style and content
 ---
-- **Java**
-- Enterprise-level applications
-- Spring Boot
+- XHTML 1.0
+- 2000
+- XML-based strict syntax
 ---
-- **C#**
-- Microsoft ecosystem
-- ASP.NET
+- **HTML5**
+- **2014 (W3C Recommendation)**
+- Multimedia, semantics, APIs, offline storage
 {% /table %}
 
 ---
 
-### **How It Works**
+## 🧠 4.4 HTML5 — The Modern Standard
 
-1. The browser sends an **HTTP request** (like `GET /dashboard`).
-1. The web server passes the request to the **server-side script**.
-1. The script executes — possibly connecting to a database, retrieving user data, and generating HTML.
-1. The server sends the **response** (often an HTML page or JSON data) back to the browser.
-1. The browser displays it to the user.
+HTML5 is the **fifth major version** of HTML, jointly developed by **W3C (World Wide Web Consortium)** and **WHATWG**.\
+It is designed to be **extensible, semantic, and multimedia-ready**.
+
+### **Goals of HTML5**
+
+1. Provide **better structure** for modern web content.
+1. Support **rich media (video, audio, graphics)** without plugins.
+1. Enable **offline applications** and **local storage**.
+1. Integrate **APIs** for device interaction (camera, location, drag-and-drop).
+1. Improve **semantics** for accessibility and SEO.
 
 ---
 
-### **Example: PHP Server-Side Script**
+### **New Structural Elements**
 
+HTML5 introduced meaningful, semantic tags replacing generic `<div>` blocks:
+
+{% table %}
+- Element
+- Purpose
+---
+- `<header>`
+- Defines introductory content or navigation
+---
+- `<nav>`
+- Defines navigation menus
+---
+- `<main>`
+- Defines the central content
+---
+- `<article>`
+- Represents independent, self-contained content
+---
+- `<section>`
+- Groups related content
+---
+- `<aside>`
+- Defines sidebars, ads, or complementary info
+---
+- `<footer>`
+- Defines footer or copyright info
+{% /table %}
+
+**Example:**
+
+```html
+<header>
+  <h1>News Portal</h1>
+  <nav>
+    <a href="#world">World</a> | <a href="#sports">Sports</a>
+  </nav>
+</header>
+
+<article>
+  <h2>Global Economy Updates</h2>
+  <p>World markets showed mixed results...</p>
+</article>
 ```
-<?php
-$username = $_POST['username'];
-$password = $_POST['password'];
 
-if ($username == "admin" && $password == "1234") {
-    echo "Welcome, Admin!";
-} else {
-    echo "Invalid login credentials.";
-}
-?>
+---
 
+### **New Input Types for Forms**
+
+HTML5 added new input types to make data entry easier and more accurate.
+
+{% table %}
+- Input Type
+- Example
+---
+- `email`
+- `<input type="email">`
+---
+- `url`
+- `<input type="url">`
+---
+- `date`
+- `<input type="date">`
+---
+- `number`
+- `<input type="number" min="1" max="10">`
+---
+- `range`
+- `<input type="range" min="0" max="100">`
+---
+- `color`
+- `<input type="color">`
+{% /table %}
+
+---
+
+### **Multimedia Tags**
+
+HTML5 eliminated the need for plugins like Flash by introducing native multimedia support.
+
+```html
+<video controls>
+  <source src="movie.mp4" type="video/mp4">
+</video>
+
+<audio controls>
+  <source src="sound.mp3" type="audio/mpeg">
+</audio>
 ```
 
-Here, PHP runs on the server, processes input, and returns a response.\
-The user only sees the **output** (“Welcome, Admin!”) — not the underlying code.
+---
+
+### **Canvas and SVG Graphics**
+
+HTML5 supports dynamic graphics rendering through:
+
+- `<canvas>` element (for 2D drawing using JavaScript)
+- `<svg>` (Scalable Vector Graphics for resolution-independent visuals)
+
+**Example:**
+
+```html
+<canvas id="draw" width="200" height="200"></canvas>
+```
+
+JavaScript can then draw lines, shapes, and animations inside the canvas.
 
 ---
 
-### **Advantages of Server-Side Scripting**
+### **APIs Introduced by HTML5**
 
-1. **Security:**\
-   The code and database remain hidden from users.
-1. **Database Integration:**\
-   Can connect to SQL/NoSQL databases directly.
-1. **Dynamic Content Generation:**\
-   Pages are customized based on user preferences, sessions, or cookies.
-1. **Cross-Browser Consistency:**\
-   Output (HTML) is standardized for all clients.
-1. **Powerful Logic:**\
-   Can handle complex computations, APIs, and large datasets.
+{% table %}
+- API
+- Purpose
+---
+- **Geolocation API**
+- Retrieves user’s physical location.
+---
+- **Web Storage API**
+- Stores data locally (`localStorage`, `sessionStorage`).
+---
+- **Web Workers**
+- Runs scripts in the background for multitasking.
+---
+- **Offline Web Applications**
+- Allows apps to run without internet.
+---
+- **Drag and Drop API**
+- Enables interactive movement of elements.
+{% /table %}
 
 ---
+
+### **HTML5 Extensibility**
+
+HTML5 is designed to be **extensible and backward-compatible**.\
+This means:
+
+- Unknown tags are ignored gracefully.
+
+- Future browsers can introduce new tags without breaking old pages.
+
+- Custom data attributes (`data-*`) can be defined by developers:
+
+  ```html
+  <div data-user="arslanakbar" data-role="editor"></div>
+  ```
+
+---
+
+### **Advantages of HTML5**
+
+- Native support for audio, video, and graphics.
+- Cleaner, semantic markup.
+- Better mobile compatibility and responsive design.
+- Built-in APIs for real-time applications.
+- Offline capability.
 
 ### **Disadvantages**
 
-1. **Higher Server Load:**\
-   Each request consumes processing power and memory.
-1. **Latency:**\
-   The client must wait for the server to process and respond.
-1. **Scalability Concerns:**\
-   Heavy scripts or inefficient databases can slow down performance under load.
+- Some APIs still not fully supported across all browsers.
+- Requires modern browsers for advanced features.
+- Older HTML versions or legacy systems may need adaptation.
 
 ---
 
-## 🔄 5.5 Client-Side vs Server-Side Scripting — Comparison
+## 🎨 4.5 CSS3 — The Design Revolution
 
-{% table %}
-- Feature
-- Client-Side
-- Server-Side
----
-- **Execution Location**
-- Browser (user’s computer)
-- Web Server
----
-- **Languages**
-- JavaScript, HTML, CSS
-- PHP, Python, Node.js, Java
----
-- **Access to Database**
-- ❌ No
-- ✅ Yes
----
-- **Security**
-- Lower (visible to user)
-- Higher (hidden from user)
----
-- **Speed**
-- Very fast for UI tasks
-- Slower (depends on server processing)
----
-- **Usage**
-- Form validation, interactivity
-- Authentication, file processing, data storage
----
-- **Output**
-- Runs in browser
-- Sends processed HTML or data to browser
-{% /table %}
+### **Definition**
 
-Both sides are **complementary**, not competitors.\
-Modern web applications always use both together for optimal performance and functionality.
+**CSS3** (Cascading Style Sheets, Level 3) is the modern standard for controlling **layout, colors, fonts, animations, and responsiveness** of web pages.
+
+It extends earlier CSS versions by dividing the specification into **modules**, each handling a different feature set (Selectors, Backgrounds, Transforms, Animations, etc.).
 
 ---
 
-## 🧩 5.6 Integration of Client and Server Scripts
+### **Major CSS3 Features**
 
-Most real-world applications combine **client-side** and **server-side scripting** to achieve both interactivity and power.
+#### 1. **Selectors**
 
-### Example: User Login Flow
+New selectors enable more precise targeting of elements.
 
-1. **Client-Side Script (JavaScript)** — validates that username and password fields aren’t empty.
-1. **Server-Side Script (PHP/Python)** — checks credentials against a database.
-1. **Server Response** — returns success/failure.
-1. **Client-Side Script** — displays the appropriate message or redirects.
-
-This seamless cooperation gives users fast feedback **and** secure data handling.
-
----
-
-### **Example: AJAX (Asynchronous JavaScript and XML/JSON)**
-
-AJAX is the bridge that connects client and server without reloading pages.
-
-```
-fetch('server.php', {
-  method: 'POST',
-  body: new URLSearchParams({ name: 'Arslan', age: 25 })
-})
-.then(response => response.text())
-.then(data => console.log(data));
-
+```css
+input:focus { border-color: blue; }
+p:first-child { color: red; }
 ```
 
-The browser sends data in the background to `server.php`, receives a response, and updates the webpage dynamically.
+#### 2. **Rounded Corners and Shadows**
 
-This is how modern web apps like Gmail, Facebook, and Trello update data instantly without refreshing the entire page.
+```css
+div {
+  border-radius: 10px;
+  box-shadow: 2px 2px 10px gray;
+}
+```
+
+#### 3. **Gradients and Backgrounds**
+
+```css
+background: linear-gradient(to right, red, orange, yellow);
+```
+
+#### 4. **Transitions and Animations**
+
+Allows smooth effects without JavaScript.
+
+```css
+div {
+  transition: background-color 0.5s;
+}
+div:hover {
+  background-color: yellow;
+}
+```
+
+#### 5. **2D/3D Transforms**
+
+```css
+transform: rotate(45deg);
+```
+
+#### 6. **Flexbox and Grid Layouts**
+
+Provides modern, flexible layouts for different screen sizes.
+
+```css
+.container {
+  display: flex;
+  justify-content: space-between;
+}
+```
+
+#### 7. **Media Queries**
+
+Core feature for **Responsive Web Design**.
+
+```css
+@media (max-width: 768px) {
+  body { font-size: 14px; }
+}
+```
 
 ---
 
-## 🔐 5.7 Modern Trends: Merging Client and Server Logic
+### **CSS3 Modules**
 
-In the modern ecosystem, the line between client-side and server-side scripting is blurring due to technologies like:
+CSS3 is modular — it has separate specifications like:
 
-1. **Node.js:**\
-   JavaScript now runs both on the client and the server — enabling full-stack JS development.
-1. **Next.js / Nuxt.js:**\
-   Frameworks that perform **server-side rendering (SSR)** for faster page loads and SEO optimization.
-1. **Single Page Applications (SPA):**\
-   Use client-side frameworks (React, Vue, Angular) but rely on APIs and backend servers for data.
-1. **RESTful APIs and GraphQL:**\
-   Standard ways for client and server to exchange structured data.
+- **Selectors Module**
+- **Box Model Module**
+- **Backgrounds & Borders**
+- **Transitions & Animations**
+- **Text Effects**
+- **Media Queries**
+- **Flexible Box Layout**
+- **Grid Layout**
+
+This modular design makes CSS **extensible** — new modules can be added without rewriting the entire standard.
 
 ---
 
-## 🧠 5.8 Summary
+### **Advantages of CSS3**
 
-- **Client-side scripting** enhances user interactivity and performance.
-- **Server-side scripting** powers logic, databases, and security.
-- Both cooperate seamlessly in every modern web application.
-- Technologies like **AJAX**, **Node.js**, and **APIs** now unify both sides for highly responsive, scalable, and interactive web systems.
+- Enables mobile-first responsive design.
+- Eliminates dependency on JavaScript for animations.
+- Reduces page load time (smaller CSS vs. images).
+- Greater aesthetic control (fonts, shadows, gradients).
+- Backward-compatible with older CSS2 syntax.
 
-In essence:
+---
 
-> Client-side scripting is the face of the web — responsive and dynamic.\
-Server-side scripting is its brain — logical, secure, and powerful.
+### **Example: Complete HTML5 + CSS3 Web Page**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>My Modern Page</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #f0f8ff, #ffffff);
+      margin: 0; padding: 0;
+    }
+    header {
+      background: #0066cc;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    section {
+      display: flex;
+      justify-content: space-around;
+      padding: 20px;
+    }
+    article {
+      width: 45%;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Arslan’s Web</h1>
+  </header>
+  <section>
+    <article>
+      <h2>HTML5 Section</h2>
+      <p>HTML5 brings structure and semantics to web pages.</p>
+    </article>
+    <article>
+      <h2>CSS3 Section</h2>
+      <p>CSS3 enhances design with flexible layouts and animations.</p>
+    </article>
+  </section>
+</body>
+</html>
+```
+
+---
+
+## 🧠 4.6 Summary
+
+- **SGML** introduced the concept of extensible markup — defining document rules through DTDs.
+- **HTML5** evolved from SGML, focusing on semantics, multimedia, and modern APIs.
+- **CSS3** added powerful layout, animation, and design capabilities.
+- All three together represent **extensibility in action** — the ability of web technologies to grow and adapt while maintaining backward compatibility.
+
+In short:
+
+> SGML gave birth to the web’s structure.\
+HTML5 defined its modern semantics and behavior.\
+CSS3 made it beautiful, responsive, and alive.
