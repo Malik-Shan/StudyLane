@@ -1,0 +1,409 @@
+---
+draft: false
+readtime: true
+title: Web Servers — Basic Operation
+published: 2025-10-12T16:10:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - cs
+tag: []
+postedBy: admin
+---
+## 🌐 3.1 Introduction to Web Servers
+
+A **Web Server** is a specialized computer system or software that **delivers web content** (such as HTML pages, images, CSS, JavaScript, and videos) to users via the **HTTP or HTTPS protocols**.\
+When you type a web address into your browser, it’s the web server that responds to your request, processes it, and sends back the requested webpage.
+
+In the simplest sense:
+
+> A web server is like a restaurant: your browser places an “order” (HTTP request), the server’s “kitchen” prepares the content (processing logic), and then the “waiter” (HTTP response) serves it back to you.
+
+---
+
+## 🧠 3.2 Understanding What a Web Server Actually Does
+
+At its core, a web server performs **three main functions**:
+
+1. **Store Content:**\
+   It keeps the website’s files — HTML documents, CSS styles, scripts, and images — in a structured directory.
+1. **Process Requests:**\
+   It listens for incoming requests (usually on port **80** for HTTP and **443** for HTTPS) from clients (browsers, apps).
+1. **Deliver Responses:**\
+   It sends the appropriate response — either a static file or dynamically generated content from an application.
+
+---
+
+### Example: Browser–Server Interaction
+
+Let’s understand the typical communication process when you visit a website, say:
+
+```
+https://www.wikipedia.org
+
+```
+
+1. **You enter the URL:**\
+   Your browser forms an HTTP request for the main page (`GET /`).
+
+1. **DNS resolution:**\
+   The domain name is translated to an IP address (e.g., `208.80.154.224`).
+
+1. **Connection establishment:**\
+   The browser opens a **TCP connection** with the web server at that IP (port 443 for HTTPS).
+
+1. **Request transmission:**\
+   The browser sends:
+
+   ```
+   GET / HTTP/1.1
+   Host: www.wikipedia.org
+   
+   ```
+
+1. **Server processing:**\
+   The web server (e.g., Apache or Nginx) checks its file system or runs server-side scripts (PHP, Python, etc.) to generate the response.
+
+1. **Response sent back:**
+
+   ```
+   HTTP/1.1 200 OK
+   Content-Type: text/html
+   Content-Length: 8423
+   
+   ```
+
+   Followed by the HTML content of the Wikipedia homepage.
+
+1. **Browser renders:**\
+   The browser interprets the HTML and displays the page to you.
+
+---
+
+## 🧱 3.3 Architecture of a Web Server
+
+A web server typically consists of **three main components**:
+
+{% table %}
+- Component
+- Description
+- Example
+---
+- **Hardware**
+- The physical server (computer) that stores and delivers content
+- Dell PowerEdge, HP Enterprise Server
+---
+- **Operating System**
+- The system software managing hardware resources
+- Linux, Windows Server, macOS
+---
+- **Server Software**
+- The application responsible for handling HTTP requests
+- Apache, Nginx, IIS
+{% /table %}
+
+### The Working Flow
+
+```
+[Client Request] → [Network Interface] → [Web Server Software] → [File System or Application Logic] → [Response Sent]
+
+```
+
+---
+
+## ⚙️ 3.4 How a Web Server Handles HTTP Requests
+
+Every HTTP transaction between a client and a web server follows a similar sequence:
+
+### **1. Listening for Requests**
+
+The web server runs continuously and listens on specific **ports**:
+
+- Port **80** for HTTP
+- Port **443** for HTTPS (secured with SSL/TLS)
+
+It uses a **socket** to wait for incoming connections from clients.
+
+### **2. Receiving the Request**
+
+When a browser sends a request (for example, `GET /index.html`), the server receives this request packet and examines its **headers**, **method**, and **URL path**.
+
+### **3. Interpreting the Request**
+
+The web server checks:
+
+- Which file or resource is being requested.
+- What method is used (GET, POST, PUT, DELETE, etc.).
+- Whether any server-side program (like PHP or Python) must process it.
+
+### **4. Processing the Request**
+
+If it’s a **static resource** (like an image or HTML file), the web server simply retrieves it from its file directory.\
+If it’s **dynamic** (like a PHP page or API endpoint), it passes the request to an **application server** or script interpreter.
+
+Example flow:
+
+```
+GET /product?id=25 → Apache → PHP interpreter → Database → HTML response generated
+
+```
+
+### **5. Sending the Response**
+
+The server sends a structured HTTP response back, including:
+
+- A **status line** (e.g., `HTTP/1.1 200 OK`)
+- **Headers** (content type, length, caching)
+- **Body** (the actual webpage content)
+
+---
+
+## 🧩 3.5 Types of Web Content Served
+
+Web servers can serve two primary types of content:
+
+### **1. Static Content**
+
+These are files that do not change unless manually updated.\
+They are pre-stored and directly delivered from the file system.
+
+Examples:
+
+- HTML pages (`index.html`)
+- CSS stylesheets (`style.css`)
+- JavaScript files (`main.js`)
+- Images (`logo.png`)
+
+Static content is fast to deliver because it doesn’t require computation.
+
+### **2. Dynamic Content**
+
+Dynamic content is generated **on the fly** by server-side scripts or applications.\
+These pages change based on user input, database data, or session state.
+
+Examples:
+
+- Personalized dashboards
+- Search results
+- Shopping carts
+
+Dynamic pages are produced using programming languages like **PHP**, **Python (Flask/Django)**, **Java (JSP, Servlets)**, **Node.js**, or **.NET**.
+
+---
+
+## 🔄 3.6 Key Web Server Software
+
+### **1. Apache HTTP Server**
+
+- Developed by the Apache Software Foundation.
+- Oldest and most popular open-source web server.
+- Highly configurable via `.conf` files.
+- Supports modules for authentication, URL rewriting, compression, and security.
+- Compatible with PHP, Python, Perl, etc.
+- Default ports: 80 (HTTP), 443 (HTTPS).
+
+**Example Apache configuration snippet:**
+
+```
+<VirtualHost *:80>
+    ServerName example.com
+    DocumentRoot /var/www/example
+</VirtualHost>
+
+```
+
+---
+
+### **2. Nginx**
+
+- Known for **speed, concurrency**, and **low resource usage**.
+- Functions as both a **web server and reverse proxy**.
+- Ideal for high-traffic websites.
+- Uses **event-driven architecture**, unlike Apache’s process-based model.
+
+**Example Nginx configuration:**
+
+```
+server {
+    listen 80;
+    server_name example.com;
+    root /usr/share/nginx/html;
+}
+
+```
+
+---
+
+### **3. Microsoft IIS (Internet Information Services)**
+
+- Developed by Microsoft for Windows servers.
+- Deep integration with the Windows ecosystem (.NET, ASP.NET, PowerShell).
+- Graphical interface for configuration (not just text files).
+- Best suited for enterprise intranet applications.
+
+---
+
+### **4. LiteSpeed and Caddy**
+
+- **LiteSpeed:** Known for high performance and built-in security.
+- **Caddy:** Automatically manages HTTPS with Let’s Encrypt — used for microservices and developer environments.
+
+---
+
+## 📜 3.7 Common Web Server Tasks and Functions
+
+A well-configured web server performs much more than just serving files. It handles complex tasks like:
+
+1. **Virtual Hosting:**\
+   Hosting multiple websites on the same machine (each with different domain names or IP addresses).
+1. **Authentication and Authorization:**\
+   Restricting access using username/password or token-based credentials.
+1. **SSL/TLS Encryption:**\
+   Encrypting communication for HTTPS websites.
+1. **Compression:**\
+   Reducing file sizes (using gzip or Brotli) before transmission to save bandwidth.
+1. **Caching:**\
+   Storing frequently requested files in memory to serve them faster.
+1. **Logging and Monitoring:**\
+   Recording every request, error, and access event for analysis and security auditing.
+1. **Load Balancing:**\
+   Distributing traffic among multiple servers to improve speed and reliability.
+
+---
+
+## 🌍 3.8 Virtual Hosting Explained
+
+**Virtual Hosting** allows a single web server to host multiple domains or websites.\
+This is achieved through configuration that differentiates sites by:
+
+- **IP Address**
+- **Domain Name (Host Header)**
+- **Port Number**
+
+Example:\
+A single Apache server can host:
+
+- `www.school.edu`
+- `www.hospital.org`
+- `www.store.com`
+
+Each with separate directories and configurations.
+
+**Example Configuration (Apache):**
+
+```
+<VirtualHost *:80>
+    ServerName school.edu
+    DocumentRoot /var/www/school
+</VirtualHost>
+
+<VirtualHost *:80>
+    ServerName store.com
+    DocumentRoot /var/www/store
+</VirtualHost>
+
+```
+
+---
+
+## ⚙️ 3.9 Web Server Processing Pipeline
+
+When a request arrives, a web server performs multiple layered operations:
+
+```
+[Request Arrives]
+     ↓
+Check Virtual Host
+     ↓
+Check Access Rules (Auth, SSL)
+     ↓
+Check File/Script Type
+     ↓
+Serve Static File OR Pass to Interpreter
+     ↓
+Generate Response
+     ↓
+Send Back to Client
+
+```
+
+This pipeline ensures that security, routing, and performance optimizations are consistently applied.
+
+---
+
+## 🧩 3.10 HTTP Status Codes (Responses)
+
+Web servers communicate results using **status codes**, which indicate whether the request was successful or failed.
+
+{% table %}
+- Code Range
+- Type
+- Example
+- Meaning
+---
+- 1xx
+- Informational
+- 100 Continue
+- Request received, continue
+---
+- 2xx
+- Success
+- 200 OK
+- Request succeeded
+---
+- 3xx
+- Redirection
+- 301 Moved Permanently
+- URL has changed
+---
+- 4xx
+- Client Error
+- 404 Not Found
+- Page doesn’t exist
+---
+- 5xx
+- Server Error
+- 500 Internal Server Error
+- Server failed to process
+{% /table %}
+
+Example Response:
+
+```
+HTTP/1.1 404 Not Found
+Content-Type: text/html
+
+```
+
+---
+
+## 🔐 3.11 HTTPS and SSL/TLS Encryption
+
+**HTTPS (Hypertext Transfer Protocol Secure)** secures communication between clients and web servers using **SSL/TLS encryption**.\
+When enabled, data such as passwords, credit card details, and cookies are protected from interception.
+
+### **How HTTPS Works:**
+
+1. **Handshake:**\
+   The client and server exchange certificates and keys.
+1. **Encryption:**\
+   The connection is encrypted using symmetric keys.
+1. **Verification:**\
+   The browser verifies the server’s identity through a certificate authority (CA).
+
+This is essential for **e-commerce, banking, and login systems**.
+
+---
+
+## 🧠 3.12 Summary
+
+- A **Web Server** delivers web content to clients over HTTP/HTTPS.
+- It handles **requests, processes data, and sends responses** using a defined communication cycle.
+- Web servers can serve both **static** and **dynamic** content.
+- Popular servers include **Apache**, **Nginx**, and **IIS**.
+- They perform advanced tasks like **virtual hosting, load balancing, caching**, and **security management**.
+- HTTPS ensures data privacy and integrity using encryption.
+
+In essence:
+
+> The web server is the beating heart of every web application — the engine that receives requests, executes logic, and delivers the web to billions.
