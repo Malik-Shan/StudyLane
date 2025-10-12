@@ -42,7 +42,7 @@ It’s the starting point of almost every web interaction.
 
 An HTTP request consists of three main parts:
 
-**Request Line**
+1. **Request Line**
 
 ```
 GET /index.html HTTP/1.1
@@ -52,7 +52,7 @@ GET /index.html HTTP/1.1
 - **Path/Resource:** The file or API endpoint requested
 - **HTTP Version:** Communication protocol version
 
-**Headers**
+2. **Headers**
 
 ```
 Host: www.example.com
@@ -63,8 +63,8 @@ Content-Type: application/json
 
 Headers provide **metadata** about the request — the client type, accepted content, session details, etc.
 
-**Body (optional)**\
-The body contains additional data (used in POST, PUT, PATCH requests).
+3. **Body (optional)**\
+   The body contains additional data (used in POST, PUT, PATCH requests).
 
 ```json
 {
@@ -129,7 +129,7 @@ Once the server receives a request, it processes it and sends back an **HTTP res
 
 ### **Structure of an HTTP Response**
 
-**Status Line**
+1. **Status Line**
 
 ```
 HTTP/1.1 200 OK
@@ -139,7 +139,7 @@ HTTP/1.1 200 OK
 - Status code
 - Status message
 
-**Headers**
+2. **Headers**
 
 ```
 Content-Type: text/html
@@ -147,8 +147,8 @@ Content-Length: 4520
 Set-Cookie: sessionId=abc123
 ```
 
-**Body**\
-The main content — could be HTML, JSON, XML, or media.
+3. **Body**\
+   The main content — could be HTML, JSON, XML, or media.
 
 ```html
 <html><body><h1>Welcome User</h1></body></html>
@@ -230,21 +230,20 @@ A **cookie** is a small name–value pair stored in the browser, sent automatica
 
 ### **How Cookies Work**
 
-**Server sends a cookie in the response:**
+1. **Server sends a cookie in the response:**
 
 ```
 Set-Cookie: sessionId=abc123; Path=/; HttpOnly
 ```
 
-**Browser stores it locally.**
-
-**Browser automatically includes it in future requests:**
+2. **Browser stores it locally.**
+1. **Browser automatically includes it in future requests:**
 
 ```
 Cookie: sessionId=abc123
 ```
 
-The server uses this cookie to identify the session.
+4. The server uses this cookie to identify the session.
 
 ---
 
@@ -322,15 +321,14 @@ It’s like a “contract” that explains:
 
 ### **How P3P Works**
 
-A website hosts a **P3P policy file** (`/w3c/p3p.xml`) describing data practices.
-
-The server references this policy in the HTTP header:
+1. A website hosts a **P3P policy file** (`/w3c/p3p.xml`) describing data practices.
+1. The server references this policy in the HTTP header:
 
 ```
 P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"
 ```
 
-The browser reads the policy and decides whether to accept or block cookies based on user settings.
+3. The browser reads the policy and decides whether to accept or block cookies based on user settings.
 
 ---
 
