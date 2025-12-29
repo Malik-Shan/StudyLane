@@ -1,0 +1,94 @@
+{
+  "draft": false,
+  "name": "Multivariable Calculus",
+  "code": "MT-301",
+  "credit_hours": {
+    "discriminant": true,
+    "value": "3(3-0)"
+  },
+  "reference_materials": [],
+  "outline": [
+    {
+      "topic": "Functions of Several Variables and Partial Differentiation",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Multiple Integrals",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Line and Surface Integrals",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Green's and Stroke's Theorem",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Fourier Series",
+      "data": {
+        "discriminant": true,
+        "value": [
+          {
+            "topic": "Periodic Function",
+            "taught": false
+          },
+          {
+            "topic": "Function of any period P-2L",
+            "taught": false
+          },
+          {
+            "topic": "Even and Odd functions",
+            "taught": false
+          },
+          {
+            "topic": "Half Range expansions",
+            "taught": false
+          },
+          {
+            "topic": "Fourier Transform",
+            "taught": false
+          }
+        ]
+      }
+    },
+    {
+      "topic": "Laplace Transform",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    },
+    {
+      "topic": "Z-Transform",
+      "data": {
+        "discriminant": false,
+        "value": {
+          "taught": false
+        }
+      }
+    }
+  ]
+}
