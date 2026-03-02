@@ -6,7 +6,11 @@
     "discriminant": true,
     "value": "3(2-3)"
   },
-  "reference_materials": [],
+  "reference_materials": [
+    "operating-system-concepts",
+    "modern-operating-systems",
+    "operating-systems-internals-and-design-principles"
+  ],
   "outline": [
     {
       "topic": "Operating system basics",
