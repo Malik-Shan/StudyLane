@@ -6,7 +6,10 @@
     "discriminant": true,
     "value": "3(3-0)"
   },
-  "reference_materials": [],
+  "reference_materials": [
+    "multivariable-calculus-james-7",
+    "v-calculus"
+  ],
   "outline": [
     {
       "topic": "Functions of Several Variables and Partial Differentiation",
