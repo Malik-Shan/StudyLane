@@ -6,7 +6,9 @@
     "discriminant": true,
     "value": "3(2-3)"
   },
-  "reference_materials": [],
+  "reference_materials": [
+    "database-administration-the-complete-guide-to-practices-and-procedures"
+  ],
   "outline": [
     {
       "topic": "Installation of DBMS",
