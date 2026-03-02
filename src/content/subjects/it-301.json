@@ -6,7 +6,11 @@
     "discriminant": true,
     "value": "3(2-3)"
   },
-  "reference_materials": [],
+  "reference_materials": [
+    "cryptography-and-network-security",
+    "network-security-essentials-application-and-standards",
+    "bulletproof-w-ireless-security"
+  ],
   "outline": [
     {
       "topic": "Introduction to network security",
