@@ -6,7 +6,9 @@
     "discriminant": true,
     "value": "3(3-0)"
   },
-  "reference_materials": [],
+  "reference_materials": [
+    "probability-and-statistics-for-engineers-and-scientistis"
+  ],
   "outline": [
     {
       "topic": "Introduction to Statistics nd Data Analysis",
