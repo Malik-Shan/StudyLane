@@ -1,0 +1,455 @@
+---
+draft: false
+readtime: true
+title: Access Control
+published: 2026-05-06T22:11:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+Access control is one of the most fundamental concepts in network security. At its core, it answers one simple question: **who is allowed to access what, and under what conditions?** Everything from logging into your laptop to unlocking a secure server room is a form of access control.
+
+---
+
+## **What is Access Control?**
+
+**Access control** is the process of **restricting access to resources** — systems, networks, data, physical spaces — to only those who are authorized to use them. It ensures that people can only access what they need and nothing more.
+
+Access control involves three closely related concepts that work together:
+
+### **1. Identification**
+
+The user **claims an identity** — typically by providing a username, ID number, or email address. This is just the claim — "I am user John."
+
+### **2. Authentication**
+
+The system **verifies the claimed identity** — proving that the person really is who they say they are. This is where passwords, biometrics, and tokens come in.
+
+### **3. Authorization**
+
+After identity is verified, the system determines **what that user is allowed to do** — which files they can read, which systems they can access, which actions they can perform.
+
+These three work as a sequence — you identify yourself, you prove it, then you're given appropriate access. Missing any one of them creates a security weakness.
+
+There is also a fourth concept often added:
+
+### **4. Accountability**
+
+Keeping **records of what authenticated users did** — logging access, actions taken, files modified. This supports auditing, forensics, and detecting misuse.
+
+---
+
+## **Authentication Factors**
+
+Authentication is based on **factors** — categories of evidence used to prove identity. There are three fundamental factors:
+
+### **Something You Know (Knowledge Factor)**
+
+Information only the user should know:
+
+- Passwords
+- PINs
+- Security questions
+- Passphrases
+
+This is the most common factor but also the weakest — passwords can be guessed, stolen, phished, or cracked.
+
+### **Something You Have (Possession Factor)**
+
+A physical object the user possesses:
+
+- Smart cards
+- Hardware tokens (like RSA SecurID)
+- One-Time Password (OTP) generators
+- Mobile phones receiving SMS codes
+- USB security keys (like YubiKey)
+
+This factor is stronger because an attacker needs to physically possess the object. However, devices can be lost or stolen.
+
+### **Something You Are (Inherence Factor)**
+
+Biological characteristics unique to the user:
+
+- Fingerprints
+- Retina or iris scans
+- Facial recognition
+- Voice recognition
+- Hand geometry
+
+Biometrics are very strong but come with privacy concerns and can sometimes be fooled with sophisticated techniques. Also, unlike a password, you can't change your fingerprint if it's compromised.
+
+---
+
+## **Multi-Factor Authentication (MFA)**
+
+**Multi-Factor Authentication (MFA)** requires users to provide **two or more factors** from different categories before access is granted. The most common form is **Two-Factor Authentication (2FA)**.
+
+Example: Logging into your bank account requires:
+
+1. Your password (something you know)
+1. A code sent to your phone (something you have)
+
+Even if an attacker steals your password, they still can't log in without your phone. MFA dramatically increases security — it's one of the single most effective security measures available.
+
+**Types of MFA:**
+
+- Password + SMS code
+- Password + authenticator app (Google Authenticator, Microsoft Authenticator)
+- Password + hardware token
+- Password + fingerprint
+- Smart card + PIN
+
+### **Why SMS-Based MFA Has Weaknesses**
+
+While SMS codes are better than nothing, they have weaknesses:
+
+- **SIM swapping** — an attacker convinces your mobile carrier to transfer your number to their SIM, intercepting your codes
+- SMS messages can be intercepted through certain network attacks
+- Authenticator apps or hardware tokens are considered more secure
+
+---
+
+## **Access Control Models**
+
+An **access control model** is a framework that defines **how access rights are assigned and managed**. Different models suit different environments and security requirements.
+
+### **1. Discretionary Access Control (DAC)**
+
+In DAC, the **owner of a resource decides** who can access it and what they can do. Access decisions are at the discretion of the owner.
+
+Example: In a Windows or Linux file system, the file owner can set permissions — who can read, write, or execute the file. The owner has full discretion over this.
+
+**Advantages:**
+
+- Flexible — owners can share resources easily
+- Simple to understand and implement
+
+**Disadvantages:**
+
+- Inconsistent — different owners make different decisions
+- If a user's account is compromised, the attacker inherits all their permissions
+- Users can accidentally grant too much access
+- Hard to manage at scale in large organizations
+
+DAC is common in everyday personal computing environments but is considered the **weakest model** from a security perspective.
+
+---
+
+### **2. Mandatory Access Control (MAC)**
+
+In MAC, access decisions are made by the **system based on strict policies set by administrators** — not by individual users. Users cannot override or change these policies.
+
+Every subject (user or process) and every object (file, resource) is assigned a **security label**. Access is granted only when the labels match according to the policy.
+
+This model is used in **highly secure environments** like military and government systems where data classification (Top Secret, Secret, Confidential, Unclassified) is strictly enforced.
+
+**Example:** A user with "Secret" clearance cannot access "Top Secret" files — even if the file owner wants to share it. The system enforces this absolutely.
+
+**Two key principles in MAC:**
+
+**Bell-LaPadula Model (focused on Confidentiality):**
+
+- **No Read Up** — a user cannot read data at a higher classification level than their own
+- **No Write Down** — a user cannot write data to a lower classification level (to prevent leaking classified info to a less secure area)
+
+**Biba Model (focused on Integrity):**
+
+- **No Write Up** — a user cannot write to a higher integrity level (to prevent corrupting trusted data)
+- **No Read Down** — a user cannot read from a lower integrity level (to prevent being influenced by untrusted data)
+
+**Advantages:**
+
+- Very strict and consistent
+- Users cannot accidentally or intentionally bypass access controls
+- Excellent for environments where data classification is critical
+
+**Disadvantages:**
+
+- Very rigid and inflexible
+- Complex and expensive to implement and manage
+- Not practical for most commercial environments
+
+---
+
+### **3. Role-Based Access Control (RBAC)**
+
+In RBAC, access is granted based on **the user's role within the organization** — not their individual identity. Permissions are assigned to roles, and users are assigned to roles.
+
+Example:
+
+- The role "HR Manager" has access to employee salary records
+- The role "Network Engineer" has access to router configurations
+- The role "Intern" has very limited access
+
+When a new employee joins the HR department, they're assigned the "HR Staff" role and automatically get all the appropriate permissions. When they leave, removing their role removes all their access.
+
+**Advantages:**
+
+- Easy to manage at scale — change the role, affect all users in it
+- Reduces administrative overhead
+- Clear and auditable
+- Follows the principle of least privilege naturally
+
+**Disadvantages:**
+
+- Role explosion — in large organizations, you can end up with too many roles
+- Doesn't handle exceptions well — if someone needs temporary access outside their role, it gets complicated
+
+RBAC is the most widely used model in corporate environments.
+
+---
+
+### **4. Attribute-Based Access Control (ABAC)**
+
+ABAC is a more flexible and sophisticated model where access decisions are based on **a combination of attributes** — characteristics of the user, the resource, the action, and the environment.
+
+Attributes can include:
+
+- **User attributes** — job title, department, security clearance, location
+- **Resource attributes** — classification level, type, owner
+- **Action attributes** — read, write, delete, execute
+- **Environmental attributes** — time of day, IP address, device type
+
+Example policy: "A doctor can access patient records **if** the doctor is in the same hospital **and** it is during working hours **and** the access is for treatment purposes."
+
+**Advantages:**
+
+- Extremely flexible and fine-grained
+- Can enforce very complex, context-aware policies
+- Scales well
+
+**Disadvantages:**
+
+- Complex to design and manage
+- Policies can become very complicated
+- Harder to audit and understand
+
+ABAC is increasingly used in modern cloud environments and zero-trust architectures.
+
+---
+
+### **5. Rule-Based Access Control**
+
+Often confused with RBAC, rule-based access control grants access based on **specific rules defined by administrators** — not user roles. These are typically if-then conditions.
+
+Example: "Allow access to the database only from IP addresses in the range 192.168.1.0/24 and only between 8 AM and 6 PM."
+
+Firewalls commonly use rule-based access control — allowing or denying traffic based on defined rules about source/destination IP, port, protocol, etc.
+
+---
+
+## **Principles of Access Control**
+
+Several key principles guide how access control should be implemented:
+
+### **Principle of Least Privilege**
+
+Users, processes, and systems should have **only the minimum access rights** needed to perform their legitimate function — nothing more.
+
+This limits the damage if an account is compromised or misused. An attacker who compromises a low-privilege account can't do nearly as much damage as one who compromises an administrator account.
+
+### **Need to Know**
+
+Even if a user has a certain clearance level, they should only have access to information that is **directly relevant to their work**. Clearance gives eligibility, but need-to-know determines actual access.
+
+### **Separation of Duties**
+
+**Critical tasks should be divided** among multiple people so that no single individual can complete a sensitive process alone. This prevents fraud and errors.
+
+Example: The person who can approve a purchase order should not be the same person who can process the payment. In security, the person who manages security tools shouldn't be the only one reviewing security logs.
+
+### **Dual Control**
+
+Some highly sensitive operations require **two authorized people acting together** — neither can act alone. Example: opening a nuclear vault requires two officers to turn their keys simultaneously.
+
+### **Defense in Depth**
+
+Access control should be implemented at **multiple layers** — network level, system level, application level, data level. If an attacker bypasses one layer, others still protect the resource.
+
+---
+
+## **Access Control Lists (ACLs)**
+
+An **Access Control List (ACL)** is a list attached to a resource that specifies **which users or systems are allowed or denied access**, and what actions they can perform.
+
+There are two common types:
+
+### **Filesystem ACLs**
+
+Attached to files and directories, specifying which users can read, write, or execute them.
+
+Example:
+
+text
+
+```
+File: financial_report.xlsx
+- Alice: Read, Write
+- Bob: Read only
+- Charlie: No access
+
+```
+
+### **Network ACLs**
+
+Used on routers and firewalls to control which traffic is allowed to pass through based on IP addresses, ports, and protocols.
+
+Example:
+
+text
+
+```
+Rule 1: Allow TCP from 192.168.1.0/24 to any on port 80
+Rule 2: Allow TCP from 192.168.1.0/24 to any on port 443
+Rule 3: Deny all other traffic
+
+```
+
+ACLs are processed **top to bottom** — the first matching rule is applied, and the rest are ignored. Order matters enormously.
+
+---
+
+## **Identity and Access Management (IAM)**
+
+**IAM** is the broader discipline of managing **digital identities and their access** to resources across an organization. It encompasses:
+
+- **User provisioning** — creating accounts when someone joins
+- **Deprovisioning** — removing access when someone leaves
+- **Role assignment** — giving users appropriate roles
+- **Authentication management** — managing passwords, MFA, SSO
+- **Access reviews** — periodically reviewing who has access to what
+- **Privileged access management** — special controls for admin accounts
+
+### **Single Sign-On (SSO)**
+
+SSO allows users to **log in once** and gain access to multiple systems without logging in separately to each. The user authenticates once, and a trusted token is used to grant access across connected systems.
+
+**Advantages:**
+
+- Convenient for users — one password to remember
+- Reduces password fatigue (which leads to weak passwords)
+- Centralized authentication management
+
+**Disadvantages:**
+
+- Single point of failure — if the SSO system is compromised, all connected systems are at risk
+- If the user's SSO credentials are stolen, the attacker gets access to everything
+
+### **Directory Services**
+
+Organizations use **directory services** to centrally manage user identities and access. The most common is **Microsoft Active Directory (AD)**, which stores information about users, computers, and resources, and controls authentication and authorization across a Windows network.
+
+**LDAP (Lightweight Directory Access Protocol)** is the protocol used to query and modify directory services.
+
+---
+
+## **Privileged Access Management (PAM)**
+
+**Privileged accounts** — administrator accounts, root accounts, service accounts — have far more power than regular user accounts. They can install software, modify configurations, access all data, and disable security controls. If compromised, the damage is enormous.
+
+**PAM** is a set of practices and tools specifically for **managing and securing privileged accounts**:
+
+- **Just-in-time access** — privileged access is granted only when needed for a specific task, then automatically revoked
+- **Session recording** — all privileged sessions are recorded for audit purposes
+- **Password vaulting** — privileged account passwords are stored in a secure vault and rotated automatically
+- **Approval workflows** — using a privileged account requires approval from a manager
+
+The principle behind PAM is that even system administrators shouldn't have unrestricted access all the time — they should only have elevated privileges when specifically needed.
+
+---
+
+## **Physical Access Control**
+
+Access control doesn't only apply to networks and computers — **physical access** to buildings, server rooms, and equipment must also be controlled. We'll cover this in depth in a dedicated topic, but here's the overview:
+
+- **Keycards and badges** — employees use cards to enter secured areas
+- **PIN pads** — numeric codes required to enter areas
+- **Biometric systems** — fingerprint or retina scanners at secure entry points
+- **Security guards** — human verification at entry points
+- **Mantraps** — a double-door system where you enter a small room, the first door closes and locks before the second opens — preventing tailgating
+- **Visitor management** — visitors are logged, escorted, and given temporary access badges
+
+---
+
+## **Password Management Best Practices**
+
+Since passwords are the most common authentication method, their proper management is critical:
+
+### **Strong Password Requirements**
+
+- Minimum length of 12-16 characters
+- Mix of uppercase, lowercase, numbers, and special characters
+- No dictionary words or personal information (birthdays, names)
+- No common patterns (Password1!, Qwerty123)
+
+### **Password Hashing**
+
+Passwords should **never be stored in plain text**. Instead, they are run through a **hash function** — a one-way mathematical function that converts the password into a fixed-length string. When you log in, your password is hashed and compared to the stored hash.
+
+Common hash functions: SHA-256, bcrypt, Argon2
+
+### **Salting**
+
+A **salt** is a random value added to a password before hashing. This means even if two users have the same password, their hashes are different. Salting defeats rainbow table attacks.
+
+### **Password Managers**
+
+Tools that **securely store and generate passwords**, allowing users to have strong, unique passwords for every account without having to remember them all. Examples: LastPass, 1Password, Bitwarden.
+
+### **Account Lockout Policies**
+
+After a certain number of failed login attempts, the account is **locked** for a period of time or until manually unlocked. This defeats brute force attacks.
+
+### **Password Expiration**
+
+Requiring passwords to be changed periodically. However, modern security thinking has shifted — **forcing frequent changes can lead to weaker passwords** (people just add a number at the end). The current NIST recommendation is to only force changes if a breach is suspected, but focus instead on password strength and MFA.
+
+---
+
+## **Zero Trust Architecture**
+
+**Zero Trust** is a modern security model built on the principle of **"never trust, always verify."** Traditional security assumed that everything inside the network perimeter was trustworthy. Zero Trust rejects this assumption entirely.
+
+In a Zero Trust model:
+
+- **No user or device is automatically trusted** — not even those inside the corporate network
+- Every access request must be **authenticated, authorized, and continuously validated**
+- Access is granted based on **identity, device health, location, and behavior** — not just network location
+- Access is granted with **minimum necessary privileges**
+- Everything is **logged and monitored**
+
+### **Why Zero Trust?**
+
+The traditional "castle and moat" model assumed that if you were inside the perimeter (inside the network), you were safe. But modern threats show this is flawed:
+
+- Insider threats exist within the perimeter
+- Attackers who breach the perimeter move freely
+- Cloud services and remote work mean there is no clear perimeter anymore
+
+Zero Trust is increasingly considered the gold standard for modern network security architecture.
+
+---
+
+## **Common Access Control Attacks**
+
+### **Credential Theft**
+
+Stealing usernames and passwords through phishing, keylogging, data breaches, or network sniffing, then using them to impersonate the legitimate user.
+
+### **Privilege Escalation**
+
+After gaining access with a low-privilege account, an attacker finds a way to **gain higher privileges** — moving from regular user to administrator. This can be done by exploiting vulnerabilities in the operating system or applications.
+
+### **Pass-the-Hash**
+
+In Windows environments, passwords are stored as hashes. An attacker who captures the hash doesn't need to crack it — they can use the hash itself to authenticate. This is called a **pass-the-hash attack**.
+
+### **Brute Force and Dictionary Attacks**
+
+Already covered in Topic 3 — trying to guess passwords through automated attempts.
+
+### **Social Engineering**
+
+Tricking people into giving up credentials — already covered, but worth remembering that technical access controls can be completely bypassed if a person is manipulated into handing over their password.
