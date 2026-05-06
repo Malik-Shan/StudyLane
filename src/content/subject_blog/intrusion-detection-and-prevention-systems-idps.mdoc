@@ -1,0 +1,247 @@
+---
+draft: false
+readtime: true
+title: Intrusion Detection and Prevention Systems (IDPS)
+published: 2026-05-06T22:13:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is an Intrusion Detection System?**
+
+An **Intrusion Detection System (IDS)** is a security tool that monitors network traffic or system activity and raises an alert when it detects something suspicious or malicious. The key word here is **detects** — a traditional IDS does not take action to stop the threat, it only identifies it and notifies the security team. Think of it like a burglar alarm in a house — it does not stop the burglar, but it alerts you that something is wrong so you can respond.
+
+An **Intrusion Prevention System (IPS)** takes this a step further. It does everything an IDS does, but instead of just alerting, it can **automatically take action** to block or stop the detected threat in real time. Using the same analogy, an IPS is like a security guard who not only sets off the alarm but also physically stops the intruder at the door.
+
+In modern security, these two systems are often combined into what is called an **IDPS (Intrusion Detection and Prevention System)**, which can both detect and respond to threats depending on how it is configured.
+
+---
+
+## **Why Do We Need IDPS if We Already Have Firewalls?**
+
+This is an important question and understanding the answer gives you a much clearer picture of how network security works as a whole.
+
+A firewall operates on rules. It allows or blocks traffic based on IP addresses, ports, and protocols. It essentially controls **who is allowed to communicate with whom**. But a firewall does not deeply analyze the content of that allowed traffic. Once a connection is permitted through the firewall, the firewall largely steps aside.
+
+An attacker who knows that port 80 (HTTP) is open will simply send their attack through port 80. The firewall says "port 80 is allowed, let it through" — and the malicious traffic passes right through. A firewall has no way of knowing that the HTTP request contains a SQL injection attack or a buffer overflow attempt.
+
+This is exactly where an IDS/IPS steps in. It looks **inside** the traffic — at the actual content and behavior — and tries to identify attacks even within otherwise permitted connections. So firewalls and IDPS are **complementary**, not interchangeable. You need both.
+
+Additionally, an IDS/IPS can detect:
+
+- Internal threats (traffic between machines inside the network)
+- Suspicious behavior patterns that do not match any specific known attack
+- Policy violations by internal users
+- Reconnaissance activity like port scanning
+
+---
+
+## **How an IDS/IPS is Positioned in a Network**
+
+The placement of an IDS/IPS in a network matters significantly.
+
+- A **Network IDS (NIDS)** is placed at a strategic point in the network — typically at the network perimeter (just inside or outside the firewall), or at key internal segments — where it can monitor all passing traffic. It does not sit in the direct path of traffic; it receives a **copy** of the traffic (through a network tap or port mirroring on a switch) and analyzes it passively. This is why a pure IDS does not slow down network traffic.
+- A **Network IPS (NIPS)** is placed **inline** — meaning traffic must physically pass through it. This allows it to drop malicious packets in real time. The trade-off is that if the IPS fails or is overwhelmed, it can become a bottleneck or a point of failure.
+- A **Host-based IDS/IPS (HIDS/HIPS)** runs as software on an individual computer or server. Instead of monitoring network traffic, it monitors the activity on that specific host — file system changes, system calls, running processes, log files, registry changes (on Windows), etc. This gives it visibility into things a network-based system cannot see, like an attacker who has already gained access and is moving within the system.
+
+---
+
+## **Detection Methods — How Does an IDPS Actually Identify Threats?**
+
+This is the heart of how an IDPS works. There are three primary detection approaches, and each has its own strengths and weaknesses.
+
+---
+
+### **1. Signature-Based Detection (Misuse Detection)**
+
+This is the most common and widely used detection method. It works very similarly to how antivirus software works. The IDPS has a **database of signatures** — patterns that correspond to known attacks. A signature might describe a specific sequence of bytes in a packet, a specific pattern in HTTP headers, or a specific combination of packet characteristics that is known to be malicious.
+
+When traffic passes through (or is copied to) the IDPS, it compares the traffic against every signature in its database. If a match is found, it triggers an alert.
+
+**Example:** There is a well-known exploit for a vulnerability in a web server. The exploit always sends a packet containing the string **`/cgi-bin/phf`** in the URL. The IDS has a signature that says "if you see **`/cgi-bin/phf`** in an HTTP request, raise an alert." Every time a packet containing that string is seen, an alert fires.
+
+**Advantages:**
+
+- Very accurate for known attacks — low false positive rate for recognized threats
+- Fast detection because it is just pattern matching
+- Easy to understand — you know exactly why an alert fired (it matched signature X)
+- Widely supported with large, regularly updated signature databases (like Snort rules)
+
+**Disadvantages:**
+
+- **Cannot detect unknown attacks.** If an attack has no signature in the database, the IDS will never see it. This is its biggest weakness. Zero-day attacks — attacks that exploit vulnerabilities that have never been seen before — completely bypass signature-based detection.
+- Signatures must be **constantly updated.** New attacks appear every day. An outdated signature database leaves you blind to recent threats.
+- Attackers can **evade signatures** by slightly modifying their attacks. Changing a few bytes or encoding the attack differently can bypass pattern matching even for a known attack.
+
+---
+
+### **2. Anomaly-Based Detection (Behavioral Detection)**
+
+Anomaly-based detection takes a completely different approach. Instead of looking for known bad patterns, it tries to define what **normal** looks like and then alerts on anything that deviates significantly from normal.
+
+The process has two phases:
+
+**Training phase:** The system observes normal network traffic or system behavior over a period of time and builds a **baseline model** of what normal looks like. This might include things like: average traffic volume per hour, typical protocols used, common source/destination IP addresses, normal login times for users, usual number of failed login attempts per day, etc.
+
+**Detection phase:** Once the baseline is established, the system continuously compares current behavior against that baseline. If something deviates beyond a defined threshold — for example, a sudden massive spike in traffic, a user logging in at 3am for the first time, or a computer suddenly starting to scan hundreds of IP addresses — an alert is raised because this behavior is **anomalous**.
+
+**Advantages:**
+
+- Can detect **unknown and zero-day attacks** because it does not rely on signatures. If an attack causes unusual behavior, it can be detected even if it has never been seen before.
+- Can detect insider threats and compromised accounts because even legitimate users behaving unusually will trigger alerts
+- Does not require constant manual signature updates
+
+**Disadvantages:**
+
+- **High false positive rate.** Normal behavior is not always consistent. Network usage patterns change, new applications get installed, users work irregular hours. All of these can trigger alerts even when nothing malicious is happening. Too many false positives can cause **alert fatigue**, where analysts start ignoring alerts because most of them turn out to be nothing — and then miss a real attack.
+- Building an accurate baseline is difficult and time-consuming. If the training phase happens to include some malicious activity, that activity becomes part of the "normal" baseline.
+- More computationally expensive than signature-based detection.
+
+---
+
+### **3. Specification-Based Detection**
+
+This is a less commonly discussed but important method. Instead of learning what normal is through observation, a human expert **manually defines** the correct, expected behavior of a system or protocol using formal specifications or rules.
+
+For example, the HTTP protocol has a defined specification. A specification-based IDS would have rules describing exactly how a valid HTTP request should look. Any traffic that violates those specifications — even if it does not match any known attack signature and does not deviate from observed "normal" behavior — is flagged as suspicious.
+
+**Advantages:**
+
+- Low false positive rate compared to anomaly-based detection because the rules are precise
+- Can detect unknown attacks that violate protocol specifications
+
+**Disadvantages:**
+
+- Very labor-intensive to create and maintain the specifications
+- Not practical for all protocols
+- Only covers what the specification describes — unusual but legitimate traffic may be flagged
+
+---
+
+## **Types of IDPS Based on Scope**
+
+### **Network-Based IDPS (NIDPS)**
+
+Monitors traffic across an entire network segment. It captures packets flowing through the network and analyzes them for signs of intrusion. It provides a broad view of what is happening on the network as a whole.
+
+Key characteristics:
+
+- Passive monitoring (IDS mode) or inline (IPS mode)
+- Can monitor traffic between any two machines on the network segment
+- Does not impact the performance of individual hosts
+- Cannot see encrypted traffic unless it has decryption capability
+- Cannot see what is happening inside an individual host (file changes, process activity, etc.)
+
+A popular open-source network IDPS is **Snort**, which uses signature-based detection and is widely used in both academic and professional environments. **Suricata** is another well-known open-source option that supports both signature and anomaly-based detection.
+
+---
+
+### **Host-Based IDPS (HIDPS)**
+
+Installed on individual hosts (computers, servers). It monitors the activity on that specific machine rather than network traffic.
+
+It monitors things like:
+
+- File system integrity — detecting if critical system files have been modified (this is called file integrity monitoring)
+- System logs — looking for failed login attempts, privilege escalation, unusual process execution
+- Registry changes (Windows) — detecting unauthorized modifications to the registry
+- Running processes — identifying malicious or unexpected processes
+- System calls — monitoring what system resources applications are accessing
+
+**Advantages:**
+
+- Can see encrypted traffic because it monitors at the application level, after decryption
+- Can detect attacks that a network-based system would miss, like local privilege escalation
+- Provides detailed information about what happened on a specific machine
+
+**Disadvantages:**
+
+- Consumes resources on the host it is protecting
+- Does not have visibility into the broader network
+- If the host is compromised at a deep level (e.g., rootkit), the HIDS itself may be compromised
+
+---
+
+## **Responses — What Can an IDPS Do When It Detects Something?**
+
+When an IDPS detects suspicious activity, it has a range of possible responses depending on its configuration and whether it is in detection (IDS) or prevention (IPS) mode.
+
+**Passive responses (IDS):**
+
+- Generate an alert and log the event
+- Send notifications to administrators via email, SMS, or SIEM dashboard
+- Record details of the suspicious traffic for later forensic analysis
+
+**Active responses (IPS):**
+
+- **Drop packets:** Simply discard the malicious packet so it never reaches its destination
+- **Reset connections:** Send a TCP reset packet to both the sender and receiver, forcibly terminating the connection
+- **Block IP addresses:** Temporarily or permanently add the attacking IP to a blocklist, preventing any further communication from that source
+- **Reconfigure firewall rules:** Dynamically instruct the firewall to block traffic from a specific source
+- **Quarantine a host:** In some advanced setups, isolate a compromised internal host from the rest of the network
+
+---
+
+## **False Positives and False Negatives — A Critical Concept**
+
+In the world of IDPS, two types of errors are extremely important to understand:
+
+**False Positive:** The IDPS raises an alert for something that is actually legitimate, harmless traffic. It incorrectly identified normal activity as an attack. Too many false positives are a serious problem because analysts waste time investigating them, and eventually they may start ignoring alerts altogether — a phenomenon called **alert fatigue**. This is one of the biggest challenges in real-world IDPS deployment.
+
+**False Negative:** The IDPS fails to detect an actual attack. It sees malicious activity and lets it pass without raising an alert. This is arguably even more dangerous because the security team has no idea an attack occurred.
+
+The goal is to minimize both, but there is an inherent trade-off. If you make your detection rules very sensitive (to catch more attacks), you will generate more false positives. If you tighten the rules to reduce false positives, you risk missing real attacks (more false negatives). Finding the right balance is an ongoing challenge.
+
+---
+
+## **Evasion Techniques — How Attackers Try to Fool IDPS**
+
+Attackers are aware that IDPS systems exist and have developed techniques to evade them.
+
+**Fragmentation:** Breaking a malicious packet into many very small fragments. If the IDS does not properly reassemble fragments before inspecting them, it may miss the attack signature that spans multiple fragments.
+
+**Encryption:** Encrypting malicious traffic. A traditional IDPS cannot inspect encrypted content and will simply pass it through.
+
+**Protocol violations:** Sending traffic that technically violates protocol rules but is still interpreted by the target system in a predictable way. The IDS may reject the malformed traffic as non-threatening while the target system processes it as intended by the attacker.
+
+**Slow attacks (low and slow):** Instead of sending a flood of obvious attack traffic, an attacker sends a very small number of malicious packets spread over a very long period of time. The pattern never crosses the threshold that would trigger an anomaly-based alert.
+
+**Polymorphic attacks:** Constantly changing the pattern of the attack so it never matches the same signature twice. This is particularly effective against signature-based detection.
+
+---
+
+## **IDPS vs Firewall — A Quick Comparison to Solidify the Difference**
+
+{% table %}
+- 
+- **Firewall**
+- **IDPS**
+---
+- Primary function
+- Control access (allow/deny)
+- Detect/prevent attacks within allowed traffic
+---
+- Operates on
+- Headers (IP, port, protocol)
+- Content and behavior
+---
+- Positioned
+- At network boundary
+- At boundary and/or inside network
+---
+- Knows about connection state
+- Yes (stateful)
+- Yes, plus much more
+---
+- Can detect application attacks
+- Limited (NGFW can)
+- Yes
+---
+- Generates alerts
+- No
+- Yes
+{% /table %}
+
+\
