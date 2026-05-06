@@ -1,0 +1,439 @@
+---
+draft: false
+readtime: true
+title: Wireless Attacks
+published: 2026-05-06T22:19:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **Introduction**
+
+Now that you understand how wireless networks work and the evolution of security protocols, we can look at the attacks that target them. Wireless attacks are particularly interesting because many of them are **passive** — the attacker doesn't interact with the network at all, just listens. Others are highly sophisticated, exploiting deep flaws in cryptographic protocols.
+
+Understanding these attacks is important not just for exam purposes but because wireless attacks are among the most commonly executed attacks in the real world. Coffee shops, airports, university campuses — any place with Wi-Fi is a potential attack environment.
+
+---
+
+## **Setting Up for Wireless Attacks — Monitor Mode**
+
+Before covering specific attacks, you need to understand **monitor mode** because almost every wireless attack starts here.
+
+In normal operation, a wireless adapter only processes frames addressed to it (similar to how a wired NIC works normally). **Monitor mode** puts the wireless adapter into a state where it captures **all 802.11 frames** it can hear in the air — regardless of the destination, regardless of the network. No association with any network is needed.
+
+This is the wireless equivalent of promiscuous mode on a wired NIC.
+
+Not all wireless adapters support monitor mode — it depends on the chipset. Adapters with chipsets like **Atheros, Ralink, and Realtek** (certain models) support it. This is why specific adapters are popular in the security/penetration testing community.
+
+The primary tool suite for wireless attacks on Linux is **Aircrack-ng**, which includes:
+
+- **airmon-ng** — enables/disables monitor mode
+- **airodump-ng** — captures wireless frames
+- **aireplay-ng** — injects wireless frames
+- **aircrack-ng** — performs key cracking
+
+---
+
+## **Attack 1 — WEP Cracking**
+
+WEP is completely broken, but understanding **why** and **how** it's cracked teaches you important cryptographic concepts.
+
+### **The IV Collection Attack**
+
+As explained in the previous topic, WEP uses a 24-bit IV combined with the shared key to generate a keystream. The keystream is XORed with plaintext to produce ciphertext.
+
+**The mathematical problem:**\
+If two packets are encrypted with the same IV (and therefore the same keystream), and you know the plaintext of one of them, you can XOR the two ciphertexts together and recover the plaintext of the other. More powerfully, statistical analysis of many packets encrypted with related IVs can reveal the key itself. This is the basis of the **FMS attack (Fluhrer, Mantin, Shamir)** and its improvements.
+
+**The practical attack:**
+
+**Step 1 — Capture packets:**\
+Using airodump-ng in monitor mode, capture as many WEP-encrypted packets as possible, focusing on capturing **IVs.** You need roughly 50,000 to 100,000 unique IVs for a reliable crack.
+
+**Step 2 — Speed up collection with ARP replay:**\
+On a quiet network, collecting enough IVs naturally could take hours. Attackers use an **ARP replay attack** to generate traffic artificially:
+
+- Capture a single ARP packet (easy to identify — they have a predictable size)
+- Replay it thousands of times — each time the AP encrypts it with a new IV and sends a response
+- This generates thousands of new IVs rapidly, reducing attack time from hours to minutes
+
+**Step 3 — Crack the key:**\
+Feed the captured IVs into aircrack-ng. It performs statistical analysis and recovers the WEP key. On a modern computer, a 40-bit or 104-bit WEP key can be cracked in **under 5 minutes** with enough IVs.
+
+**The lesson:** WEP's failure is a perfect example of why you cannot just add encryption to a system — the implementation of the cryptography matters just as much as the choice of algorithm.
+
+---
+
+## **Attack 2 — WPA/WPA2-PSK Password Attacks**
+
+WPA2 with a strong password is cryptographically solid. The attacks against it don't break the cryptography — they go after the **password itself.**
+
+### **The 4-Way Handshake Capture Attack**
+
+**Why the handshake is valuable:**\
+During the WPA2 4-way handshake, the client and AP prove to each other that they know the PMK (which is derived from the password) without directly transmitting the password. However, the handshake contains enough information that an attacker can **verify whether a candidate password is correct** — offline, without interacting with the network again.
+
+Specifically, the MIC (Message Integrity Code) in Message 2 of the handshake is computed using the PTK, which is derived from the PMK (which comes from the password) plus the nonces and MAC addresses. If an attacker tries a candidate password, derives the PMK, computes the PTK, and computes the MIC — and it matches the captured MIC — then the password is correct.
+
+**Step 1 — Capture the handshake:**\
+The attacker runs airodump-ng and waits for a client to connect naturally (the handshake happens at connection time). This could take a long time.
+
+**Step 2 — Force a handshake with deauthentication:**\
+Rather than waiting, the attacker sends **deauthentication frames** to an already-connected client, forcing it to disconnect. The client automatically reconnects, performing a new 4-way handshake — which the attacker captures. We'll cover deauthentication attacks in detail shortly.
+
+**Step 3 — Offline dictionary/brute-force attack:**\
+With the captured handshake, the attacker goes completely offline and tries candidate passwords:
+
+- **Dictionary attack** — try every word in a wordlist (common passwords, dictionary words, variations). Tools like **hashcat** can try billions of candidates per second using GPU acceleration.
+- **Brute force** — try every possible combination of characters up to a certain length
+- **Rule-based attacks** — apply transformation rules to dictionary words (capitalize first letter, add numbers at end, replace letters with symbols — "password" → "P@ssw0rd")
+
+**The math on brute force:**\
+Against WPA2-PSK, hashcat on a modern GPU can try roughly **1-2 million passwords per second.** Sounds fast, but:
+
+- An 8-character lowercase password has 26^8 ≈ 200 billion combinations → would take weeks
+- A 12-character mixed password has trillions of combinations → essentially infeasible
+
+**The defense:** A **long, random, complex password** makes this attack computationally infeasible. WPA2 minimum recommendation is 12+ characters, mixing uppercase, lowercase, numbers, and symbols. A truly random 20-character password will never be cracked by brute force.
+
+### **The PMKID Attack (2018)**
+
+Discovered by Jens Steube (the creator of hashcat), this attack is a significant improvement because it **doesn't require capturing the 4-way handshake** and **doesn't require any client to be connected.**
+
+**How it works:**\
+The PMKID is a value that some APs include in the first message of the 4-way handshake (the EAPOL frame). It's computed as:
+
+text
+
+```
+PMKID = HMAC-SHA1-128(PMK, "PMK Name" || AP_MAC || Client_MAC)
+
+```
+
+The attacker can request this EAPOL frame directly from the AP without any client being present. From the PMKID, they can perform the same offline password guessing — try candidate passwords, derive PMK, compute PMKID, check if it matches.
+
+**Significance:** No need to wait for or force a client connection. The attack can be executed against any WPA2 AP at any time, making it much more practical.
+
+**Defense:** Same as for handshake attacks — strong, long passwords. WPA3 with SAE is immune to this attack.
+
+---
+
+## **Attack 3 — Deauthentication Attack (Deauth Attack)**
+
+This is one of the most commonly executed wireless attacks and one of the most frustrating to deal with.
+
+### **How it Works**
+
+In 802.11, **management frames** are used for functions like connecting, disconnecting, and probing for networks. In WPA2 and earlier, these management frames are **not authenticated and not encrypted.** Anyone can forge them.
+
+A **deauthentication frame** is a management frame that tells a client *"you have been disconnected from the network."* Normally, the AP sends this when it wants to disconnect a client.
+
+An attacker can forge a deauthentication frame, making it appear to come from the legitimate AP, and send it to any connected client. The client believes it's been legitimately disconnected and drops the connection. Since this can be repeated continuously, the attacker can **permanently prevent a client from staying connected** — an effective denial of service.
+
+**Uses of deauth attacks:**
+
+**1. Forcing handshake capture:**\
+As described above, deauth the client, it reconnects, you capture the handshake.
+
+**2. Denial of Service:**\
+Continuously deauthenticate clients from a network, making it unusable. This can target:
+
+- A specific client (by putting their MAC in the deauth frame)
+- All clients on a network (using the broadcast address)
+
+**3. Evil Twin support:**\
+Force clients off the legitimate network so they'll connect to your fake one (covered below).
+
+**The technical execution:**
+
+bash
+
+```
+aireplay-ng --deauth 100 -a [AP_MAC] -c [Client_MAC] wlan0mon
+
+```
+
+This sends 100 deauthentication packets. With --deauth 0 (continuous), the attack runs indefinitely.
+
+### **Why This is Hard to Stop in WPA2**
+
+Because management frames are unauthenticated in WPA2, there's no way for the client to verify that the deauth frame actually came from its AP. It just trusts it.
+
+**The fix — 802.11w (Management Frame Protection):**\
+802.11w is a standard amendment that adds cryptographic protection to management frames, including deauthentication frames. With 802.11w enabled, deauth frames are authenticated — a forged deauth frame will be ignored.
+
+802.11w is **mandatory in WPA3** — this is one of WPA3's significant improvements. In WPA2, it's optional and not always enabled.
+
+---
+
+## **Attack 4 — Evil Twin Attack (Rogue Access Point)**
+
+This is a sophisticated and highly effective attack. It's essentially a Man-in-the-Middle attack at the wireless level.
+
+### **The Concept**
+
+The attacker sets up a **fake access point** that impersonates a legitimate one — same SSID, same apparent configuration. The goal is to trick clients into connecting to the attacker's AP instead of the real one.
+
+Once a client connects to the evil twin, **all their traffic flows through the attacker's machine.** The attacker can read everything, modify traffic, steal credentials, inject malicious content.
+
+### **How it's Executed**
+
+**Step 1 — Reconnaissance:**\
+The attacker identifies the target network — its SSID, BSSID (AP's MAC address), operating channel, and encryption type. Tools like airodump-ng reveal all of this.
+
+**Step 2 — Set up the evil twin:**\
+The attacker creates an AP with:
+
+- The **same SSID** as the target
+- Often the **same BSSID** (MAC spoofing to clone the AP's MAC)
+- A **stronger signal** than the legitimate AP (by positioning closer to the target client or using a higher-power adapter)
+- The same or no encryption (if the target uses WPA2, the attacker might set up open or WPA2 with a known password)
+
+**Step 3 — Deauthenticate clients from the real AP:**\
+Using the deauth attack, the attacker disconnects clients from the legitimate AP. The client automatically searches for the network again. It sees two APs with the same SSID — it connects to the one with the stronger signal, which is the evil twin.
+
+**Step 4 — Captive portal for credential harvesting:**\
+If the target network uses WPA2 with a password the attacker doesn't know, the attacker might set up an **open evil twin** combined with a **captive portal** — a fake login page that appears when the client tries to browse. The page might say *"Session expired. Please re-enter your Wi-Fi password to continue."* Users often just type their password, handing it directly to the attacker.
+
+**Step 5 — Traffic interception:**\
+With the client connected to the evil twin and the attacker's machine connected to the real internet (or real network), the attacker forwards all traffic (acting as a router) while reading and potentially modifying everything.
+
+**Tools used:**
+
+- **hostapd** — creates the fake AP
+- **dnsmasq** — provides DHCP and DNS for clients on the fake network
+- **mitmproxy or ettercap** — intercepts and analyzes traffic
+- **WiFi-Pumpkin, airbase-ng** — complete evil twin frameworks
+
+### **Why Users Fall For This**
+
+- Wi-Fi clients automatically connect to known SSIDs — if your phone has connected to "Airport_WiFi" before, it will try to connect to any AP broadcasting "Airport_WiFi"
+- Users don't check (and often can't easily check) the BSSID to verify it's the real AP
+- The connection feels normal — internet works (the attacker routes traffic through)
+- The captive portal looks convincing
+
+### **Defenses Against Evil Twin**
+
+- Use a **VPN** — even if connected to an evil twin, all traffic is encrypted end-to-end and the attacker can't read it
+- **802.1X/WPA2-Enterprise** — clients have certificates that authenticate the AP as well as the client. A fake AP cannot present a valid certificate, so the client refuses to connect.
+- **HTTPS everywhere** — even if the attacker can see your traffic, encrypted content is unreadable
+- Be suspicious of unexpected Wi-Fi login prompts
+- Wireless intrusion detection systems can detect rogue APs
+
+---
+
+## **Attack 5 — KRACK Attack (Key Reinstallation Attack)**
+
+Discovered in 2017 by Mathy Vanhoef, KRACK is one of the most significant wireless security discoveries of the last decade because it demonstrated a fundamental flaw in the **WPA2 protocol itself** — not in weak passwords or poor configuration.
+
+### **The Vulnerability**
+
+KRACK exploits the **4-way handshake** of WPA2.
+
+Recall Message 3 of the handshake — the AP sends the GTK (Group Temporal Key) to the client. The client installs the PTK (session key) and sends Message 4 as confirmation. If the AP doesn't receive Message 4 (due to packet loss for example), it **retransmits Message 3.** When the client receives a retransmitted Message 3, it **reinstalls the already-installed key** and — critically — **resets the nonce (packet counter) back to zero.**
+
+**Why resetting the nonce is catastrophic:**\
+In WPA2's encryption (CCMP/AES), the nonce is a counter that ensures each packet is encrypted differently even if it contains the same data. If the nonce is reset, packets start being encrypted with the **same keystream** as before.
+
+In AES-CCMP, nonce reuse allows an attacker to:
+
+- Recover the plaintext of packets (by XORing captured ciphertext from before and after the reset)
+- In some implementations (especially WPA2-TKIP), even forge and inject packets
+
+### **The Impact**
+
+- The attacker can decrypt traffic **without knowing the Wi-Fi password**
+- Works against WPA2, which was considered secure
+- The vulnerability is in the **protocol specification** itself, not any particular implementation — meaning nearly every WPA2 implementation was affected
+- Linux's wpa_supplicant was particularly severely affected because it could be manipulated to install an **all-zero encryption key** — meaning no encryption at all
+
+### **Practical Limitations**
+
+KRACK is not trivially easy to execute:
+
+- The attacker must be in **wireless range** of both the client and the AP
+- The attacker must be able to **manipulate packet delivery** (block, delay, replay specific packets)
+- It decrypts traffic but doesn't give the attacker the Wi-Fi password
+
+### **The Fix**
+
+- **Patches** were released for operating systems and routers — patching the client side (especially Linux) was most critical
+- **WPA3** is immune to KRACK because SAE's handshake doesn't have the same retransmission vulnerability
+- Using **HTTPS/TLS** means that even if traffic is decrypted at the Wi-Fi layer, the content is still encrypted at the application layer
+
+---
+
+## **Attack 6 — Dragonblood Attacks (WPA3)**
+
+Even WPA3, the newest standard, was found to have vulnerabilities shortly after release.
+
+### **SAE Side-Channel Attacks**
+
+WPA3's SAE (Dragonfly) handshake was found to leak information through **timing side channels** and **cache-based side channels.**
+
+**Timing side channel:** Different branches of the SAE algorithm take slightly different amounts of time to execute depending on the password. By carefully measuring response times, an attacker can make inferences about the password — dramatically reducing the search space for a brute-force attack.
+
+**Cache-based side channel:** Similar principle but exploiting CPU cache access patterns rather than timing.
+
+### **Downgrade Attacks**
+
+WPA3 operates in a **transition mode** that supports both WPA2 and WPA3 clients. An attacker can manipulate this by:
+
+- Setting up an evil twin that only supports WPA2
+- Forcing the client to downgrade to WPA2
+- Then applying WPA2 attacks (like PMKID or handshake capture)
+
+### **Response**
+
+The Wi-Fi Alliance and affected vendors released patches addressing these issues. The core lesson is that **no protocol is permanently secure** — security is an ongoing process.
+
+---
+
+## **Attack 7 — Wardriving and Network Discovery**
+
+**Wardriving** is systematically mapping wireless networks in an area — capturing SSIDs, BSSIDs, signal strength, GPS coordinates, and security configurations.
+
+Originally done from a car (hence "driving"), but also done on foot (warwalking) or even from a drone.
+
+**Tools:**
+
+- **Kismet** — passive wireless network detector, works with GPS for mapping
+- **NetStumbler** (Windows, older)
+- **WiFi Analyzer** (mobile apps)
+
+**Data collected:**
+
+- SSID and BSSID of every AP
+- Signal strength
+- Encryption type (open, WEP, WPA, WPA2, WPA3)
+- Channels
+- GPS location
+
+**The security concern:**\
+Wardriving reveals networks using weak or no encryption. Public wardriving databases (like **WiGLE.net**) contain millions of mapped networks globally. This data helps attackers identify vulnerable targets and helps researchers understand wireless security trends.
+
+**Defense:** Using strong encryption (WPA2/WPA3) means even if your network is discovered via wardriving, it's not exploitable without the password.
+
+---
+
+## **Attack 8 — WPS (Wi-Fi Protected Setup) Attacks**
+
+**WPS** was introduced to make it easier for users to connect devices to Wi-Fi without typing long passwords. It supports several methods:
+
+- **PIN method** — enter an 8-digit PIN displayed on the router
+- **Push button** — press a physical button on router and device simultaneously
+
+### **The WPS PIN Vulnerability**
+
+The 8-digit PIN seems like it has 10^8 = 100 million possibilities. But the implementation has a fatal flaw:
+
+The PIN is validated in **two halves** separately. The AP checks the first 4 digits, then the last 4 digits (actually the last digit is a checksum, so really 3 digits). This means:
+
+- First half: 10^4 = 10,000 possibilities
+- Second half: 10^3 = 1,000 possibilities
+- **Total: 11,000 attempts** instead of 100 million
+
+This can be brute-forced in a few hours.
+
+**Tool:** **Reaver** — specifically designed to brute-force WPS PINs. A successful attack gives the attacker the WPA2 password regardless of its strength.
+
+**The lesson:** A strong WPA2 password provides no protection if WPS PIN is enabled — the WPS vulnerability completely bypasses password strength.
+
+**Defense:** **Disable WPS** on your router, or ensure you have a router that locks out after failed PIN attempts (though many routers don't implement this properly).
+
+---
+
+## **Attack 9 — Bluetooth Attacks**
+
+While primarily a Wi-Fi security topic, Bluetooth attacks are worth briefly covering as they're part of wireless security.
+
+**Bluejacking:** Sending unsolicited messages to Bluetooth devices. Annoying but mostly harmless.
+
+**Bluesnarfing:** Unauthorized access to data on a Bluetooth device — contacts, emails, calendar. Exploits vulnerabilities in older Bluetooth implementations.
+
+**Bluebugging:** Taking full control of a Bluetooth device — making calls, sending messages, accessing data.
+
+**BlueBorne (2017):** A set of critical Bluetooth vulnerabilities allowing attackers to take control of devices **without pairing** and even without the device being in discoverable mode. Affected billions of devices across all major operating systems.
+
+**Defense:** Keep Bluetooth off when not in use. Keep devices updated. Don't pair with unknown devices.
+
+---
+
+## **Attack 10 — Jamming Attacks**
+
+**RF Jamming** is a physical-layer attack that disrupts wireless communication by **flooding the radio frequency** with noise or interfering signals.
+
+Unlike other attacks, jamming doesn't try to steal data — it's purely a **denial of service** attack. The wireless medium becomes so noisy that legitimate communication is impossible.
+
+**Types:**
+
+- **Constant jamming** — continuous RF interference
+- **Deceptive jamming** — sending 802.11 frames to keep the channel appearing busy (exploiting CSMA/CA's politeness — devices wait for the channel to be clear before transmitting)
+- **Reactive jamming** — listens and only jams when legitimate transmission is detected — more efficient and harder to detect
+
+**Defense:**
+
+- **Frequency hopping** — spread spectrum technologies that rapidly switch frequencies, making jamming harder
+- **FHSS (Frequency Hopping Spread Spectrum)** and **DSSS (Direct Sequence Spread Spectrum)** are more resistant to jamming than standard transmissions
+- Physical detection — spectrum analyzers can detect jamming sources
+- Legal protection — intentional jamming is illegal in most countries
+
+---
+
+## **Summary of All Attacks**
+
+{% table %}
+- **Attack**
+- **Target**
+- **Goal**
+- **Defense**
+---
+- WEP Cracking
+- WEP encryption
+- Recover key
+- Don't use WEP
+---
+- Handshake/PMKID
+- WPA2-PSK
+- Crack password
+- Strong long passwords, WPA3
+---
+- Deauthentication
+- 802.11 management
+- DoS / force handshake
+- 802.11w, WPA3
+---
+- Evil Twin
+- Client devices
+- MitM, credential theft
+- VPN, 802.1X, HTTPS
+---
+- KRACK
+- WPA2 handshake
+- Decrypt traffic
+- Patching, WPA3
+---
+- Dragonblood
+- WPA3 SAE
+- Downgrade/side-channel
+- Patching, no transition mode
+---
+- WPS PIN
+- WPS implementation
+- Bypass WPA2 password
+- Disable WPS
+---
+- Wardriving
+- Network discovery
+- Find targets
+- Strong encryption
+---
+- Jamming
+- RF medium
+- Denial of service
+- Frequency hopping
+{% /table %}
+
+\
