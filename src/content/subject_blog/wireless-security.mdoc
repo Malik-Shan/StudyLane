@@ -1,0 +1,339 @@
+---
+draft: false
+readtime: true
+title: Wireless Security
+published: 2026-05-06T22:18:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is Wireless Networking?**
+
+Wireless networking, at its most fundamental level, is the transmission of data through the air using **radio waves** instead of physical cables. This convenience — the ability to connect without wires — is also the source of its greatest security challenge.
+
+With a wired Ethernet network, an attacker needs **physical access** to plug into a cable or network port. With wireless, the signal travels through walls, floors, and even outside the building. Anyone within range of your wireless signal can attempt to interact with your network — and you often don't even know they're there.
+
+This single fact — **the medium is the air, and air is shared by everyone** — drives almost every wireless security concern and solution we'll discuss.
+
+The dominant wireless networking standard today is **Wi-Fi**, which is based on the **IEEE 802.11** family of standards. When people say "wireless security" in a networking context, they almost always mean 802.11 Wi-Fi security.
+
+---
+
+## **How Wi-Fi Works — The Fundamentals**
+
+### **Basic Architecture**
+
+**Access Point (AP):**\
+The central device in a wireless network. It's connected to the wired network and broadcasts a wireless signal that client devices connect to. Think of it as the wireless equivalent of a switch.
+
+**Station (STA):**\
+Any client device that connects to the wireless network — laptops, phones, tablets, IoT devices.
+
+**BSS (Basic Service Set):**\
+The basic building block of a wireless network — one access point and all the stations connected to it. Each BSS is identified by a **BSSID**, which is the MAC address of the access point.
+
+**SSID (Service Set Identifier):**\
+The human-readable name of the wireless network — "HomeNetwork," "CoffeeShop_WiFi," etc. The AP broadcasts this name in **beacon frames** so devices can discover it.
+
+**ESS (Extended Service Set):**\
+Multiple BSSs (multiple access points) connected together to form one larger network with seamless roaming. All APs in an ESS share the same SSID. Large university or corporate wireless networks are ESS configurations.
+
+### **Frequency Bands and Channels**
+
+Wi-Fi operates on specific **radio frequency bands:**
+
+**2.4 GHz band:**
+
+- Longer range, better penetration through walls
+- More congested — many devices use this band (microwaves, Bluetooth, baby monitors, neighbors' Wi-Fi)
+- Fewer non-overlapping channels (only 3 in most regions: channels 1, 6, and 11)
+- Older and slower in maximum speeds
+
+**5 GHz band:**
+
+- Shorter range, less wall penetration
+- Much less congested
+- More non-overlapping channels
+- Higher speeds
+- Used by newer 802.11 standards (802.11a, 802.11n dual-band, 802.11ac, 802.11ax)
+
+**6 GHz band:**
+
+- Newest band, introduced with Wi-Fi 6E (802.11ax extended)
+- Even more channels, very low congestion currently
+- Even shorter range
+
+The channel you operate on matters for security — attackers can tune to the same channel and frequency to capture your traffic.
+
+### **802.11 Standards — Quick Reference**
+
+You should recognize these:
+
+{% table %}
+- **Standard**
+- **Common Name**
+- **Frequency**
+- **Max Speed**
+---
+- 802.11b
+- Wi-Fi 1
+- 2.4 GHz
+- 11 Mbps
+---
+- 802.11a
+- Wi-Fi 2
+- 5 GHz
+- 54 Mbps
+---
+- 802.11g
+- Wi-Fi 3
+- 2.4 GHz
+- 54 Mbps
+---
+- 802.11n
+- Wi-Fi 4
+- 2.4/5 GHz
+- 600 Mbps
+---
+- 802.11ac
+- Wi-Fi 5
+- 5 GHz
+- ~3.5 Gbps
+---
+- 802.11ax
+- Wi-Fi 6/6E
+- 2.4/5/6 GHz
+- ~9.6 Gbps
+{% /table %}
+
+---
+
+## **The Wireless Communication Process**
+
+### **How a Device Connects to a Wi-Fi Network**
+
+Understanding the connection process is essential because several attacks target specific steps in it.
+
+**Step 1 — Scanning:**\
+The client device looks for available networks. There are two types:
+
+- **Passive scanning** — the client listens for **beacon frames** that APs broadcast periodically (typically every 100ms) announcing their presence (SSID, supported rates, capabilities)
+- **Active scanning** — the client sends **probe request frames** asking "is anyone out there?" APs respond with probe response frames
+
+**Step 2 — Authentication:**\
+Before associating, the client must authenticate to the AP. In modern networks this is just a formality at the 802.11 level — real authentication happens at a higher layer. Two basic 802.11 authentication methods:
+
+- **Open System Authentication** — essentially no authentication. Anyone can authenticate. The real security comes later.
+- **Shared Key Authentication** — used with WEP (old, broken, avoid)
+
+**Step 3 — Association:**\
+The client sends an **Association Request** to the AP. The AP responds with an **Association Response.** Now the client is associated — it has a connection to the AP. But it might not yet have full network access (if additional authentication like WPA2 is required).
+
+**Step 4 — Higher-layer Authentication and Key Exchange:**\
+For WPA2/WPA3 networks, after association, the **4-way handshake** occurs to establish encryption keys. We'll cover this in detail when we get to 802.11i.
+
+**Step 5 — IP Address Assignment:**\
+DHCP runs to give the client an IP address and network configuration.
+
+---
+
+## **Why Wireless is Inherently Less Secure Than Wired**
+
+Let's be very explicit about this because it's foundational:
+
+**1. No Physical Boundary:**\
+In wired networking, the physical cable is a natural access control. You can't be on the network without plugging in, and plugging in requires physical presence. Wireless has no such boundary. Your signal can extend hundreds of meters in open areas. An attacker sitting in a car outside your building is within range.
+
+**2. The Medium is Shared and Uncontrolled:**\
+Radio waves broadcast in all directions (unless specialized directional antennas are used). You can't direct your wireless signal only to your intended recipient the way you can with a dedicated cable. Everything you transmit goes everywhere within range.
+
+**3. Anyone Can Listen:**\
+Putting a wireless adapter into **monitor mode** (the wireless equivalent of promiscuous mode) allows capturing all 802.11 frames in the air — including frames not addressed to you. No physical access required. An attacker can passively capture everything from a distance.
+
+**4. Rogue Access Points are Easy to Set Up:**\
+Anyone can set up a cheap Wi-Fi router and make it look like a legitimate network. Clients can be tricked into connecting to a fake network controlled by the attacker.
+
+**5. Signal Availability is a Double-Edged Sword:**\
+The same signal that conveniently reaches your bedroom also conveniently reaches the attacker in the parking lot.
+
+---
+
+## **The History of Wireless Security — From WEP to WPA3**
+
+Understanding the evolution of wireless security protocols is crucial because it shows you exactly what went wrong and why, and explains the design decisions in modern protocols.
+
+### **WEP — Wired Equivalent Privacy (1997)**
+
+WEP was the first attempt to secure Wi-Fi. The name tells you the goal — make wireless security equivalent to wired security. It failed comprehensively.
+
+**How WEP was supposed to work:**\
+WEP uses the **RC4 stream cipher** to encrypt data. Both the access point and the client share a **pre-shared key** (the Wi-Fi password). WEP combines this key with a 24-bit **Initialization Vector (IV)** to generate a keystream, which is XORed with the data to produce ciphertext.
+
+**Why WEP failed — the technical reasons:**
+
+**Problem 1 — The IV is too short:**\
+The IV is only 24 bits, meaning there are only about 16 million possible IVs. On a busy network, IVs repeat frequently — this is called an **IV collision.** When two messages are encrypted with the same IV (and therefore the same keystream), an attacker who captures both can perform cryptographic analysis to recover the plaintext and the key. In practice, WEP keys can be cracked after capturing as few as **50,000 to 100,000 packets** — on a busy network, this takes minutes.
+
+**Problem 2 — The IV is transmitted in plaintext:**\
+The IV is sent unencrypted in the packet header so the receiver knows which keystream to use. This gives the attacker everything they need for the IV collision attack.
+
+**Problem 3 — The key is static:**\
+The WEP key doesn't change. Once cracked, it's cracked forever. There's no mechanism for key rotation.
+
+**Problem 4 — Weak integrity checking:**\
+WEP uses **CRC-32** as its integrity check. CRC-32 was designed for error detection, not cryptographic integrity. It's linear — an attacker can flip bits in the ciphertext and predict exactly how the CRC will change, allowing undetected modification of packets.
+
+**Problem 5 — No per-user authentication:**\
+WEP uses a single shared key for everyone on the network. If one user's key is compromised, everyone's security is compromised.
+
+**Result:** WEP was declared broken by the security community around 2001. Today, tools like **Aircrack-ng** can crack WEP in minutes. **WEP should never be used.** It is so broken that using it provides essentially no security.
+
+---
+
+### **WPA — Wi-Fi Protected Access (2003)**
+
+WEP's failure was discovered before its replacement was ready. The Wi-Fi Alliance needed a fix that could run on **existing WEP hardware** (through firmware updates) — they couldn't wait for new hardware.
+
+WPA was designed as a **temporary fix** that could be deployed quickly.
+
+**Key improvements over WEP:**
+
+**TKIP (Temporal Key Integrity Protocol):**\
+WPA replaced WEP's static key approach with TKIP. Key improvements:
+
+- **Per-packet key mixing** — each packet uses a different key derived from the base key and other factors
+- **Extended IVs** — 48-bit IVs instead of 24-bit, dramatically reducing IV collisions
+- **Michael MIC (Message Integrity Code)** — a cryptographic check to detect packet tampering, replacing the weak CRC-32
+- **Automatic key rotation** — keys are renegotiated regularly
+
+**WPA authentication modes:**
+
+- **WPA-Personal (WPA-PSK)** — Pre-Shared Key. Everyone uses the same password. Suitable for homes and small offices.
+- **WPA-Enterprise** — Uses 802.1X and a RADIUS server for individual user authentication. Each user has their own credentials. Much more secure for corporate environments.
+
+**WPA's problems:**\
+TKIP was a clever stopgap, but it was built on the still-fundamentally-broken RC4 cipher. It was better than WEP but not truly secure by modern standards. Attacks against TKIP were eventually discovered (though harder than against WEP).
+
+---
+
+### **WPA2 — Wi-Fi Protected Access 2 (2004)**
+
+WPA2 was the proper, long-term replacement. It abandoned the RC4 cipher entirely and built on a much stronger cryptographic foundation.
+
+**Key features of WPA2:**
+
+**CCMP (Counter Mode with CBC-MAC Protocol):**\
+WPA2's encryption protocol. It's based on **AES (Advanced Encryption Standard)** — a much stronger cipher than RC4. AES is used in Counter Mode (CTR) for encryption, with CBC-MAC providing authentication and integrity. AES-128 is the standard key size.
+
+This is a completely different and far stronger cryptographic approach than anything in WEP or WPA.
+
+**Same authentication modes:**
+
+- **WPA2-Personal (WPA2-PSK)** — Pre-shared key for home/small office
+- **WPA2-Enterprise** — 802.1X with RADIUS for corporate environments
+
+**The 4-Way Handshake:**\
+This is the process WPA2 uses to establish session keys. It's crucial to understand because it's the target of the KRACK attack (discussed in the wireless attacks topic).
+
+The 4-way handshake establishes the **PTK (Pairwise Transient Key)** — the unique encryption key for the session between the client and the AP.
+
+Starting material:
+
+- **PMK (Pairwise Master Key)** — derived from the pre-shared key (for WPA2-Personal) or from the EAP authentication process (for WPA2-Enterprise)
+- **ANonce** — a random number generated by the AP
+- **SNonce** — a random number generated by the client
+- MAC addresses of both the AP and client
+
+The handshake:
+
+1. **Message 1:** AP sends ANonce to client
+1. **Message 2:** Client generates SNonce, computes PTK using PMK + ANonce + SNonce + MAC addresses, sends SNonce + MIC (Message Integrity Code) to AP
+1. **Message 3:** AP computes the same PTK (it has all the inputs), verifies the MIC, sends the GTK (Group Temporal Key, used for broadcast/multicast) encrypted to the client
+1. **Message 4:** Client sends confirmation, both sides now have the PTK and begin encrypted communication
+
+**WPA2's vulnerabilities:**\
+WPA2 is strong but not perfect. Its main weaknesses:
+
+- **KRACK (Key Reinstallation Attack)** — a serious vulnerability in the 4-way handshake (covered in Wireless Attacks)
+- **Dictionary/Brute-force attacks on WPA2-PSK** — if the password is weak, the 4-way handshake (which can be captured) can be subjected to offline dictionary attacks
+- **PMKID attack** — a newer attack that doesn't even require capturing the full 4-way handshake
+- No **forward secrecy** in WPA2-Personal — if the password is ever discovered, all previously captured traffic can potentially be decrypted
+
+---
+
+### **WPA3 — Wi-Fi Protected Access 3 (2018)**
+
+WPA3 is the current standard, designed to address WPA2's shortcomings.
+
+**Key improvements in WPA3:**
+
+**SAE (Simultaneous Authentication of Equals) — replaces PSK:**\
+In WPA2-Personal, the PSK is used in a way that makes the 4-way handshake vulnerable to offline dictionary attacks. An attacker captures the handshake and tries billions of passwords offline until one produces the correct result.
+
+WPA3-Personal uses **SAE** (also known as Dragonfly Key Exchange) instead. SAE is based on a cryptographic technique where both parties prove knowledge of the password without actually transmitting anything derived from the password in a way that can be attacked offline. Even if an attacker captures the entire authentication exchange, they **cannot perform offline dictionary attacks.** Each authentication attempt requires an active interaction with the network — dramatically slowing brute-force attacks.
+
+**Forward Secrecy:**\
+With SAE, WPA3 provides **Perfect Forward Secrecy (PFS).** This means even if an attacker captures encrypted traffic and later discovers the network password, they **cannot decrypt the previously captured traffic.** Each session uses unique keys that are not recoverable from the password alone.
+
+**WPA3-Enterprise improvements:**\
+WPA3-Enterprise adds an optional **192-bit security mode** using stronger cryptographic algorithms (AES-256, SHA-384) for high-security environments like government and financial institutions.
+
+**Enhanced Open (OWE — Opportunistic Wireless Encryption):**\
+Traditional open networks (coffee shops, airports) have no encryption at all — traffic is in plain text. WPA3 introduces **OWE**, which provides encryption even on open networks **without requiring a password.** Each client gets a unique encrypted connection. This prevents passive sniffing on open networks, though it doesn't authenticate the network (evil twin attacks are still possible).
+
+**Transition Mode:**\
+WPA3 devices can operate in a mixed mode, supporting both WPA2 and WPA3 clients simultaneously during the transition period.
+
+**WPA3 vulnerabilities (yes, even WPA3):**\
+**Dragonblood attacks** — discovered in 2019, these are side-channel and downgrade attacks against WPA3's SAE handshake. They were largely patched, but it shows that no protocol is perfect.
+
+---
+
+## **Open Networks and Their Risks**
+
+An **open wireless network** has no encryption and no authentication. Anyone can connect, and all traffic is in plain text.
+
+Public Wi-Fi in cafes, airports, hotels — these are often open networks. The risks:
+
+- Complete passive sniffing — everything you send can be read
+- Evil twin attacks — fake APs with the same name
+- MitM attacks
+
+**How to stay safe on open networks:**
+
+- Use a **VPN** — encrypts all your traffic before it enters the wireless medium
+- Ensure all websites use **HTTPS**
+- Use **WPA3's Enhanced Open** if available (provides encryption without password)
+- Avoid accessing sensitive accounts on open networks
+
+---
+
+## **Wireless Network Discovery and Mapping**
+
+Understanding how wireless networks are discovered is important for security.
+
+**War Driving:**\
+Driving around with a Wi-Fi adapter and mapping wireless networks — their SSIDs, BSSIDs, signal strength, encryption type, and GPS location. Originally done with a laptop and antenna out of a car window. Tools like **Kismet** and **NetStumbler** are used. While mostly done for research, it's also used by attackers to find vulnerable networks.
+
+**SSID Hiding:**\
+Some administrators try to hide their network by disabling SSID broadcasting (the AP doesn't include the SSID in beacon frames). The idea is "security through obscurity" — if they can't see the network, they can't attack it.
+
+**Why SSID hiding doesn't work:**
+
+- The SSID is still transmitted in **probe requests** (when clients look for the network) and **probe responses**
+- It's still in **association frames**
+- Tools like Kismet easily discover hidden SSIDs by capturing these frames
+- SSID hiding adds inconvenience for legitimate users while providing essentially no security benefit against a determined attacker
+
+**MAC Address Filtering:**\
+Another common but weak security measure — the AP maintains a list of allowed MAC addresses and only permits those devices. As we discussed, MAC addresses are easily spoofed. An attacker can observe the MAC addresses of legitimate clients (they're visible in frames even on encrypted networks) and clone one.
+
+**The lesson:** SSID hiding and MAC filtering are **not security controls** — they're obstacles that inconvenience legitimate users while barely slowing down attackers. Real security comes from proper encryption and authentication (WPA2/WPA3).
+
+---
+
+## **Summary**
+
+Wireless networking uses radio waves, making the medium inherently shared and accessible to anyone within range — this is the fundamental security challenge. Wi-Fi is based on the 802.11 standards and operates on 2.4, 5, and 6 GHz bands. The security protocol history goes from the completely broken WEP (RC4, static keys, weak IV) to the temporary fix WPA (TKIP), to the strong WPA2 (AES-CCMP, 4-way handshake) and the current standard WPA3 (SAE, forward secrecy, Enhanced Open). Weak measures like SSID hiding and MAC filtering provide no real security. Real wireless security requires proper encryption protocols, strong passwords, and for enterprise environments, 802.1X authentication.
