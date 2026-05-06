@@ -1,0 +1,461 @@
+---
+draft: false
+readtime: true
+title: Network Security Quick Review
+published: 2026-05-06T22:36:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - it
+tag: []
+postedBy: admin
+---
+## **1. Introduction to Network Security**
+
+- **Network Security** = Protection of network infrastructure, data, and communications from unauthorized access, misuse, or attacks.
+- **Goals (CIA Triad):**
+  - **Confidentiality** = Only authorized users access data
+  - **Integrity** = Data is not tampered with
+  - **Availability** = Resources are accessible when needed
+- **Authentication** = Verifying identity
+- **Authorization** = Granting access rights
+- **Non-repudiation** = Sender cannot deny sending a message
+
+---
+
+## **2. Networking Concepts and Protocols**
+
+- **Protocol** = Set of rules for communication between devices
+- **OSI Model (7 Layers):**
+  1. Physical
+  1. Data Link
+  1. Network
+  1. Transport
+  1. Session
+  1. Presentation
+  1. Application
+- **TCP/IP Model (4 Layers):**
+  1. Network Access
+  1. Internet
+  1. Transport
+  1. Application
+- **IP** = Logical addressing and routing
+- **TCP** = Reliable, connection-oriented protocol
+- **UDP** = Unreliable, connectionless, faster
+- **MAC Address** = Physical hardware address
+- **Port** = Logical endpoint for communication (e.g., HTTP = 80, HTTPS = 443)
+- **Router** = Connects different networks
+- **Switch** = Connects devices within same network
+- **Hub** = Broadcasts data to all devices (insecure)
+
+---
+
+## **3. Network Threats and Vulnerabilities**
+
+- **Threat** = Potential danger to a system
+- **Vulnerability** = Weakness that can be exploited
+- **Attack** = Actual exploitation of a vulnerability
+- **Types of Attacks:**
+  - **Active** = Modifies or disrupts data (e.g., DoS)
+  - **Passive** = Monitors without altering (e.g., sniffing)
+  - **Insider** = Attack from within the organization
+  - **Outsider** = Attack from external source
+- **Common Threats:**
+  - Malware, Phishing, Man-in-the-Middle (MitM), SQL Injection, Zero-day exploits
+- **Exploit** = Code/technique used to take advantage of a vulnerability
+
+---
+
+## **4. Network Security Planning and Policy**
+
+- **Security Policy** = Set of rules defining how an organization protects its assets
+- **Components:**
+  - Acceptable Use Policy (AUP)
+  - Password Policy
+  - Incident Response Policy
+  - Remote Access Policy
+- **Risk Assessment** = Identifying and evaluating risks
+- **Risk Management** = Process of minimizing risk impact
+- **Security Audit** = Review of security controls and compliance
+- **Disaster Recovery Plan (DRP)** = Plan to recover from a major incident
+- **Business Continuity Plan (BCP)** = Ensures operations continue during a disaster
+
+---
+
+## **5. Access Control**
+
+- **Access Control** = Mechanism to restrict who can view or use resources
+- **Types:**
+  - **DAC (Discretionary)** = Owner decides access rights
+  - **MAC (Mandatory)** = System enforces access based on classification labels
+  - **RBAC (Role-Based)** = Access based on user's role
+  - **ABAC (Attribute-Based)** = Access based on attributes (time, location, etc.)
+- **Authentication Factors:**
+  - Something you **know** (password)
+  - Something you **have** (token/card)
+  - Something you **are** (biometrics)
+- **MFA (Multi-Factor Authentication)** = Using 2+ factors
+- **Least Privilege** = Give users minimum access needed
+- **ACL (Access Control List)** = List specifying who can access what
+
+---
+
+## **6. Defense Against Network Attacks**
+
+- **Defense in Depth** = Multiple layers of security controls
+- **Patch Management** = Regularly updating software to fix vulnerabilities
+- **Network Segmentation** = Dividing network into zones to limit damage
+- **DMZ (Demilitarized Zone)** = Area between internal network and internet (hosts public servers)
+- **Encryption** = Converting data into unreadable format
+- **Hardening** = Reducing attack surface by disabling unnecessary services
+- **Security Monitoring** = Continuously watching network for suspicious activity
+
+---
+
+## **7. DoS and DDoS Detection and Prevention**
+
+- **DoS (Denial of Service)** = Attack from single source that overwhelms a system making it unavailable
+- **DDoS (Distributed DoS)** = Same as DoS but from multiple sources (botnet)
+- **Botnet** = Network of infected machines used to launch attacks
+- **Types of DoS:**
+  - **Volumetric** = Floods bandwidth (e.g., UDP flood)
+  - **Protocol** = Exploits protocol weakness (e.g., SYN flood)
+  - **Application Layer** = Targets web apps (e.g., HTTP flood)
+- **SYN Flood** = Attacker sends many SYN requests without completing handshake
+- **Detection Methods:**
+  - Traffic analysis
+  - Rate limiting
+  - Anomaly detection
+- **Prevention:**
+  - Firewalls, IDS/IPS
+  - CDN / Load Balancers
+  - Rate limiting
+  - IP blacklisting
+  - Anti-DDoS services (Cloudflare, Akamai)
+
+---
+
+## **8. Firewalls**
+
+- **Firewall** = Security device that monitors and controls incoming/outgoing traffic based on rules
+- **Types:**
+  - **Packet Filtering** = Filters based on IP, port, protocol (stateless)
+  - **Stateful Inspection** = Tracks connection state
+  - **Application Layer (Proxy)** = Inspects application-level traffic
+  - **NGFW (Next-Gen Firewall)** = Deep packet inspection + IDS + application awareness
+- **Hardware Firewall** = Physical device
+- **Software Firewall** = Installed on OS
+- **Rules** = Allow/Deny based on source IP, destination IP, port, protocol
+- **Default Deny** = Block everything unless explicitly allowed (best practice)
+
+---
+
+## **9. Intrusion Detection and Prevention Systems (IDS/IPS)**
+
+- **IDS (Intrusion Detection System)** = Monitors traffic and alerts on suspicious activity (does NOT block)
+- **IPS (Intrusion Prevention System)** = Monitors AND actively blocks threats
+- **Types by Detection:**
+  - **Signature-Based** = Compares against known attack patterns
+  - **Anomaly-Based** = Detects deviation from normal behavior
+  - **Heuristic** = Uses rules/logic to identify suspicious behavior
+- **Types by Placement:**
+  - **NIDS** = Network-based (monitors network traffic)
+  - **HIDS** = Host-based (monitors single device)
+- **False Positive** = Legitimate traffic flagged as attack
+- **False Negative** = Attack not detected
+- **Examples:** Snort, Suricata, Zeek
+
+---
+
+## **10. Antivirus Filtering**
+
+- **Antivirus** = Software that detects and removes malicious software
+- **How it works:**
+  - **Signature Detection** = Match against known malware database
+  - **Heuristic Analysis** = Detect unknown malware by behavior
+  - **Sandboxing** = Run suspicious file in isolated environment
+- **Types of Malware detected:**
+  - Virus, Worm, Trojan, Ransomware, Spyware, Adware, Rootkit
+- **Network-Level Filtering** = Scanning traffic at gateway level before reaching endpoints
+- **Email Filtering** = Scanning attachments and links in emails
+
+---
+
+## **11. Naming and DNS Security**
+
+- **DNS (Domain Name System)** = Translates domain names to IP addresses
+- **DNS Process:**
+  1. User queries DNS resolver
+  1. Resolver queries root server
+  1. Root refers to TLD server
+  1. TLD refers to authoritative server
+  1. IP returned to user
+- **DNS Threats:**
+  - **DNS Spoofing/Poisoning** = Injecting fake DNS records to redirect traffic
+  - **DNS Hijacking** = Redirecting DNS queries to malicious server
+  - **DNS Amplification** = DDoS using DNS responses
+  - **DNS Tunneling** = Encoding data in DNS queries to bypass firewall
+
+---
+
+## **12. DNSSEC**
+
+- **DNSSEC (DNS Security Extensions)** = Adds digital signatures to DNS records to ensure authenticity
+- **Purpose** = Prevents DNS spoofing/poisoning
+- **How it works:**
+  - DNS responses are digitally signed
+  - Resolver verifies signature using public key
+- **Key Components:**
+  - **RRSIG** = Signature record
+  - **DNSKEY** = Public key record
+  - **DS (Delegation Signer)** = Links parent and child zone keys
+  - **NSEC/NSEC3** = Proves non-existence of a record
+- **Does NOT encrypt** DNS, only authenticates
+
+---
+
+## **13. IP Security (IPSec)**
+
+- **IPSec** = Suite of protocols for securing IP communications through authentication and encryption
+- **Modes:**
+  - **Transport Mode** = Encrypts only payload (data), header remains
+  - **Tunnel Mode** = Encrypts entire IP packet (used in VPNs)
+- **Protocols:**
+  - **AH (Authentication Header)** = Provides integrity and authentication (no encryption)
+  - **ESP (Encapsulating Security Payload)** = Provides encryption + integrity
+- **IKE (Internet Key Exchange)** = Protocol for negotiating keys and security associations
+- **SA (Security Association)** = Agreement on encryption/auth algorithms between two parties
+
+---
+
+## **14. Secure Sockets Layer (SSL/TLS)**
+
+- **SSL** = Protocol for encrypting communication over internet (now deprecated)
+- **TLS** = Successor of SSL, current standard
+- **Purpose** = Secure web traffic (HTTPS), email, etc.
+- **TLS Handshake Steps:**
+  1. Client Hello (supported versions, ciphers)
+  1. Server Hello + Certificate
+  1. Key Exchange
+  1. Session Keys generated
+  1. Encrypted communication begins
+- **Certificate** = Issued by Certificate Authority (CA), proves server identity
+- **Symmetric Key** = Used after handshake for fast encryption
+- **Asymmetric Key** = Used during handshake for key exchange
+- **HTTPS = HTTP + TLS** (Port 443)
+
+---
+
+## **15. VPN (Virtual Private Network)**
+
+- **VPN** = Creates a secure encrypted tunnel over a public network
+- **Purpose** = Privacy, remote access, bypass geo-restrictions
+- **Types:**
+  - **Remote Access VPN** = Individual user connects to corporate network
+  - **Site-to-Site VPN** = Connects two networks over internet
+- **Protocols:**
+  - **IPSec** = Secure, used in most enterprise VPNs
+  - **OpenVPN** = Open-source, very secure
+  - **L2TP** = Layer 2 tunneling, paired with IPSec
+  - **PPTP** = Old, insecure
+  - **WireGuard** = Modern, fast, lightweight
+- **Tunneling** = Encapsulating packets inside another protocol for secure transport
+- **Split Tunneling** = Only VPN traffic goes through tunnel, rest goes direct
+
+---
+
+## **16. Packet Sniffing and Spoofing**
+
+- **Packet Sniffing** = Capturing and analyzing network traffic
+  - **Legitimate use** = Network troubleshooting (Wireshark)
+  - **Malicious use** = Stealing credentials, data
+- **Passive Sniffing** = On hub-based networks (all traffic visible)
+- **Active Sniffing** = On switched networks using ARP poisoning
+- **Tools:** Wireshark, tcpdump
+- **Packet Spoofing** = Sending packets with forged source IP/MAC address
+  - Used in DoS, MitM, session hijacking
+- **IP Spoofing** = Faking IP address in packet header
+- **ARP Spoofing** = Sending fake ARP replies to link attacker's MAC to victim's IP
+- **Prevention:**
+  - Encryption, Ingress/Egress filtering, IPSec
+
+---
+
+## **17. Honeypot**
+
+- **Honeypot** = Decoy system set up to attract and trap attackers
+- **Purpose:**
+  - Detect intrusions
+  - Study attacker behavior
+  - Distract attackers from real systems
+- **Types:**
+  - **Low-Interaction** = Simulates limited services (less risk)
+  - **High-Interaction** = Real OS/services, more data but more risk
+  - **Production Honeypot** = Deployed in live network
+  - **Research Honeypot** = For studying attacker techniques
+- **Honeynet** = Network of honeypots
+- **Honeypot Risks** = If compromised, can be used to attack other systems
+
+---
+
+## **18. Ethernet Security**
+
+- **Ethernet** = Wired LAN technology (IEEE 802.3)
+- **Threats on Ethernet:**
+  - **MAC Flooding** = Overflows switch's MAC table, forcing it to broadcast all traffic
+  - **ARP Poisoning** = Links attacker MAC to legitimate IP
+  - **VLAN Hopping** = Attacker accesses unauthorized VLANs
+- **Countermeasures:**
+  - **Port Security** = Limits number of MACs per switch port
+  - **Dynamic ARP Inspection (DAI)** = Validates ARP packets
+  - **VLAN Segmentation** = Separate network traffic
+  - **802.1X** = Port-based access control (requires authentication)
+
+---
+
+## **19. Wireless Security**
+
+- **Wireless Network** = Network using radio waves (Wi-Fi, Bluetooth, etc.)
+- **Threats:**
+  - Eavesdropping (sniffing wireless traffic)
+  - Rogue Access Points
+  - Evil Twin Attack
+  - Wardriving
+- **SSID** = Network name (hiding SSID is not true security)
+- **Encryption Protocols:**
+  - **WEP** = Old, broken, insecure
+  - **WPA** = Improved, but still vulnerable
+  - **WPA2** = Strong, uses AES encryption
+  - **WPA3** = Latest, strongest, SAE handshake
+
+---
+
+## **20. Wireless Attacks**
+
+- **Eavesdropping** = Passive capture of wireless traffic
+- **Evil Twin Attack** = Rogue AP mimicking a legitimate one
+- **Deauthentication Attack** = Forces clients to disconnect from AP
+- **Wardriving** = Driving around scanning for open Wi-Fi networks
+- **KRACK (Key Reinstallation Attack)** = Exploits WPA2 handshake
+- **Brute Force** = Trying all password combinations
+- **Dictionary Attack** = Using wordlist to crack passwords
+- **WPS Attack** = Exploiting Wi-Fi Protected Setup vulnerability
+- **Replay Attack** = Capturing and resending valid packets
+
+---
+
+## **21. Wireless LAN Security with 802.11i**
+
+- **IEEE 802.11i** = Standard that defines WPA2
+- **Purpose** = Fix WEP weaknesses
+- **Key Components:**
+  - **RSN (Robust Security Network)** = Framework for secure wireless
+  - **CCMP** = Encryption based on AES (replaces TKIP)
+  - **TKIP** = Temporary fix for WEP (WPA1), now deprecated
+  - **4-Way Handshake** = Establishes encryption keys between client and AP
+  - **PSK (Pre-Shared Key)** = Password-based for home networks
+  - **Enterprise Mode (802.1X + RADIUS)** = Auth server for organizations
+
+---
+
+## **22. Wireless Security Protocols**
+
+{% table %}
+- **Protocol**
+- **Encryption**
+- **Status**
+---
+- WEP
+- RC4
+- Broken
+---
+- WPA
+- TKIP + RC4
+- Weak
+---
+- WPA2
+- AES-CCMP
+- Strong
+---
+- WPA3
+- AES + SAE
+- Strongest
+{% /table %}
+
+- **SAE (Simultaneous Authentication of Equals)** = WPA3 handshake, prevents offline dictionary attacks
+- **RADIUS** = Server for centralized authentication in enterprise wireless
+- **EAP (Extensible Authentication Protocol)** = Framework for wireless authentication
+
+---
+
+## **23. Wireless Intrusion Detection**
+
+- **WIDS (Wireless IDS)** = Monitors wireless traffic for attacks and anomalies
+- **Detects:**
+  - Rogue Access Points
+  - Evil Twin APs
+  - Deauthentication attacks
+  - Unusual traffic patterns
+- **Methods:**
+  - RF Monitoring (radio frequency scanning)
+  - AP scanning
+  - Client behavior analysis
+- **Overlay WIDS** = Dedicated sensors separate from production APs
+- **Integrated WIDS** = Built into existing APs
+
+---
+
+## **24. Physical Access and Security**
+
+- **Physical Security** = Protecting hardware and facilities from physical threats
+- **Why important** = Even best software security fails if attacker has physical access
+- **Controls:**
+  - **Preventive** = Locks, fences, badge access, biometrics
+  - **Detective** = CCTV, motion sensors, security guards
+  - **Deterrent** = Warning signs, visible cameras
+- **Tailgating/Piggybacking** = Unauthorized person follows authorized person through secure door
+- **Server Room Security** = Locked rooms, restricted access, environmental controls
+- **Environmental Threats** = Fire, flood, power failure
+
+---
+
+## **25. Tor Network**
+
+- **Tor (The Onion Router)** = Anonymity network that routes traffic through multiple relays
+- **Purpose** = Anonymity and privacy online
+- **How it works:**
+  1. Traffic encrypted in multiple layers (like onion)
+  1. Passes through 3 relays: Entry → Middle → Exit
+  1. Each relay decrypts one layer and forwards
+  1. Exit node sends traffic to destination
+- **Components:**
+  - **Entry/Guard Node** = Knows your IP
+  - **Middle Node** = Knows nothing useful
+  - **Exit Node** = Sends final traffic (knows destination but not you)
+- **.onion sites** = Hidden services only accessible via Tor
+- **Limitations:**
+  - Slow speed
+  - Exit node can monitor unencrypted traffic
+  - Does not prevent all identification
+
+---
+
+## **26. Network Forensics**
+
+- **Network Forensics** = Capturing, recording, and analyzing network events to investigate security incidents
+- **Goals:**
+  - Identify attackers
+  - Understand how attack happened
+  - Gather legal evidence
+- **Process:**
+  1. Collection (capture packets, logs)
+  1. Preservation (maintain integrity, hash verification)
+  1. Analysis (reconstruct events)
+  1. Reporting
+- **Tools:** Wireshark, NetworkMiner, tcpdump, Zeek
+- **Evidence Types:**
+  - Packet captures (PCAP files)
+  - Firewall/IDS logs
+  - NetFlow data
+- **Chain of Custody** = Documentation proving evidence integrity
+- **Challenges:** Encryption, large data volume, volatile nature of network data
