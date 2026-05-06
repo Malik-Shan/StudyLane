@@ -1,0 +1,191 @@
+---
+draft: false
+readtime: true
+title: DNSSEC — DNS Security Extensions
+published: 2026-05-06T22:14:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - it
+tag: []
+postedBy: admin
+---
+## **What is DNSSEC and Why Was it Created?**
+
+As we established in the previous topic, the original DNS protocol was designed with essentially **no security mechanisms**. When a DNS resolver receives a response, it has no way to verify two critical things:
+
+1. That the response actually came from the legitimate authoritative name server
+1. That the response has not been tampered with in transit
+
+This is the fundamental weakness that makes attacks like cache poisoning possible. An attacker can forge a DNS response, and the resolver has no technical means to distinguish it from a legitimate one. It simply trusts whatever response arrives first with the correct transaction ID.
+
+**DNSSEC (Domain Name System Security Extensions)** was developed to fix this problem. It is a suite of extensions to DNS that adds **cryptographic authentication** to DNS responses. The core idea is: DNS responses should be digitally signed by the domain owner, and anyone receiving a response should be able to verify that signature to confirm the response is genuine and has not been modified.
+
+DNSSEC does **not** encrypt DNS data — the contents of DNS responses remain readable. What it provides is **data integrity and authentication**. You can verify that the answer you received is exactly what the authoritative server intended to send, and that it came from a legitimate source. Think of it like a wax seal on a letter — the letter is still readable by anyone, but the seal proves it came from the right sender and was not opened and resealed along the way.
+
+---
+
+## **The Foundation — Public Key Cryptography**
+
+To understand how DNSSEC works, you need a basic understanding of **public key cryptography (asymmetric cryptography)** because DNSSEC is built entirely on this concept.
+
+In public key cryptography, every party has a **key pair** consisting of two mathematically related keys:
+
+- A **private key** that is kept secret and never shared with anyone
+- A **public key** that is freely distributed and can be known by everyone
+
+These keys have a special mathematical relationship:
+
+- Data **signed** (processed) with the private key can be **verified** using the corresponding public key
+- What one key does, only the other key can undo
+
+For DNSSEC, this means:
+
+- The domain owner **signs** their DNS records using their private key
+- Anyone who wants to verify those records uses the domain owner's **public key**
+- If the verification succeeds, it proves the records were signed by whoever holds the private key (the legitimate domain owner) and have not been modified since signing
+
+The security of the entire system depends on the private key remaining secret. If an attacker gets the private key, they can forge legitimate-looking signed responses.
+
+---
+
+## **How DNSSEC Works — The Core Mechanism**
+
+DNSSEC introduces several new DNS record types and establishes a **chain of trust** from the DNS root down to individual domain zones. Let us go through each piece carefully.
+
+---
+
+### **New Record Types Introduced by DNSSEC**
+
+**RRSIG (Resource Record Signature):**\
+This is the digital signature record. For every set of DNS records (called an RRset — Resource Record Set), DNSSEC creates a corresponding RRSIG record that contains the cryptographic signature of that RRset. When a resolver receives DNS records, it also receives the RRSIG, which it uses to verify the authenticity of those records.
+
+**DNSKEY (DNS Public Key):**\
+This record contains the public key that corresponds to the private key used to sign the zone's records. When a resolver wants to verify an RRSIG signature, it retrieves the DNSKEY record to get the public key needed for verification.
+
+There are actually two types of keys used in DNSSEC:
+
+- **ZSK (Zone Signing Key):** This key pair is used to sign the actual DNS records (A records, MX records, etc.) in the zone. It is used frequently and is typically rotated (changed) more often.
+- **KSK (Key Signing Key):** This key pair is used to sign the DNSKEY records themselves (including the ZSK). It is used less frequently and is typically stronger and rotated less often.
+
+**DS (Delegation Signer):**\
+This record is the critical link that connects a child zone to its parent zone, enabling the chain of trust. A DS record contains a **hash** (a cryptographic fingerprint) of the child zone's KSK public key. It is stored in the **parent zone**, not the child zone. When a resolver moves from the parent zone to the child zone during resolution, it uses the DS record to verify that the child zone's key is legitimate.
+
+**NSEC and NSEC3 (Next Secure):**\
+These records solve a specific problem — how do you prove that a domain does **not** exist? This is called **authenticated denial of existence**. Without these records, an attacker could forge an NXDOMAIN (non-existent domain) response. NSEC records create a chain linking all existing domain names in a zone in alphabetical order. If a queried name falls between two existing names in the chain, the resolver can cryptographically verify that no name exists between them. NSEC3 is an improved version that uses hashed names to prevent **zone walking** (enumerating all domain names in a zone by traversing the NSEC chain).
+
+---
+
+### **The Chain of Trust**
+
+The most elegant and important concept in DNSSEC is the **chain of trust**. This is a hierarchical system of verification that mirrors the DNS hierarchy itself.
+
+The chain starts at the very top — the **DNS root zone**. The root zone is signed by ICANN (the organization that manages the DNS root). The root zone's public key is called the **Root Trust Anchor** and is built into DNSSEC-validating resolvers. This is the starting point of trust — the resolver inherently trusts the root key, and everything else is verified by following a chain back to this root.
+
+Here is how the chain flows from root to a specific domain:
+
+**Root zone → .com TLD zone → example.com zone**
+
+**Step 1 — Root zone signs the .com delegation:**\
+The root zone contains a DS record for the **`.com`** TLD zone. This DS record is a hash of the **`.com`** zone's KSK. The root zone signs this DS record with its own private key. Since the resolver trusts the root key, it can verify this signature and therefore trust the DS record for **`.com`**.
+
+**Step 2 — .com zone signs the example.com delegation:**\
+The **`.com`** zone contains a DS record for **`example.com`**. This DS record is a hash of **`example.com`**'s KSK. The **`.com`** zone signs this DS record with its own private key. Since the resolver already established trust in the **`.com`** zone through the previous step, it can verify this signature and trust the DS record for **`example.com`**.
+
+**Step 3 — example.com zone signs its own records:**\
+The **`example.com`** zone contains DNSKEY records (its ZSK and KSK) and RRSIG records for all its DNS records. The resolver uses the DS record from **`.com`** to verify that **`example.com`**'s KSK is legitimate. Then it uses the KSK to verify the ZSK, and then uses the ZSK to verify all the actual DNS record signatures.
+
+At the end of this chain, the resolver has cryptographically verified every link from the root all the way down to the specific DNS record it was looking for. If any link in the chain is broken — if any signature is invalid or any DS record does not match — the resolver knows something is wrong and rejects the response.
+
+This chain is powerful because **an attacker cannot forge a valid chain**. To insert false DNS records, they would need to create valid signatures. Creating valid signatures requires the private key. Without the legitimate domain owner's private key, forged records will have invalid signatures that the resolver will reject.
+
+---
+
+### **The DNSSEC Validation Process Step by Step**
+
+Let us walk through what happens when a DNSSEC-validating resolver looks up **`www.example.com`**:
+
+**1.** The resolver queries for the A record of **`www.example.com`** and also requests DNSSEC data (it sets a flag called the DO bit — DNSSEC OK — in its query).
+
+**2.** The authoritative server returns the A record along with the corresponding RRSIG (signature) and the DNSKEY records.
+
+**3.** The resolver retrieves the DS record for **`example.com`** from the **`.com`** zone and verifies it against the root's trust anchor through the chain described above.
+
+**4.** Once the chain of trust is established down to **`example.com`**, the resolver uses the zone's ZSK (verified through the chain) to check the RRSIG signature on the A record.
+
+**5.** If the signature is valid, the resolver accepts the A record and returns it to the client. If the signature is invalid or missing when it should be present, the resolver returns an error — it will **not** return the potentially forged record to the client.
+
+---
+
+## **DNSSEC and Authenticated Denial of Existence**
+
+A subtle but important problem: what happens when you query for a domain that does not exist? The DNS response is an NXDOMAIN. But how do you sign "nothing"? You cannot create a signature for a record that does not exist.
+
+DNSSEC solves this with **NSEC records**. All existing names in a zone are sorted alphabetically and linked in a chain. Each NSEC record points to the next existing name. When a query comes in for a non-existent name, the server returns the NSEC record that proves the queried name falls between two existing names — and that NSEC record is signed.
+
+For example, if the zone contains **`alpha.example.com`** and **`gamma.example.com`**, an NSEC record for **`alpha`** points to **`gamma`**. If someone queries for **`beta.example.com`**, the server returns this NSEC record, which proves that nothing exists between **`alpha`** and **`gamma`**, therefore **`beta`** does not exist. The signature on the NSEC record can be verified, providing authenticated proof of non-existence.
+
+**The zone walking problem with NSEC:** Because NSEC records reveal the next existing name in the zone, an attacker can make a series of queries, each time learning the next name, and eventually enumerate every single domain name in the zone. This is called **zone walking** and can expose internal infrastructure details.
+
+**NSEC3** addresses this by hashing the domain names before including them in the chain. Instead of the actual next name, NSEC3 records contain the hash of the next name. An attacker who gets NSEC3 records sees hashes, not actual domain names, making zone walking much harder (though offline dictionary attacks against the hashes are still theoretically possible).
+
+---
+
+## **Key Rollover — Changing Keys Over Time**
+
+Because private keys could potentially be compromised, DNSSEC keys need to be periodically changed. This process is called **key rollover**. It must be done carefully to avoid breaking the chain of trust during the transition.
+
+**ZSK Rollover** (done more frequently, perhaps every few months):\
+The new ZSK public key is added to the DNSKEY records alongside the old one. Records are re-signed with the new ZSK. After all caches have expired (based on TTL), the old ZSK is removed. Since the ZSK is verified by the KSK which is already trusted, this process is relatively straightforward.
+
+**KSK Rollover** (done less frequently, perhaps annually):\
+This is more complex because the KSK's hash is stored in the parent zone as a DS record, and the parent zone must be updated. The process requires coordination with the parent zone operator to update the DS record. ICANN actually performed the first ever root KSK rollover in 2018, which was a significant event for internet infrastructure.
+
+---
+
+## **What DNSSEC Does NOT Do**
+
+It is important to understand the scope of DNSSEC's protection to avoid misconceptions.
+
+**DNSSEC does not encrypt DNS traffic.** DNS queries and responses are still sent in plaintext. Anyone who can observe network traffic can see what domains you are looking up. DNSSEC only ensures the responses have not been tampered with — it does not provide privacy. (DNS over HTTPS (DoH) and DNS over TLS (DoT) address the privacy concern separately.)
+
+**DNSSEC does not protect against all DNS attacks.** It specifically protects against cache poisoning and response forgery. It does not protect against:
+
+- Denial of service attacks against DNS servers
+- DNS tunneling
+- Typosquatting (registering similar domain names)
+- Attacks that compromise the authoritative server itself
+
+**DNSSEC does not protect the communication channel after DNS resolution.** Once you have the correct IP address, your connection to that server is governed by other protocols. DNSSEC does not protect the actual web browsing session — that is the job of TLS/SSL (HTTPS).
+
+**DNSSEC requires deployment at every level.** For the chain of trust to work, every level of the hierarchy — root, TLD, and the domain itself — must support DNSSEC. If any level in the chain is unsigned, the chain is broken and full verification is not possible. Despite being standardized in 2005, DNSSEC adoption has been slow, particularly at the individual domain level.
+
+---
+
+## **DNSSEC Deployment Challenges**
+
+Despite its clear security benefits, DNSSEC deployment has been slow and faces several practical challenges.
+
+**Increased DNS response size:** DNSSEC adds significant overhead. Signatures, keys, and additional records make DNS responses much larger — sometimes several times larger than an unsigned response. This can cause issues with UDP (which has size limits) and may force fallback to TCP, adding latency.
+
+**Operational complexity:** Managing DNSSEC keys, performing rollovers, and maintaining the chain of trust adds significant operational complexity compared to standard DNS. Mistakes in key management can make a domain completely unreachable.
+
+**Key compromise consequences:** If a zone's private key is compromised, an attacker can forge legitimate-signed responses for that zone. Key management and security is therefore critical.
+
+**Lack of universal adoption:** If the domain you are visiting has not implemented DNSSEC, you get no protection even if your resolver supports validation. The protection is only as strong as the weakest link in the chain.
+
+**Resolver support:** Not all DNS resolvers perform DNSSEC validation. Many ISP resolvers still do not validate DNSSEC, meaning users get no benefit even if the domain is signed.
+
+---
+
+## **DNSSEC vs DNS over HTTPS (DoH) and DNS over TLS (DoT)**
+
+These are often confused with DNSSEC but serve a different purpose.
+
+**DNSSEC** — Ensures the **integrity and authenticity** of DNS responses. Prevents tampering. Does not provide privacy.
+
+**DNS over TLS (DoT)** — **Encrypts** the DNS query and response between the client and resolver using TLS. Prevents eavesdropping and man-in-the-middle attacks on the query itself. Does not verify the authenticity of the answer.
+
+**DNS over HTTPS (DoH)** — Same as DoT but uses HTTPS (port 443) instead of a dedicated port. Because it uses standard HTTPS, it is harder to block and harder to distinguish from regular web traffic.
+
+Ideally, you use **all three together**: DNSSEC ensures the responses are authentic, while DoT or DoH ensures the queries and responses cannot be snooped on in transit.

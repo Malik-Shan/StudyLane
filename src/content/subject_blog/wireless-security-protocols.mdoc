@@ -1,0 +1,314 @@
+---
+draft: false
+readtime: true
+title: Wireless Security Protocols
+published: 2026-05-06T22:20:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **Background — Why Do We Need Wireless Security Protocols?**
+
+When you send data over a wired network, that data travels through a physical cable. Someone would have to physically tap into that cable to intercept it. But in a wireless network, data travels through the **air as radio waves**. Anyone within range with the right equipment can potentially **capture those signals**. This means:
+
+- Your data can be read by unauthorized people (eavesdropping)
+- Someone can connect to your network without permission
+- Someone can inject fake data into your network
+
+To solve these problems, we use **Wireless Security Protocols** — these are sets of rules and mechanisms that protect wireless communication by handling two main things:
+
+1. **Authentication** — proving you are who you say you are before joining the network
+1. **Encryption** — scrambling data so that even if someone captures it, they cannot read it
+
+Over the years, several protocols were developed, each one trying to fix the weaknesses of the previous one. Let's go through them in order.
+
+---
+
+## **1. WEP — Wired Equivalent Privacy**
+
+### **What Was It?**
+
+WEP was introduced in **1997** as part of the original **IEEE 802.11 standard**. The name itself tells you the goal — it was designed to give wireless networks the same level of privacy as a wired network.
+
+### **How It Worked**
+
+WEP used an encryption algorithm called **RC4 (Rivest Cipher 4)**, which is a stream cipher. Here is the basic idea:
+
+- A **shared secret key** is configured on both the access point (router) and the client device
+- Before sending data, WEP generates a value called an **Initialization Vector (IV)** — a 24-bit random number
+- This IV is combined with the secret key to produce a **keystream**
+- The keystream is then XOR'd with the actual data to produce the encrypted output
+- The IV is sent along with the encrypted data in **plaintext** (unencrypted) so the receiver knows how to decrypt it
+
+### **Why WEP Failed — The Weaknesses**
+
+WEP had **fundamental, serious flaws** that made it completely broken:
+
+**1. Short IV (24 bits only)**\
+A 24-bit IV means there are only about **16 million possible values**. On a busy network, the IV values repeat frequently. When an attacker sees the same IV used twice with the same key, they can use mathematical techniques to figure out the keystream and then decrypt the data.
+
+**2. The IV is sent in plaintext**\
+The attacker doesn't even have to guess the IV — it's right there in the packet header, readable by anyone.
+
+**3. Weak key management**\
+WEP uses a static key — meaning the same key is used for a long time and is manually configured on every device. There is no automatic key rotation or management system. If one person knows the key, everyone's privacy is at risk.
+
+**4. No proper integrity protection**\
+WEP uses a simple checksum called **CRC-32** to verify data integrity. But CRC-32 is not a cryptographic function — attackers can modify encrypted data and recalculate a valid CRC without knowing the key. This means data can be **tampered with undetected**.
+
+**5. Weak authentication**\
+WEP's shared key authentication is actually **weaker** than open authentication in some cases because it leaks information about the key during the challenge-response process.
+
+### **Result**
+
+By **2001**, researchers had publicly demonstrated tools that could crack WEP in minutes. By **2004**, the IEEE officially declared WEP deprecated. Today, WEP is completely broken and should **never** be used.
+
+---
+
+## **2. WPA — Wi-Fi Protected Access**
+
+### **What Was It?**
+
+After WEP's weaknesses became widely known, the **Wi-Fi Alliance** (an industry group) needed an urgent solution. The problem was that millions of devices already existed with WEP hardware. A completely new protocol would mean replacing all of them.
+
+So in **2003**, they released **WPA** as a **transitional solution** — something that could run on existing WEP hardware through a **firmware update**, while being much more secure.
+
+### **The Key Improvement — TKIP**
+
+WPA introduced **TKIP (Temporal Key Integrity Protocol)**. TKIP was designed to fix WEP's problems without requiring new hardware:
+
+**1. Per-packet key mixing**\
+Instead of using the same key for every packet, TKIP generates a **unique encryption key for each packet**. This directly solves the IV reuse problem of WEP.
+
+**2. Longer IV (48 bits)**\
+TKIP extended the IV from 24 bits to **48 bits**, which gives approximately **281 trillion possible values**. This makes IV reuse practically impossible.
+
+**3. Sequence counters**\
+TKIP adds a **sequence number** to each packet. If packets arrive out of order or if old packets are replayed, they are rejected. This prevents **replay attacks**.
+
+**4. Message Integrity Code (MIC) — "Michael"**\
+TKIP replaced WEP's weak CRC-32 with a stronger integrity check called **MIC (Michael)**. This detects if data has been tampered with during transmission.
+
+### **WPA Authentication Modes**
+
+WPA introduced two modes of operation:
+
+**WPA-Personal (WPA-PSK)**
+
+- PSK stands for **Pre-Shared Key**
+- A single password is configured on the router, and all users use the same password to connect
+- Suitable for **homes and small offices**
+- The PSK is used to derive encryption keys through a process called the **4-way handshake**
+
+**WPA-Enterprise**
+
+- Uses a **RADIUS server** (Remote Authentication Dial-In User Service) for authentication
+- Each user has their own **unique credentials** (username/password or certificates)
+- Based on the **IEEE 802.1X standard**
+- Suitable for **corporations and large organizations**
+- Much more secure because even if one user's credentials are compromised, others are unaffected
+
+### **Remaining Weaknesses of WPA**
+
+Even though WPA was much better than WEP, it still had problems:
+
+- **TKIP still used RC4** — the same underlying cipher as WEP, just used more carefully. RC4 itself was becoming increasingly suspect.
+- **Dictionary attacks on WPA-PSK** — if a weak password is used, attackers can capture the 4-way handshake and run offline dictionary/brute-force attacks against it
+- **Michael MIC was not very strong** — researchers found theoretical attacks against it
+
+---
+
+## **3. WPA2 — Wi-Fi Protected Access 2**
+
+### **What Was It?**
+
+WPA2 was introduced in **2004** and became **mandatory for all Wi-Fi certified devices in 2006**. Unlike WPA which was a quick patch, WPA2 was a full implementation of the **IEEE 802.11i standard**, rebuilt from the ground up with proper cryptography.
+
+### **The Key Improvement — AES and CCMP**
+
+WPA2 replaced RC4/TKIP with two stronger technologies:
+
+**AES — Advanced Encryption Standard**
+
+- AES is a **block cipher** (operates on fixed blocks of data, 128 bits at a time)
+- It is the **gold standard of symmetric encryption**, approved by the US government for classified information
+- Significantly more powerful and mathematically sound than RC4
+- As of today, AES with proper key lengths has **no known practical attack**
+
+**CCMP — Counter Mode with CBC-MAC Protocol**
+
+- CCMP is the complete security protocol that uses AES as its core
+- It handles both **encryption** (using AES in Counter Mode) and **integrity/authentication** (using CBC-MAC)
+- It provides **confidentiality, integrity, and authentication** all together
+- This replaced TKIP completely
+
+### **How CCMP Works (Simplified)**
+
+1. A **128-bit session key** is derived for each session through the 4-way handshake
+1. AES Counter Mode encrypts the data packet by packet
+1. CBC-MAC generates an authentication tag for each packet — this verifies both the **data and the header** haven't been tampered with
+1. The receiver verifies the tag before accepting the packet
+
+### **WPA2 Authentication — Same Two Modes**
+
+Like WPA, WPA2 also has:
+
+- **WPA2-Personal (WPA2-PSK)** — password-based, for home/small office
+- **WPA2-Enterprise (WPA2-802.1X)** — RADIUS-based, for organizations
+
+### **KRACK Attack — WPA2's Big Weakness**
+
+In **2017**, researchers discovered a serious vulnerability in WPA2 called **KRACK (Key Reinstallation Attack)**:
+
+- The attack targeted the **4-way handshake** process
+- By manipulating and replaying handshake messages, an attacker could force the **reinstallation of an already-in-use key**
+- This reset the associated counters and nonces (random values), allowing an attacker to **replay, decrypt, and potentially inject packets**
+- The attack worked against **all WPA2 implementations** regardless of cipher or password strength
+- It was patched through software updates, but the underlying protocol design had a flaw
+
+WPA2 also remained vulnerable to **offline dictionary attacks on PSK** if a weak password was used.
+
+---
+
+## **4. WPA3 — Wi-Fi Protected Access 3**
+
+### **What Was It?**
+
+WPA3 was introduced by the Wi-Fi Alliance in **2018**, driven largely by the KRACK vulnerability and a general need to modernize wireless security. WPA3 is the current standard and represents a significant improvement in design philosophy.
+
+### **Key Improvements in WPA3**
+
+**1. SAE — Simultaneous Authentication of Equals (replacing PSK)**
+
+This is the most important change in WPA3-Personal.
+
+In WPA2-PSK, the password is used directly in the 4-way handshake in a way that allows offline dictionary attacks — an attacker captures the handshake and then tries millions of passwords offline.
+
+WPA3 replaces PSK with **SAE**, which is based on the **Dragonfly Key Exchange** protocol:
+
+- SAE is a **zero-knowledge proof** based system — the password is proven to be correct **without ever transmitting the password or anything directly derived from it**
+- Even if an attacker captures the SAE handshake, they **cannot perform offline dictionary attacks** — each guess requires a new interaction with the access point
+- This property is called **forward secrecy** — past sessions cannot be decrypted even if the password is later compromised
+- SAE provides **mutual authentication** — both the client and the access point authenticate each other
+
+**2. 192-bit Security Mode (WPA3-Enterprise)**
+
+WPA3-Enterprise introduces an optional **192-bit security suite** aligned with government and high-security environments:
+
+- Uses **GCMP-256** (Galois/Counter Mode Protocol with 256-bit AES) for encryption
+- Uses **HMAC-SHA-384** for key derivation and confirmation
+- Suitable for financial institutions, healthcare, government networks
+
+**3. Protected Management Frames (PMF) — Mandatory**
+
+Management frames are special Wi-Fi frames that control the connection process (like association, disassociation, authentication messages). In WPA2, these were **unencrypted and unauthenticated**.
+
+Attackers could send **fake deauthentication frames** to kick users off a network — this was the basis of many Wi-Fi attacks.
+
+WPA3 makes **PMF mandatory**, meaning management frames are now cryptographically protected. Forged management frames are rejected.
+
+**4. Wi-Fi Easy Connect (for IoT devices)**
+
+WPA3 includes a feature for easily and securely connecting IoT devices (like smart bulbs, sensors) that have no screen or keyboard, using QR codes.
+
+**5. Wi-Fi Enhanced Open (OWE)**
+
+For open public networks (cafes, airports) that have no password, WPA3 introduces **OWE (Opportunistic Wireless Encryption)**:
+
+- Each client gets a **unique encrypted session** even without a password
+- Protects against **passive eavesdropping** on open networks
+- The connection is still "open" (no authentication), but the data is now encrypted
+
+### **Dragonblood — WPA3's Discovered Weaknesses**
+
+In **2019**, researchers found vulnerabilities in WPA3's SAE implementation called **Dragonblood**:
+
+- Side-channel attacks that leaked information about the password through timing and cache access patterns
+- Downgrade attacks that could force devices to use WPA2 instead of WPA3
+- These were mostly fixed through patches and protocol updates, but showed that even WPA3 isn't perfect
+
+---
+
+## **Summary Comparison Table**
+
+{% table %}
+- **Feature**
+- **WEP**
+- **WPA**
+- **WPA2**
+- **WPA3**
+---
+- Year
+- 1997
+- 2003
+- 2004
+- 2018
+---
+- Encryption
+- RC4
+- RC4 + TKIP
+- AES + CCMP
+- AES + CCMP/GCMP
+---
+- IV Length
+- 24-bit
+- 48-bit
+- N/A (AES)
+- N/A
+---
+- Key Management
+- Static
+- Dynamic (TKIP)
+- Dynamic
+- SAE (Dragonfly)
+---
+- Integrity Check
+- CRC-32
+- Michael MIC
+- CBC-MAC
+- GMAC
+---
+- Auth (Personal)
+- Shared Key
+- PSK
+- PSK
+- SAE
+---
+- Auth (Enterprise)
+- None proper
+- 802.1X
+- 802.1X
+- 802.1X + 192-bit
+---
+- Offline Attack Possible
+- Yes
+- Yes
+- Yes (PSK)
+- No (SAE)
+---
+- PMF
+- No
+- Optional
+- Optional
+- Mandatory
+---
+- Status
+- **Broken**
+- **Deprecated**
+- **Widely Used**
+- **Current Standard**
+{% /table %}
+
+---
+
+## **Key Concepts to Remember for Exams**
+
+- WEP failed because of **short IV, RC4 weakness, static keys, and weak CRC integrity**
+- WPA was a **temporary fix** that patched WEP using TKIP on the same hardware
+- WPA2 introduced **AES + CCMP**, which is genuinely strong encryption
+- WPA2's weakness was **KRACK** (handshake attack) and **offline dictionary attacks**
+- WPA3's biggest innovation is **SAE** which eliminates offline dictionary attacks
+- WPA3 also makes **PMF mandatory** and introduces **OWE for open networks**
+- The evolution is: WEP → WPA → WPA2 → WPA3, each fixing the previous one's flaws

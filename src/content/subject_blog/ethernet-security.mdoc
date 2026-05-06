@@ -1,0 +1,361 @@
+---
+draft: false
+readtime: true
+title: Ethernet Security
+published: 2026-05-06T22:18:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is Ethernet?**
+
+Before diving into security, you need to understand what Ethernet actually is, because the security issues all stem from how Ethernet was designed to work.
+
+**Ethernet is the most widely used wired networking technology in the world.** When you plug a cable into your laptop or desktop computer at home, at university, or in an office — that's almost certainly an Ethernet connection. It defines how devices on a **Local Area Network (LAN)** communicate with each other at the physical and data link level (Layer 1 and Layer 2 of the OSI model).
+
+Ethernet was developed in the 1970s and standardized as **IEEE 802.3.** The original design was built around the idea of a **shared medium** — all devices share the same communication channel. This was a practical design for its time, but it created fundamental security weaknesses that we still deal with today.
+
+---
+
+## **How Ethernet Works — The Foundation**
+
+### **MAC Addresses**
+
+Every single device that connects to a network has a **Network Interface Card (NIC),** and every NIC has a **MAC address (Media Access Control address).** This is a 48-bit hardware address, usually written as six pairs of hexadecimal numbers, like **`00:1A:2B:3C:4D:5E`**.
+
+MAC addresses are supposed to be:
+
+- **Globally unique** — no two NICs in the world should have the same MAC address
+- **Hardware-burned** — permanently assigned by the manufacturer (the first three pairs identify the manufacturer — this is called the **OUI, Organizationally Unique Identifier**)
+
+In Ethernet networks, devices communicate using MAC addresses at the local network level. When your computer wants to send data to another device on the same local network, it wraps the data in an **Ethernet frame** with the destination MAC address and its own source MAC address.
+
+### **Ethernet Frames**
+
+An Ethernet frame is the fundamental unit of data transmission in Ethernet. It contains:
+
+- **Preamble** — a synchronization sequence to tell receiving devices a frame is coming
+- **Destination MAC address** — where the frame is going
+- **Source MAC address** — where the frame came from
+- **EtherType/Length** — what type of data is in the payload (e.g., IPv4, IPv6, ARP)
+- **Payload** — the actual data being carried (up to 1500 bytes)
+- **Frame Check Sequence (FCS)** — a checksum for error detection
+
+### **How Devices Find Each Other — ARP (Revisited)**
+
+We touched on ARP in the packet sniffing topic, but it's central to Ethernet security so let's go deeper here.
+
+When your computer knows the IP address of a destination but needs the MAC address to send an Ethernet frame, it uses **ARP (Address Resolution Protocol):**
+
+1. Your computer broadcasts an ARP request to the entire local network: *"Who has IP address 192.168.1.10? Tell 192.168.1.5."*
+1. Every device on the network receives this broadcast
+1. The device with IP 192.168.1.10 sends back an ARP reply: *"192.168.1.10 is at MAC address AA:BB:CC:DD:EE:FF"*
+1. Your computer stores this mapping in its **ARP cache** (ARP table) for future use
+
+This entire process has **no authentication whatsoever.** Any device can claim any IP address. Any device can send an ARP reply claiming to be any other device. This is the root cause of many Ethernet-level attacks.
+
+---
+
+## **The Evolution from Hubs to Switches**
+
+Understanding this evolution is critical for understanding Ethernet security.
+
+### **The Hub Era**
+
+Early Ethernet networks used **hubs.** A hub is essentially a repeater — when a frame comes in on one port, the hub repeats it out of **every other port.** Every device on the network sees every frame. Devices are supposed to only process frames addressed to them and ignore the rest, but there's no enforcement of this.
+
+This meant:
+
+- **Sniffing was trivial** — put your NIC in promiscuous mode and read everyone's traffic
+- **Collisions were common** — if two devices sent data at the same time, the signals collided. Ethernet used **CSMA/CD (Carrier Sense Multiple Access with Collision Detection)** to manage this, but it was inefficient
+
+### **The Switch Era**
+
+**Switches replaced hubs** and fundamentally changed Ethernet networking. A switch is intelligent — it learns which device (MAC address) is connected to which port and only sends frames to the correct destination port.
+
+It does this using a **CAM table (Content Addressable Memory table),** also called the MAC address table:
+
+- When a frame arrives on a port, the switch reads the **source MAC address** and records: *"This MAC address is on this port"*
+- Over time, the switch builds a complete map of which MAC is on which port
+- When forwarding a frame, the switch looks up the destination MAC in the CAM table and sends it only to the correct port
+
+This made sniffing much harder — you only receive frames addressed to you. But attackers developed new techniques specifically to defeat switches, which we'll cover below.
+
+---
+
+## **Ethernet Security Threats and Attacks**
+
+### **1. MAC Flooding**
+
+We mentioned this in the sniffing topic, but let's go into full detail here.
+
+**The attack:**\
+The switch's CAM table has a finite size — it can only store a certain number of MAC-to-port mappings. An attacker uses a tool (like **macof**) to flood the switch with Ethernet frames, each with a **different, randomly generated fake source MAC address.** These fake entries fill up the CAM table rapidly — a tool like macof can generate over 155,000 fake MAC entries per minute.
+
+When the CAM table is full, the switch can no longer learn new MAC addresses. When it receives a frame for a destination MAC address it doesn't have in its (full) table, it doesn't know which port to send it to. It falls back to the behavior of a hub — **it floods the frame out of all ports.**
+
+Now the attacker, running a sniffer, receives all frames on the network. The attack has effectively turned a switch into a hub.
+
+**The fix:**
+
+- **Port Security** — configure the switch to only allow a maximum number of MAC addresses per port (e.g., only 2 or 3). If more are detected, the port shuts down or drops the excess frames.
+- This is one of the most important switch security configurations.
+
+---
+
+### **2. ARP Spoofing / ARP Poisoning**
+
+This is arguably the most dangerous and most commonly exploited Ethernet-level attack.
+
+**The fundamental problem with ARP:**\
+ARP was designed for convenience, not security. It is **stateless and unauthenticated.** This means:
+
+- A device will accept an ARP reply even if it never sent an ARP request
+- There is no way to verify that an ARP reply came from the legitimate device
+- ARP cache entries are updated whenever an ARP reply is received, even unsolicited ones
+
+**How the attack works — step by step:**
+
+Imagine three devices on a network:
+
+- **Victim:** IP 192.168.1.10, MAC AA:AA:AA:AA:AA:AA
+- **Router/Gateway:** IP 192.168.1.1, MAC BB:BB:BB:BB:BB:BB
+- **Attacker:** IP 192.168.1.99, MAC CC:CC:CC:CC:CC:CC
+
+The attacker wants to intercept all traffic between the victim and the router.
+
+**Step 1:** The attacker sends a fake ARP reply to the **victim** saying:\
+*"192.168.1.1 (the router) is at MAC CC:CC:CC:CC:CC:CC (attacker's MAC)"*
+
+The victim updates its ARP cache. Now when the victim wants to send traffic to the router, it sends it to the **attacker's MAC address** instead.
+
+**Step 2:** The attacker sends a fake ARP reply to the **router** saying:\
+*"192.168.1.10 (the victim) is at MAC CC:CC:CC:CC:CC:CC (attacker's MAC)"*
+
+The router updates its ARP cache. Now when the router sends traffic to the victim, it sends it to the **attacker's MAC address.**
+
+**Step 3:** The attacker receives all traffic in both directions. To avoid detection, the attacker **forwards the traffic along** to its real destination — the victim and router communicate normally and notice nothing wrong. This is the **Man-in-the-Middle (MitM) position.**
+
+From this position, the attacker can:
+
+- **Read** all unencrypted traffic (sniffing)
+- **Modify** traffic in transit (e.g., inject malicious content into web pages)
+- **Drop** traffic (denial of service)
+- **Capture credentials** from unencrypted protocols
+
+**The attacker must keep sending fake ARP replies continuously** because ARP cache entries expire after a timeout period. Tools like **Ettercap** and **arpspoof** automate this continuously.
+
+**Defenses against ARP Spoofing:**
+
+**Dynamic ARP Inspection (DAI):**\
+This is a switch-level defense. The switch inspects all ARP packets and validates them against a trusted database. If an ARP reply doesn't match the trusted database, the switch drops it.
+
+DAI typically works together with **DHCP Snooping** — when a device gets an IP address from DHCP, the switch records the binding: *"This IP address was assigned to this MAC address on this port."* DAI then checks ARP replies against this binding table. If someone sends an ARP reply claiming to be 192.168.1.1 but the binding table says 192.168.1.1 is on a different port with a different MAC, the reply is dropped.
+
+**Static ARP Entries:**\
+Manually configuring ARP entries that never change. If your ARP table has a permanent entry saying the router is at MAC BB:BB:BB:BB:BB:BB, no fake ARP reply can change it. Practical only for small networks or critical devices.
+
+**ARP Monitoring Tools:**\
+Tools like **arpwatch** monitor the network and alert administrators when ARP mappings change unexpectedly — a strong indicator of ARP poisoning.
+
+**Encryption:**\
+Even if ARP poisoning succeeds and the attacker becomes a MitM, **encryption defeats the purpose.** If all traffic is HTTPS/TLS, the attacker can read the encrypted data but not the actual content.
+
+---
+
+### **3. MAC Spoofing**
+
+MAC addresses, despite being supposed hardware identifiers, can be easily changed in software on most operating systems. This is called **MAC spoofing.**
+
+**Why an attacker would spoof a MAC address:**
+
+**Bypassing MAC filtering:**\
+Some networks implement access control based on MAC addresses — a whitelist of allowed MACs. Only devices with approved MAC addresses can connect. An attacker can observe legitimate MAC addresses (from sniffed traffic or ARP requests) and clone one of them to gain access.
+
+**Bypassing port security:**\
+If port security only allows specific MACs on specific ports, spoofing an allowed MAC can bypass this.
+
+**Evading detection:**\
+Changing MAC address hides the attacker's true hardware identity, making it harder to trace them or block them (blocking a MAC is useless if they just change it).
+
+**Identity impersonation:**\
+The attacker clones the MAC of a trusted device to impersonate it at the network level.
+
+**Defense:**\
+MAC spoofing is very hard to fully prevent. However, **802.1X port-based authentication** (covered below) moves beyond MAC addresses to certificate-based or credential-based authentication, making MAC spoofing irrelevant for access control.
+
+---
+
+### **4. VLAN Hopping**
+
+**VLANs (Virtual Local Area Networks)** are a way of logically segmenting a physical network. Even though multiple departments might share the same physical switch infrastructure, they can be separated into different VLANs that can't directly communicate — Finance on VLAN 10, HR on VLAN 20, IT on VLAN 30, for example. This is a key security control for network segmentation.
+
+**VLAN hopping** is an attack that allows traffic from one VLAN to reach another VLAN that it shouldn't have access to, bypassing this segmentation.
+
+There are two main techniques:
+
+**Switch Spoofing:**\
+Switches connect to each other using **trunk links** — special connections that carry traffic for multiple VLANs simultaneously, tagged with VLAN identifiers. Normally, only switches and routers are trunk ports. Access ports (where end devices connect) only carry traffic for one VLAN.
+
+The protocol used to negotiate trunk links is **DTP (Dynamic Trunking Protocol).** By default, many switches have ports set to auto-negotiate trunking. An attacker can configure their device to **send DTP negotiation messages**, tricking the switch into thinking it's connected to another switch and establishing a trunk link. Now the attacker's device receives traffic from **all VLANs.**
+
+**Double Tagging:**\
+This attack exploits how switches handle VLAN tags. In 802.1Q (the VLAN tagging standard), each frame on a trunk link is tagged with a VLAN ID.
+
+The attacker sends a frame with **two VLAN tags** — the outer tag is the attacker's VLAN (say VLAN 10), and the inner tag is the target VLAN (say VLAN 20). When the first switch receives the frame, it strips the outer tag (VLAN 10 — which is normal for that port) and forwards it based on the inner tag (VLAN 20) — sending it to the target VLAN.
+
+**Important limitation:** Double tagging only works **one way** — responses can't get back to the attacker through this method. So it's useful for DoS attacks against devices in another VLAN but not for full two-way communication.
+
+**Defense against VLAN Hopping:**
+
+- **Disable DTP** on all access ports — never auto-negotiate trunking on ports connected to end devices
+- **Explicitly configure** all ports as either access or trunk — don't leave them in auto mode
+- **Change the native VLAN** to an unused VLAN — the double-tagging attack relies on the attacker being on the same VLAN as the native VLAN
+- **Disable unused ports** and assign them to an unused VLAN
+
+---
+
+### **5. Spanning Tree Protocol (STP) Attacks**
+
+This is a more advanced topic but worth understanding.
+
+**What is STP?**\
+In networks with multiple switches, there are often **redundant links** — multiple physical paths between switches. This is good for reliability (if one link fails, traffic can use another). But it creates a problem: **loops.** If traffic can go around in circles between switches, it multiplies endlessly and crashes the network (a **broadcast storm**).
+
+**Spanning Tree Protocol (STP)** solves this by detecting loops and **blocking redundant ports**, creating a loop-free logical topology. One switch is elected the **Root Bridge** — it's the center of the spanning tree. All other switches calculate the shortest path to the root bridge and block ports that would create loops.
+
+**The attack:**\
+STP uses **BPDU (Bridge Protocol Data Units)** — special messages that switches exchange to determine topology. An attacker can craft and send **superior BPDU messages** — messages that make the attacker's device look like it should be the Root Bridge (advertising a very low bridge priority). If the attacker's device becomes the Root Bridge, all network traffic is rerouted through it — giving the attacker a MitM position on the entire switched network.
+
+The attacker can also cause continuous STP recalculations by repeatedly sending BPDUs, causing network instability and essentially a denial of service.
+
+**Defense:**
+
+- **BPDU Guard** — a switch feature that shuts down any port that receives a BPDU message where none is expected (i.e., access ports connected to end devices, not other switches)
+- **Root Guard** — prevents ports from becoming the root port, protecting the current root bridge designation
+- **PortFast** — for access ports, skips the STP listening/learning states and goes straight to forwarding, but combined with BPDU Guard to prevent abuse
+
+---
+
+### **6. Ethernet Frame Attacks**
+
+**Runt and Giant Frames:**\
+Normal Ethernet frames have a minimum size of 64 bytes and a maximum of 1518 bytes (or 1522 with a VLAN tag). Frames outside this range are abnormal:
+
+- **Runts** — frames smaller than 64 bytes, often caused by collisions or malformed frames. Can be used to confuse or crash some network devices.
+- **Giants/Jumbo frames** — frames larger than the standard maximum. While jumbo frames are legitimate in some configurations, unexpectedly large frames can cause buffer overflows in vulnerable implementations.
+
+**Frame injection:**\
+An attacker directly crafts and injects raw Ethernet frames with arbitrary content. Using tools like Scapy, an attacker can craft frames at the Ethernet level, bypassing higher-level protocol protections.
+
+---
+
+## **Key Ethernet Security Controls**
+
+Now let's look at the major defensive technologies and configurations used to secure Ethernet networks.
+
+### **802.1X Port-Based Network Access Control**
+
+This is one of the most important Ethernet security standards.
+
+**The problem it solves:** In a standard Ethernet network, anyone who plugs a cable into a network port gets network access. There's no authentication. Even if you have firewalls and other controls, an attacker who physically accesses a network port (in a lobby, conference room, empty office) can plug in and get on the network.
+
+**How 802.1X works:**\
+802.1X enforces authentication **before** allowing network access. When a device connects to a switch port, the switch **does not allow any traffic** (except authentication traffic) until the device authenticates.
+
+The three parties involved are:
+
+- **Supplicant** — the client device trying to connect
+- **Authenticator** — the switch (or wireless access point) controlling access
+- **Authentication Server** — typically a **RADIUS server** that validates credentials
+
+The process:
+
+1. Device plugs in → switch detects connection → port is in an unauthorized state (no traffic allowed)
+1. Switch sends an EAP (Extensible Authentication Protocol) request for identity
+1. Device responds with credentials (username/password, certificate, etc.)
+1. Switch forwards the credentials to the RADIUS server
+1. RADIUS server validates the credentials and sends back an Accept or Reject
+1. If accepted, the switch opens the port and allows normal traffic
+1. If rejected, the port stays blocked
+
+This means even if an attacker plugs into a network port, they cannot access the network without valid credentials. MAC spoofing is irrelevant here because authentication is based on real credentials, not MAC addresses.
+
+**EAP methods** (how authentication actually happens) include:
+
+- **EAP-TLS** — certificate-based, strongest method
+- **PEAP** — uses a TLS tunnel with username/password inside, very common
+- **EAP-TTLS** — similar to PEAP
+
+---
+
+### **DHCP Snooping**
+
+**DHCP Snooping** is a switch security feature that protects against **rogue DHCP servers.**
+
+Imagine an attacker sets up a DHCP server on their laptop. When devices on the network request IP configuration, the attacker's server might respond first, assigning itself as the **default gateway.** All traffic from victims then flows through the attacker — instant MitM.
+
+DHCP Snooping works by designating switch ports as either **trusted** or **untrusted:**
+
+- **Trusted ports** are connected to legitimate DHCP servers or uplinks to routers. DHCP replies from trusted ports are allowed.
+- **Untrusted ports** are connected to end-user devices. DHCP replies from untrusted ports are **dropped.** Only DHCP requests are allowed from untrusted ports.
+
+Additionally, DHCP Snooping builds a **binding table** recording which IP address was assigned to which MAC address on which port — this database is then used by Dynamic ARP Inspection.
+
+---
+
+### **Dynamic ARP Inspection (DAI)**
+
+Already explained in the ARP Spoofing section. It uses the DHCP Snooping binding table to validate ARP packets, dropping any that don't match.
+
+---
+
+### **Port Security**
+
+A switch feature that limits which and how many MAC addresses can be used on each port.
+
+Configuration options include:
+
+- **Maximum MAC addresses** — limit how many MAC addresses a port will learn (defeats MAC flooding)
+- **Sticky MAC addresses** — the switch learns the first MAC address on a port and locks it to that port permanently (or until manually cleared)
+- **Static MAC addresses** — manually specify exactly which MAC address is allowed on a port
+
+**Violation actions** when unauthorized MACs are detected:
+
+- **Shutdown** — the port is disabled (most secure, requires admin to re-enable)
+- **Restrict** — frames from unauthorized MACs are dropped and an alert is logged
+- **Protect** — frames from unauthorized MACs are silently dropped, no alert
+
+---
+
+### **VLAN Security Best Practices**
+
+- Separate sensitive traffic into different VLANs (servers, management, users, guests)
+- Use a **dedicated management VLAN** for switch management traffic
+- Disable unused ports and assign them to an unused "parking lot" VLAN
+- Explicitly configure trunk ports and disable DTP on access ports
+- Change the native VLAN from default (VLAN 1) to an unused VLAN
+- Use **Private VLANs (PVLANs)** to isolate devices within the same VLAN from each other where needed (common in hosting environments)
+
+---
+
+### **Network Segmentation**
+
+Beyond VLANs, proper network segmentation is a fundamental security principle:
+
+- Separate the network into zones based on trust level and function
+- Use firewalls and access control lists (ACLs) between segments
+- Apply the **principle of least privilege** — devices should only be able to reach what they absolutely need to reach
+- A breach in one segment should not automatically give access to other segments
+
+---
+
+## **Summary**
+
+Ethernet's original design as a shared medium with no authentication created deep security challenges. The key threats at the Ethernet level are MAC flooding (overflowing switch CAM tables to turn switches into hubs), ARP spoofing (poisoning ARP caches for Man-in-the-Middle attacks), MAC spoofing (impersonating devices to bypass access controls), VLAN hopping (bypassing network segmentation), and STP attacks (manipulating spanning tree to reroute traffic).
+
+The primary defenses are: 802.1X for proper authentication before network access, DHCP Snooping to prevent rogue DHCP servers, Dynamic ARP Inspection to validate ARP traffic, Port Security to limit MAC addresses per port, and proper VLAN configuration with DTP disabled on access ports.
+
+\

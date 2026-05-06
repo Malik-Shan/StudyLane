@@ -1,0 +1,347 @@
+---
+draft: false
+readtime: true
+title: Tor Network
+published: 2026-05-06T22:21:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is Tor?**
+
+**Tor** stands for **The Onion Router**. It is a system designed to enable **anonymous communication** over the internet. It was originally developed in the **mid-1990s by the US Naval Research Laboratory** with the goal of protecting US intelligence communications online. It was later released to the public and is now maintained by the **non-profit Tor Project**.
+
+The core idea behind Tor is simple but powerful:
+
+**Instead of connecting directly from your computer to a website (where your identity and destination are both visible), your traffic is routed through multiple intermediate computers around the world, encrypted in layers, so that no single point in the network knows both who you are and what you are accessing.**
+
+This is why it's called "onion" routing — just like an onion has multiple layers, Tor wraps your data in multiple layers of encryption, peeling one layer off at each step.
+
+---
+
+## **Why Does Online Anonymity Matter?**
+
+Before diving into how Tor works, it's important to understand why anonymity is needed in the first place.
+
+When you browse the internet normally:
+
+- Your **Internet Service Provider (ISP)** can see every website you visit
+- The **websites you visit** can see your real IP address, which reveals your approximate location and identity
+- **Governments and law enforcement** can request your browsing history from your ISP
+- **Advertisers and trackers** build detailed profiles of your behavior
+- **Network administrators** at your workplace or school can monitor your traffic
+- In **oppressive regimes**, accessing certain content can put people in physical danger
+
+Tor was designed to address these privacy concerns for:
+
+- **Journalists** communicating with sources and reporting from dangerous regions
+- **Activists and dissidents** in countries with oppressive governments
+- **Whistleblowers** exposing wrongdoing without revealing their identity
+- **Law enforcement and intelligence agencies** conducting undercover operations
+- **Ordinary citizens** who simply value their privacy
+- Unfortunately also **criminals** — this is the dark side of anonymity tools
+
+---
+
+## **The Problem With Simple Anonymity Solutions**
+
+Before understanding Tor, let's understand why simpler solutions don't work well.
+
+### **Using a Proxy**
+
+A proxy server sits between you and the website. The website sees the proxy's IP address, not yours. But:
+
+- The **proxy operator knows both who you are and where you're going** — you've just shifted trust to the proxy
+- If the proxy is compromised or subpoenaed, your identity is revealed
+- Traffic between you and the proxy is often unencrypted
+
+### **Using a VPN**
+
+A VPN encrypts your traffic and routes it through a VPN server. Better than a proxy, but:
+
+- The **VPN provider knows everything** — your identity and your destination
+- You must completely trust the VPN provider not to log or share your data
+- Many VPN providers claim "no logs" but have been proven to keep logs when pressured
+- A single point of failure — if the VPN is compromised, everything is exposed
+
+### **The Core Problem**
+
+Any system that routes your traffic through a **single intermediary** just moves the trust problem — now you must trust that intermediary completely. Tor's design eliminates this single point of trust.
+
+---
+
+## **How Tor Works — Onion Routing Explained**
+
+Tor solves the single point of trust problem by routing traffic through **multiple nodes (called relays)**, with each relay only knowing the **previous and next hop** — never the full picture.
+
+### **The Tor Network Structure**
+
+The Tor network consists of thousands of **volunteer-operated relays** (computers) around the world. When you use Tor, your traffic passes through **three relays** by default:
+
+1. **Guard Node (Entry Node)** — the first relay your traffic enters
+1. **Middle Node (Middle Relay)** — an intermediate relay
+1. **Exit Node** — the final relay that connects to the actual destination
+
+### **The Layered Encryption Process**
+
+Here is what happens step by step when you use Tor:
+
+**Step 1 — Building the Circuit**
+
+Your Tor client (browser or application) contacts a **directory server** to get a list of available relays. It then selects three relays and **negotiates encryption keys** with each of them — but critically, it does this in a way where:
+
+- The guard node knows your IP but not your destination
+- The middle node knows neither your IP nor your destination
+- The exit node knows the destination but not your IP
+
+**Step 2 — Encrypting in Layers**
+
+Your data is encrypted **three times**, in reverse order:
+
+- First, it is encrypted with the **exit node's key** (innermost layer)
+- Then that encrypted package is encrypted with the **middle node's key**
+- Then that is encrypted with the **guard node's key** (outermost layer)
+
+This creates three nested layers of encryption — like the layers of an onion.
+
+**Step 3 — Sending Through the Network**
+
+- You send the triple-encrypted package to the **guard node**
+- The guard node **peels off the outermost layer** (decrypts with its key), sees that it should forward the package to the middle node, and does so — it cannot read the inner layers
+- The middle node **peels off the next layer**, sees it should forward to the exit node, and does so — it cannot read the innermost layer and doesn't know where the traffic originally came from
+- The exit node **peels off the final layer**, now sees the actual data and the destination — it sends the request to the destination website. But it only knows the traffic came from the middle node, not from you
+
+**Step 4 — Return Traffic**
+
+The response from the website travels back in reverse through the same circuit — the exit node receives it, the layers are added back (re-encrypted), it passes through the middle node and guard node, and finally reaches you where all layers are decrypted.
+
+### **What Each Party Knows**
+
+{% table %}
+- **Party**
+- **Knows Your IP?**
+- **Knows Destination?**
+---
+- Guard Node
+- **Yes**
+- No
+---
+- Middle Node
+- No
+- No
+---
+- Exit Node
+- No
+- **Yes**
+---
+- Destination Website
+- No
+- N/A
+---
+- ISP
+- Knows you use Tor
+- No
+{% /table %}
+
+No single relay knows both who you are and where you're going. This is the fundamental privacy guarantee of Tor.
+
+---
+
+## **Tor Circuits and Stream Isolation**
+
+A **Tor circuit** is the specific path through the three relays selected for a session. Tor automatically changes circuits periodically (every 10 minutes by default, or when you request a new identity).
+
+**Stream isolation** means that different applications or different browser tabs can be assigned **different circuits** so that activities cannot be linked to each other.
+
+For example, if you're browsing two different websites simultaneously, they may go through completely different circuits — making it impossible to link those activities together even by analyzing Tor traffic.
+
+---
+
+## **Hidden Services — The Dark Web**
+
+One of Tor's most significant (and controversial) features is **hidden services** (now called **onion services**). These are websites and services that exist **entirely within the Tor network** — they have no regular internet presence and cannot be accessed without Tor.
+
+### **How Hidden Services Work**
+
+A hidden service has a special address ending in **.onion** — for example: **`3g2upl4pq6kufc4m.onion`**
+
+The address is actually a **cryptographic public key** — it mathematically identifies the service.
+
+The process of connecting to a hidden service is more complex:
+
+1. The hidden service sets up **introduction points** — relays it registers with so clients can find it
+1. A client that wants to connect selects a **rendezvous point** (another relay) and sends the rendezvous point's address to the hidden service through an introduction point
+1. The hidden service connects to the rendezvous point
+1. The client and hidden service now communicate through the rendezvous point — **neither one knows the other's IP address**
+
+This provides **two-way anonymity** — the client doesn't know where the server is, and the server doesn't know where the client is.
+
+### **Legitimate Uses of Hidden Services**
+
+- **SecureDrop** — a system used by major news organizations (New York Times, Washington Post) to allow whistleblowers to securely submit documents
+- **Facebook's .onion address** — Facebook operates an official .onion site so users in censored countries can access it
+- **Privacy-focused email services**
+- **Tor-based communication tools**
+
+### **Illegitimate Uses**
+
+- **Dark web marketplaces** selling illegal goods
+- **Stolen data markets**
+- **Criminal forums**
+
+This dual nature is the central ethical tension of Tor — the same technology that protects journalists and dissidents also enables criminal activity.
+
+---
+
+## **Tor Browser**
+
+The most common way ordinary users access Tor is through the **Tor Browser** — a modified version of Firefox pre-configured to route all traffic through the Tor network.
+
+Key features:
+
+- **Automatically uses Tor** for all browsing
+- **Blocks JavaScript** by default (which can leak your real IP)
+- **Blocks plugins** like Flash that can bypass Tor
+- **Clears cookies and history** after each session
+- **Standardizes browser fingerprint** — makes all Tor Browser users look identical to websites to prevent fingerprinting
+
+---
+
+## **Tor's Limitations and Weaknesses**
+
+Tor is powerful but **not perfect**. Understanding its limitations is just as important as understanding how it works.
+
+### **1. Exit Node is a Weak Point**
+
+The exit node can see your **unencrypted traffic** if you're not using HTTPS. If you send passwords or sensitive data over HTTP through Tor, the exit node operator can read it. This is why you should **always use HTTPS** even when using Tor.
+
+Malicious exit nodes have been documented — operators who deliberately run exit nodes to **intercept and modify traffic**.
+
+### **2. Timing/Correlation Attacks**
+
+A powerful adversary (like a government or intelligence agency) who can monitor **both the entry point of your traffic into Tor and the exit point** can use **traffic analysis** to correlate the two — matching timing patterns, packet sizes, and volumes to **de-anonymize users** even without breaking the encryption.
+
+This is called a **global passive adversary** attack — it doesn't break Tor's encryption, it just statistically correlates traffic flows. This is considered Tor's most serious theoretical weakness.
+
+### **3. Browser Fingerprinting**
+
+Even through Tor, websites can try to identify you through your **browser fingerprint** — the combination of your screen resolution, fonts, browser plugins, language settings, time zone, and other characteristics. Tor Browser mitigates this by standardizing these settings, but JavaScript-based fingerprinting is a constant arms race.
+
+### **4. Tor is Slow**
+
+Because traffic passes through **three relays**, each adding latency, and because each relay is operated by volunteers with varying bandwidth, Tor is **significantly slower** than regular browsing. This makes it unsuitable for bandwidth-intensive activities like video streaming.
+
+### **5. Tor Doesn't Make You Automatically Anonymous**
+
+Many users de-anonymize themselves through **behavior**, not technical failures:
+
+- Logging into personal accounts (Gmail, Facebook) through Tor — now the site knows who you are regardless of Tor
+- Using the same username across Tor and non-Tor contexts
+- Providing personal information through Tor-accessed services
+- JavaScript exploits that reveal real IP addresses
+
+**Tor protects your network identity, not your behavioral identity.**
+
+### **6. Sybil Attack**
+
+An attacker could try to **run a large number of Tor relays** to increase the probability that both the guard node and exit node of a circuit are under their control — giving them the ability to perform correlation attacks. Tor's design tries to prevent this but cannot eliminate the risk.
+
+### **7. End-to-End Confirmation**
+
+If an adversary can **monitor both ends of a Tor connection** (your internet connection and the destination server), they can confirm with high probability that you are communicating with that server through timing analysis.
+
+---
+
+## **Tor vs VPN — Key Differences**
+
+{% table %}
+- **Feature**
+- **Tor**
+- **VPN**
+---
+- Trust model
+- Distributed — no single point of trust
+- Centralized — must trust VPN provider
+---
+- Anonymity
+- Strong (no single party knows full picture)
+- Weaker (VPN provider knows everything)
+---
+- Speed
+- Slow (multiple hops)
+- Fast (single hop)
+---
+- Cost
+- Free
+- Usually paid
+---
+- Hidden services
+- Yes (.onion sites)
+- No
+---
+- Exit node visibility
+- Exit node sees destination
+- VPN server sees everything
+---
+- ISP visibility
+- ISP sees Tor usage
+- ISP sees VPN usage
+---
+- Best for
+- Anonymity
+- Privacy and speed
+{% /table %}
+
+Some users combine both — **VPN over Tor** or **Tor over VPN** — for layered protection, though each combination has different trade-offs.
+
+---
+
+## **Tor in Network Security — Attacker's Perspective**
+
+From a network security professional's standpoint, Tor is a **double-edged tool**:
+
+### **Attackers Use Tor To:**
+
+- **Anonymize command and control (C2) traffic** for malware and botnets — making it hard to trace back to the attacker
+- **Conduct reconnaissance** against target networks without revealing their IP
+- **Access dark web markets** to buy stolen credentials, exploit kits, or hacking services
+- **Exfiltrate stolen data** anonymously
+
+### **Defenders Respond By:**
+
+- **Blocking Tor exit nodes** at the firewall — lists of known Tor exit node IP addresses are publicly available and can be used to block or flag Tor traffic
+- **Monitoring for Tor usage** on corporate networks — Tor usage by employees may indicate data exfiltration or policy violation
+- **Deep packet inspection** to detect Tor's characteristic traffic patterns even when obfuscated
+- Using **Tor bridges and traffic analysis** when investigating attacks that use Tor for C2
+
+---
+
+## **Tor and Law Enforcement**
+
+Law enforcement agencies have had **mixed success** in de-anonymizing Tor users:
+
+- **Operational security failures** are the most common cause of arrest — users making mistakes (logging into personal accounts, revealing personal information, using regular email alongside Tor)
+- **Malware** injected through compromised .onion sites has been used by the FBI to reveal users' real IP addresses
+- **Traffic analysis** at the network level has been used in some cases
+- **Server seizures** — taking down the physical servers hosting hidden services, which may reveal logs or user data if not properly secured
+
+Tor is strong enough that **breaking the cryptography directly is not a practical attack vector** — instead, attackers (including law enforcement) target the **endpoints and the humans using the system**.
+
+---
+
+## **Key Concepts to Remember for Exams**
+
+- Tor stands for **The Onion Router** — originally developed by the **US Naval Research Laboratory**
+- Tor routes traffic through **three relays** (guard, middle, exit) with **layered encryption**
+- No single relay knows **both the source and the destination** — this is the core privacy guarantee
+- Traffic is encrypted **three times** — one layer peeled off at each relay
+- **Hidden services (.onion)** provide two-way anonymity — neither client nor server knows the other's IP
+- The **exit node** can see unencrypted traffic — always use HTTPS with Tor
+- **Timing/correlation attacks** by global adversaries are the most serious theoretical weakness
+- Tor **doesn't automatically make you anonymous** — behavioral mistakes de-anonymize users
+- Tor is **slow** due to multiple hops through volunteer relays
+- Defenders block Tor by **blacklisting exit node IPs** at firewalls
+- Attackers use Tor to **anonymize C2 traffic and conduct reconnaissance**
+- Tor vs VPN: Tor is better for **anonymity**, VPN is better for **speed and simplicity**

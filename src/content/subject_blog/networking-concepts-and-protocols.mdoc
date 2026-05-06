@@ -1,0 +1,348 @@
+---
+draft: false
+readtime: true
+title: Networking Concepts and Protocols
+published: 2026-05-06T22:09:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is a Network?**
+
+A **network** is a collection of devices (computers, phones, servers, printers, routers, etc.) connected together so they can **communicate and share resources**. These devices are called **nodes** or **hosts**.
+
+Networks can be:
+
+- **Small** — like two computers connected in your home
+- **Large** — like the internet, which connects billions of devices worldwide
+
+---
+
+## **Types of Networks**
+
+### **LAN (Local Area Network)**
+
+A network that covers a **small geographic area** — like a home, office, or school building. Devices in a LAN are usually connected via Ethernet cables or Wi-Fi. LANs are fast and privately owned.
+
+### **WAN (Wide Area Network)**
+
+A network that covers a **large geographic area** — connecting cities, countries, or even continents. The internet is the largest WAN in existence. WANs are typically slower than LANs and use public infrastructure.
+
+### **MAN (Metropolitan Area Network)**
+
+Covers a **city or campus** — larger than a LAN but smaller than a WAN. Example: a city-wide government network.
+
+### **PAN (Personal Area Network)**
+
+A very small network around a **single person** — like Bluetooth connecting your phone to your headphones.
+
+---
+
+## **How Data Travels in a Network**
+
+When you send data across a network — whether it's an email, a video, or a web page request — that data doesn't travel as one giant chunk. It gets broken into smaller pieces called **packets**.
+
+### **Packets**
+
+A **packet** is a small unit of data that travels across a network. Each packet contains:
+
+- **Header** — information about where the packet is going, where it came from, and how it fits with other packets
+- **Payload** — the actual data being sent
+- **Trailer** — sometimes contains error-checking information
+
+Packets from the same message may take **different routes** through the network and are **reassembled** at the destination. This is called **packet switching** and it's the foundation of how the internet works.
+
+---
+
+## **The OSI Model**
+
+To understand networking properly, you need to understand the **OSI Model** (Open Systems Interconnection Model). This is a conceptual framework that breaks down **how communication happens in a network into 7 layers**. Each layer has a specific job, and each layer communicates with the layers directly above and below it.
+
+Think of it like mailing a letter — there are multiple steps involved (writing, putting it in an envelope, addressing it, dropping it at the post office, sorting, transporting, delivering). Each step is like a layer.
+
+---
+
+### **Layer 7 — Application Layer**
+
+This is the layer **closest to the user**. It provides network services directly to applications. When you open a browser and go to a website, the browser operates at this layer.
+
+**Protocols:** HTTP, HTTPS, FTP, SMTP, DNS, POP3, IMAP
+
+### **Layer 6 — Presentation Layer**
+
+This layer is responsible for **data formatting, encryption, and compression**. It makes sure that data sent by one system can be understood by another — like translating between different data formats.
+
+**Example:** Converting data into JPEG format, or encrypting data using SSL.
+
+### **Layer 5 — Session Layer**
+
+This layer manages **sessions** — the connections between applications on different devices. It establishes, maintains, and terminates communication sessions.
+
+**Example:** When you log in to a website, a session is created. The session layer manages how long that stays open.
+
+### **Layer 4 — Transport Layer**
+
+This is one of the most important layers for network security. It is responsible for **reliable data transfer** between two devices — making sure data arrives completely and in order. It also handles **error checking** and **flow control**.
+
+**Protocols:** TCP, UDP
+
+- **TCP (Transmission Control Protocol)** — reliable, connection-oriented. It confirms every packet arrives. Used for web browsing, email, file transfers.
+- **UDP (User Datagram Protocol)** — faster but unreliable, connectionless. No confirmation that packets arrived. Used for video streaming, gaming, DNS.
+
+### **Layer 3 — Network Layer**
+
+This layer is responsible for **routing** — determining the best path for data to travel from source to destination across multiple networks. It handles **logical addressing** using IP addresses.
+
+**Protocols:** IP (IPv4, IPv6), ICMP, OSPF, BGP
+
+**Devices at this layer:** Routers
+
+### **Layer 2 — Data Link Layer**
+
+This layer handles communication between **directly connected devices** on the same network. It deals with **physical addressing** using MAC addresses and handles error detection for the physical transmission.
+
+**Protocols:** Ethernet, Wi-Fi (802.11), ARP
+
+**Devices at this layer:** Switches, Bridges
+
+### **Layer 1 — Physical Layer**
+
+This is the lowest layer — it deals with the **actual physical transmission** of raw bits (0s and 1s) over a physical medium like cables, fiber optics, or radio waves.
+
+**Devices at this layer:** Hubs, Cables, Network Interface Cards (NICs)
+
+---
+
+## **Why the OSI Model Matters for Security**
+
+Attacks can happen at **any layer** of the OSI model, and the defense must match the layer being attacked:
+
+{% table %}
+- **Layer**
+- **Example Attack**
+---
+- Application
+- SQL Injection, Phishing
+---
+- Transport
+- TCP SYN Flood
+---
+- Network
+- IP Spoofing, Routing attacks
+---
+- Data Link
+- ARP Spoofing, MAC Flooding
+---
+- Physical
+- Cable tapping, hardware theft
+{% /table %}
+
+Understanding which layer an attack targets helps you understand **what kind of defense** is needed.
+
+---
+
+## **The TCP/IP Model**
+
+In practice, the internet doesn't use the OSI model directly — it uses the **TCP/IP model**, which is a simpler, 4-layer version:
+
+{% table %}
+- **TCP/IP Layer**
+- **Equivalent OSI Layers**
+---
+- Application
+- Application + Presentation + Session
+---
+- Transport
+- Transport
+---
+- Internet
+- Network
+---
+- Network Access
+- Data Link + Physical
+{% /table %}
+
+The TCP/IP model is what the real internet is built on. The OSI model is more of a **teaching and reference tool**.
+
+---
+
+## **Key Networking Protocols**
+
+Now let's go through the most important protocols you need to know:
+
+### **IP (Internet Protocol)**
+
+IP is the fundamental protocol of the internet. It handles **addressing and routing** of packets. Every device on a network has an **IP address** — a unique identifier.
+
+- **IPv4** — uses 32-bit addresses, written as four numbers separated by dots (e.g., 192.168.1.1). Supports about 4.3 billion addresses — which is running out.
+- **IPv6** — uses 128-bit addresses, written in hexadecimal (e.g., 2001:0db8:85a3::8a2e:0370:7334). Supports an astronomically larger number of addresses.
+
+IP is **connectionless** — it just sends packets without guaranteeing delivery. That's TCP's job.
+
+### **TCP (Transmission Control Protocol)**
+
+TCP provides **reliable, ordered delivery** of data. Before sending data, TCP establishes a connection using the **Three-Way Handshake**:
+
+1. **SYN** — the client sends a synchronization request to the server: "I want to connect"
+1. **SYN-ACK** — the server acknowledges and agrees: "Okay, let's connect"
+1. **ACK** — the client confirms: "Connection established"
+
+After the handshake, data transfer begins. This process is very important in security because **SYN Flood attacks** exploit it — sending thousands of SYN requests without completing the handshake, overwhelming the server.
+
+### **UDP (User Datagram Protocol)**
+
+UDP is **faster but less reliable** than TCP. It sends data without establishing a connection and without confirming delivery. It's used where speed matters more than reliability — like video calls, live streaming, or DNS queries.
+
+From a security perspective, UDP's lack of connection tracking makes it easier to **spoof** (fake the source address).
+
+### **HTTP and HTTPS**
+
+- **HTTP (HyperText Transfer Protocol)** — the protocol used for web browsing. Data is sent in **plain text**, meaning anyone intercepting the traffic can read it.
+- **HTTPS (HTTP Secure)** — HTTP with **encryption** (via SSL/TLS). The data is encrypted, so even if intercepted, it can't be read easily. This is why you should always look for the padlock icon in your browser.
+
+### **DNS (Domain Name System)**
+
+DNS translates **human-readable domain names** (like google.com) into **IP addresses** (like 142.250.180.46) that computers can use. Without DNS, you'd have to memorize IP addresses for every website.
+
+DNS is critical infrastructure — and also a major target for attacks. We'll cover DNS Security in depth later.
+
+### **DHCP (Dynamic Host Configuration Protocol)**
+
+When a device joins a network, it needs an IP address. **DHCP automatically assigns IP addresses** to devices. Your home router uses DHCP to give your phone, laptop, etc. their IP addresses.
+
+From a security perspective, a **rogue DHCP server** can assign wrong IP addresses and redirect traffic.
+
+### **ARP (Address Resolution Protocol)**
+
+ARP maps **IP addresses to MAC addresses** within a local network. When your computer wants to send data to another device on the same network, it uses ARP to find out that device's MAC address.
+
+**ARP Spoofing** is a major attack — where an attacker sends fake ARP messages to associate their MAC address with another device's IP address, allowing them to intercept traffic.
+
+### **ICMP (Internet Control Message Protocol)**
+
+ICMP is used for **network diagnostics and error reporting**. The most common use is the **ping** command — which sends an ICMP echo request to check if a host is reachable.
+
+Attackers use ICMP in **ping flood attacks** and to **map out networks** (find which hosts are alive).
+
+### **SMTP, POP3, IMAP**
+
+These are **email protocols**:
+
+- **SMTP** — used to **send** emails
+- **POP3** — used to **receive** emails (downloads them to your device)
+- **IMAP** — used to **access** emails (keeps them on the server)
+
+Email protocols are a major attack vector — phishing, spam, and malware are commonly delivered via email.
+
+---
+
+## **Ports and Sockets**
+
+Every network service runs on a specific **port number**. Ports allow a single device to run multiple network services simultaneously. Think of an IP address as a building address, and a port as the specific apartment number inside.
+
+Some important port numbers to know:
+
+{% table %}
+- **Port**
+- **Protocol/Service**
+---
+- 20, 21
+- FTP
+---
+- 22
+- SSH
+---
+- 23
+- Telnet
+---
+- 25
+- SMTP
+---
+- 53
+- DNS
+---
+- 80
+- HTTP
+---
+- 110
+- POP3
+---
+- 143
+- IMAP
+---
+- 443
+- HTTPS
+---
+- 3389
+- RDP (Remote Desktop)
+{% /table %}
+
+A **socket** is the combination of an IP address and a port number — for example, **`192.168.1.1:80`**. It uniquely identifies a specific communication channel.
+
+Attackers use **port scanning** to discover which ports are open on a target, which tells them what services are running and what vulnerabilities might exist.
+
+---
+
+## **MAC Addresses**
+
+A **MAC address (Media Access Control address)** is a **hardware address** burned into a network interface card (NIC) at the factory. It is unique to each device and used for communication within a local network (Layer 2).
+
+MAC addresses are 48 bits long and written in hexadecimal — for example: **`00:1A:2B:3C:4D:5E`**
+
+Unlike IP addresses, MAC addresses don't change (though they can be **spoofed** in software). Routers use IP addresses for routing between networks, while switches use MAC addresses for communication within a network.
+
+---
+
+## **Subnetting and IP Addressing**
+
+Networks are divided into **subnets** to organize devices and control traffic. A **subnet mask** defines which part of an IP address refers to the network and which part refers to the individual device.
+
+For example:
+
+- IP Address: **`192.168.1.50`**
+- Subnet Mask: **`255.255.255.0`**
+- This means the network is **`192.168.1.0`** and the device is host **`50`** within that network
+
+Subnetting is important for security because you can **isolate different parts of a network** — for example, putting servers in one subnet and user workstations in another, so that if one is compromised, the other isn't immediately accessible.
+
+---
+
+## **Network Devices**
+
+### **Hub**
+
+A basic device that connects multiple devices in a network and **broadcasts all traffic to everyone**. Very insecure — anyone on the network can see all traffic. Largely obsolete today.
+
+### **Switch**
+
+Smarter than a hub — it learns which device is connected to which port and **sends traffic only to the intended recipient**. More secure and efficient. Operates at Layer 2.
+
+### **Router**
+
+Connects **different networks** together and routes traffic between them. Your home router connects your local network to the internet. Operates at Layer 3.
+
+### **Firewall**
+
+Monitors and filters traffic based on rules. Acts as a security barrier between networks. We'll cover this in detail later.
+
+### **Access Point (AP)**
+
+Provides **wireless connectivity** to a wired network. Your home Wi-Fi router contains an access point.
+
+---
+
+## **The Concept of Encapsulation**
+
+As data moves **down** the OSI layers on the sending side, each layer **adds its own header** (and sometimes trailer) to the data. This is called **encapsulation**.
+
+- Application layer creates the data
+- Transport layer adds a TCP/UDP header (with port numbers)
+- Network layer adds an IP header (with IP addresses)
+- Data Link layer adds an Ethernet header (with MAC addresses)
+- Physical layer converts everything to bits and transmits
+
+On the receiving side, each layer **strips off its header** (decapsulation) and passes the data up to the next layer.
+
+Understanding encapsulation helps you understand **where** in the data structure you can find certain information — which is crucial for packet analysis and network forensics.
