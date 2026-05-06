@@ -1,0 +1,380 @@
+---
+draft: false
+readtime: true
+title: DoS and DDoS Detection and Prevention
+published: 2026-05-06T22:12:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+Denial of Service attacks are among the most **disruptive and widely used** attack types in the world. They don't steal data or break into systems — their sole purpose is to make a service **unavailable**. This topic covers how these attacks work in detail, and more importantly, how to detect and stop them.
+
+---
+
+## **What is a Denial of Service (DoS) Attack?**
+
+A **Denial of Service (DoS) attack** is an attack that attempts to make a machine, network, or service **unavailable to its intended users** by overwhelming it with traffic or requests, consuming all its resources, or exploiting a vulnerability that causes it to crash.
+
+The key word is **denial** — legitimate users are denied the ability to use the service. The attacker isn't necessarily stealing anything — they're simply **breaking availability**, which is the third pillar of the CIA triad.
+
+Think of it like this: imagine a small shop with one cashier. If 500 people walk in and all crowd around the counter making fake requests, no real customer can get served. The shop isn't broken — it's just overwhelmed.
+
+---
+
+## **What is a Distributed Denial of Service (DDoS) Attack?**
+
+A **Distributed Denial of Service (DDoS) attack** is a DoS attack launched from **many different sources simultaneously** — often thousands or millions of machines — making it far more powerful and much harder to stop.
+
+The "distributed" part means the attack traffic comes from **many different IP addresses** spread across the globe. This makes it extremely difficult to simply block the attacker's IP because there is no single IP — there are millions.
+
+These attacking machines are typically part of a **botnet** — a network of computers infected with malware and controlled remotely by the attacker. The owners of these machines often have no idea their computer is being used to attack someone.
+
+---
+
+## **Why DDoS Attacks Are So Dangerous**
+
+- **Scale** — Modern DDoS attacks can generate **terabits per second** of traffic — enough to overwhelm almost any target
+- **Cost asymmetry** — It costs the attacker very little (renting a botnet is cheap on the dark web) but costs the victim enormously
+- **Hard to distinguish** — Attack traffic can look similar to legitimate traffic
+- **Disruption impact** — Every minute a service is down costs money, damages reputation, and loses customers
+- **Cover for other attacks** — DDoS is sometimes used as a **distraction** while the real attack (data theft, system compromise) happens quietly elsewhere
+
+---
+
+## **Motivations Behind DoS/DDoS Attacks**
+
+Understanding why attackers launch these attacks helps understand the threat:
+
+- **Extortion** — "Pay us or we'll keep attacking your website" (Ransom DDoS / RDDoS)
+- **Competitive sabotage** — taking down a competitor's service
+- **Hacktivism** — political or ideological protest (taking down government or corporate sites)
+- **Revenge** — disgruntled customers, employees, or users
+- **Distraction** — covering other malicious activity happening simultaneously
+- **Stress testing gone wrong** — sometimes legitimate load testing tools are misused
+- **Nation-state warfare** — attacking critical infrastructure of other countries
+
+---
+
+## **How DoS/DDoS Attacks Work — The Technical Detail**
+
+DDoS attacks fall into several categories based on **what they target** and **how they work**:
+
+---
+
+### **Category 1: Volume-Based Attacks (Bandwidth Exhaustion)**
+
+These attacks aim to **consume all available bandwidth** of the target's internet connection — flooding it with so much traffic that legitimate traffic simply cannot get through.
+
+#### **UDP Flood**
+
+The attacker sends a massive number of **UDP (User Datagram Protocol) packets** to random ports on the target. Since UDP is connectionless, the target receives these packets and tries to find an application listening on each port. Finding none, it sends back ICMP "Destination Unreachable" messages — consuming resources on both receiving and responding.
+
+The sheer volume of packets overwhelms the target's ability to process them.
+
+#### **ICMP Flood (Ping Flood)**
+
+The attacker sends an overwhelming number of **ICMP Echo Request (ping) packets** to the target. The target tries to respond to each one with an ICMP Echo Reply, consuming bandwidth and processing power.
+
+#### **Amplification Attacks**
+
+These are particularly powerful. The attacker exploits protocols that respond with **much larger messages than the request** — so a small request triggers a large response directed at the victim.
+
+**DNS Amplification:**\
+The attacker sends small DNS queries to open DNS resolvers, **spoofing the source IP address** as the victim's IP. The DNS resolvers send their large responses to the victim. A small query might trigger a response 50-70 times larger — amplifying the attack traffic enormously.
+
+**NTP Amplification:**\
+The Network Time Protocol has a command called **monlist** that returns a list of the last 600 clients that connected to the NTP server. An attacker sends a small request with the victim's spoofed IP, and the server responds with a massive list — directed at the victim. Amplification factor can be over 500x.
+
+**Memcached Amplification:**\
+Memcached is a caching system that uses UDP. Attackers have exploited it to achieve amplification factors of over **50,000x** — one of the largest amplification attacks ever recorded. This is how the 2018 GitHub attack reached 1.35 Tbps.
+
+---
+
+### **Category 2: Protocol Attacks (State Exhaustion)**
+
+These attacks exploit **weaknesses in network protocols** to consume server resources — specifically, the state tables that track connections. They don't necessarily consume bandwidth — they consume **connection capacity**.
+
+#### **SYN Flood Attack**
+
+This is one of the most classic and common DDoS attacks. It exploits the **TCP three-way handshake**:
+
+Normal handshake:
+
+text
+
+```
+Client → SYN → Server
+Client ← SYN-ACK ← Server
+Client → ACK → Server
+(Connection established)
+
+```
+
+In a SYN Flood:
+
+text
+
+```
+Attacker → SYN (spoofed IP) → Server
+Server ← SYN-ACK ← Server (sent to spoofed IP, never answered)
+Server waits for ACK... waits... waits...
+
+```
+
+The attacker sends **thousands of SYN packets with fake source IP addresses**. The server sends SYN-ACK responses to those fake IPs (which never reply) and keeps the **half-open connections** in memory waiting for the final ACK. Eventually the server's connection table fills up completely — it can no longer accept any new legitimate connections.
+
+Each half-open connection consumes a small amount of memory. Multiply by tens of thousands and the server runs out.
+
+#### **ACK Flood**
+
+Similar to SYN Flood but using ACK packets. The server receives ACK packets for connections that don't exist — it must check its state table each time, consuming resources.
+
+#### **Fragmentation Attacks**
+
+IP packets can be **fragmented** — broken into smaller pieces for transmission. The receiving system must reassemble them. Attackers send large numbers of **malformed or incomplete fragments** that can never be reassembled, consuming memory as the system keeps waiting for missing pieces.
+
+---
+
+### **Category 3: Application Layer Attacks (Layer 7 Attacks)**
+
+These are the most sophisticated attacks. Instead of overwhelming bandwidth or connection capacity, they target **specific application functions** with requests that appear legitimate but are designed to consume excessive server resources.
+
+They're harder to detect because the traffic looks like normal user behavior.
+
+#### **HTTP Flood**
+
+The attacker sends a massive number of seemingly legitimate **HTTP GET or POST requests** to a web server. Each request causes the server to process it fully — querying databases, generating pages, serving content — consuming CPU and memory.
+
+Unlike bandwidth floods, these attacks can be devastating even with relatively low traffic volumes because each request is expensive to process.
+
+#### **Slowloris Attack**
+
+A particularly clever attack. Slowloris **opens many connections to a web server and keeps them open as long as possible** by sending partial HTTP requests very slowly — never completing them.
+
+The server keeps each connection open waiting for the request to complete. Eventually, the server's maximum connection limit is reached and it can no longer accept new connections from legitimate users — all without sending large volumes of traffic.
+
+Named after the slow loris animal — slow and deliberate but effective.
+
+#### **RUDY (R-U-Dead-Yet?)**
+
+Similar to Slowloris but targeting HTTP POST requests. The attacker starts a POST request and then sends the body data **extremely slowly** — one byte at a time. The server keeps the connection open waiting for the complete data, exhausting connection resources.
+
+#### **DNS Query Flood**
+
+Flooding a DNS server with a massive number of queries — often for non-existent domains — forcing the DNS server to process each query and search for records that don't exist, consuming processing resources.
+
+---
+
+### **Category 4: Reflection Attacks**
+
+In a **reflection attack**, the attacker sends requests with the **victim's IP address spoofed as the source**. The servers receiving the requests send their responses to the victim — who never asked for them.
+
+Combined with amplification (reflection + amplification), these are among the most powerful attack types because:
+
+- The attacker hides their true IP behind the victim's IP
+- The attack traffic is multiplied many times
+- Many innocent third-party servers unknowingly participate in the attack
+
+---
+
+## **Real-World DDoS Attack Examples**
+
+### **GitHub (2018)**
+
+GitHub was hit with **1.35 Terabits per second** of traffic — at the time the largest DDoS attack ever recorded. It used Memcached amplification. GitHub survived because they quickly redirected traffic through Akamai's scrubbing infrastructure. The attack lasted only about 10 minutes before being mitigated.
+
+### **Dyn DNS Attack (2016)**
+
+A massive DDoS attack on **Dyn**, a major DNS provider, caused widespread outages across the internet — Twitter, Netflix, Reddit, Spotify, and many other major sites went down for hours. The attack used the **Mirai botnet** — composed of compromised IoT devices (cameras, DVRs, routers) that had default passwords. This attack demonstrated how vulnerable IoT devices create massive botnets.
+
+### **AWS (2020)**
+
+Amazon Web Services reported a **2.3 Tbps** DDoS attack — the largest ever recorded at that time — using CLDAP (Connection-less Lightweight Directory Access Protocol) reflection. AWS's infrastructure absorbed and mitigated it.
+
+---
+
+## **DDoS Detection**
+
+Detecting a DDoS attack seems obvious — the service goes down — but by that point it's already too late. **Early detection** is critical to minimize impact.
+
+### **Traffic Baseline and Anomaly Detection**
+
+The first step is knowing what **normal traffic** looks like for your network and services. When traffic suddenly deviates significantly from the baseline — a spike in volume, unusual protocol distribution, abnormal geographic sources — it triggers an alert.
+
+### **Rate Monitoring**
+
+Monitoring the **rate of incoming packets, connections, and requests**:
+
+- Sudden spike in UDP packets per second → possible UDP flood
+- Surge in SYN packets without corresponding ACKs → possible SYN flood
+- Unusually high HTTP requests per second → possible HTTP flood
+
+### **Traffic Analysis Tools**
+
+Tools used for detection:
+
+- **NetFlow / sFlow** — monitoring traffic metadata for anomalies
+- **Wireshark** — deep packet inspection to analyze traffic patterns
+- **SIEM systems** — correlating logs and alerts across the infrastructure
+- **Dedicated DDoS detection appliances** — hardware/software specifically designed to identify DDoS patterns
+
+### **Indicators of a DDoS Attack**
+
+- Sudden, dramatic slowdown or unavailability of a service
+- Unusual spike in traffic from many different IP addresses
+- Traffic spike from a single geographic region or AS (Autonomous System)
+- High volume of requests for a single URL (HTTP flood indicator)
+- Large number of incomplete TCP connections (SYN flood indicator)
+- Flood of traffic on unusual ports
+
+---
+
+## **DDoS Prevention and Mitigation**
+
+### **1. Rate Limiting**
+
+**Rate limiting** restricts the number of requests a client can make in a given time period. If a source exceeds the limit, additional requests are dropped or delayed.
+
+Example: A web server might allow a maximum of 100 requests per second from a single IP address. Anything above that is dropped.
+
+Rate limiting is effective against smaller-scale attacks but less effective against distributed attacks where each individual bot sends only a few requests — staying under the per-IP limit while collectively overwhelming the server.
+
+### **2. Traffic Scrubbing (Scrubbing Centers)**
+
+**Scrubbing** is the process of routing all incoming traffic through specialized infrastructure that **filters out malicious traffic** and forwards only clean, legitimate traffic to the destination.
+
+When an attack is detected, traffic is **redirected to a scrubbing center** using BGP (Border Gateway Protocol) route announcements or DNS changes. The scrubbing center:
+
+- Analyzes traffic in real time
+- Identifies and drops attack traffic
+- Forwards clean traffic to the target
+
+This is the most effective mitigation for large volumetric attacks. Companies like **Cloudflare, Akamai, and AWS Shield** provide scrubbing services with massive capacity — capable of absorbing hundreds of Gbps or even Tbps of attack traffic.
+
+### **3. Black Hole Routing (Null Routing)**
+
+A drastic measure — all traffic destined for the attacked IP address is **routed to a null interface** (discarded). This completely stops the attack traffic — but also stops all legitimate traffic.
+
+It's essentially **sacrificing the attacked resource** to protect the rest of the network. Used when the attack is so severe it threatens the entire infrastructure.
+
+**Remote Triggered Black Hole (RTBH)** is a technique where ISPs can implement black hole routing on your behalf at their level, stopping the attack traffic before it even reaches your network.
+
+### **4. Anycast Network Diffusion**
+
+**Anycast** is a routing technique where the same IP address is announced from **multiple geographic locations**. When a DDoS attack hits, the traffic is automatically distributed across all these locations — no single location receives the full force of the attack.
+
+This is how large CDNs (Content Delivery Networks) like Cloudflare absorb massive DDoS attacks — they spread the attack traffic across their global network of data centers, each absorbing a fraction of it.
+
+### **5. SYN Cookies (Defense Against SYN Flood)**
+
+**SYN Cookies** is a specific technique to defend against SYN flood attacks. Instead of storing half-open connections in memory, the server encodes connection state information into the **sequence number of the SYN-ACK response**.
+
+When a legitimate client replies with ACK, the server can **reconstruct the connection information from the sequence number** without having stored anything. If no ACK comes (because the SYN was from an attacker using a spoofed IP), no memory is wasted.
+
+This allows the server to handle massive numbers of SYN packets without exhausting its connection table.
+
+### **6. Ingress Filtering and BCP38**
+
+**Ingress filtering** is the practice of ISPs and networks **dropping packets with spoofed source IP addresses** — if a packet arrives claiming to come from an IP that can't legitimately come from that direction, it's dropped.
+
+**BCP38** (Best Current Practice 38) is an internet standard recommending that ISPs implement ingress filtering to prevent IP spoofing — which is the foundation of amplification and reflection attacks. If widely implemented, it would make these attack types far less effective. Unfortunately, not all ISPs implement it.
+
+### **7. Web Application Firewalls (WAF)**
+
+A **WAF** specifically protects web applications from Layer 7 attacks like HTTP floods. It can:
+
+- Identify and block suspicious request patterns
+- Implement CAPTCHA challenges for suspicious clients
+- Rate limit based on sophisticated behavioral analysis
+- Block requests from known malicious IP ranges
+
+### **8. CDN (Content Delivery Network)**
+
+A **CDN** distributes website content across many servers globally. When a user visits the site, they're served from the nearest CDN node. This:
+
+- Distributes traffic load naturally
+- Makes volumetric attacks harder (the attacker must overwhelm the entire CDN, not just one server)
+- Provides DDoS mitigation as a built-in feature
+
+Major CDN providers: Cloudflare, Akamai, Fastly, Amazon CloudFront
+
+### **9. IP Reputation Filtering**
+
+Maintaining and using **lists of known malicious IP addresses** — blocking traffic from IPs associated with botnets, previous attacks, or known bad actors. Threat intelligence feeds provide regularly updated lists.
+
+### **10. CAPTCHA and Challenge-Response**
+
+For web applications — presenting **CAPTCHA challenges** to distinguish humans from bots. A bot launching an HTTP flood cannot solve a CAPTCHA; a human user can.
+
+More sophisticated systems use **JavaScript challenges** — presenting a computational challenge that browsers execute automatically but raw HTTP flood tools cannot.
+
+---
+
+## **ISP-Level Mitigation**
+
+Large-scale DDoS attacks must ultimately be dealt with **upstream at the ISP level** — because if the attack saturates your internet connection, no on-premises defense can help (the pipe is already full before traffic reaches your equipment).
+
+ISPs can:
+
+- Implement **upstream filtering** — dropping attack traffic before it reaches the customer
+- Apply **black hole routing** at their level
+- Work with **transit providers and peering partners** to filter at the source
+
+This is why organizations facing serious DDoS threats need **DDoS protection services** from their ISP or a dedicated cloud-based DDoS mitigation provider.
+
+---
+
+## **DDoS as a Service (DDoSaaS)**
+
+Unfortunately, launching a DDoS attack has become trivially easy. **Booter and stresser services** on the dark web (and sometimes even the open web) offer DDoS attacks for hire — anyone can pay a small amount and point a massive botnet at any target.
+
+This has democratized DDoS attacks — even completely non-technical individuals can launch attacks capable of taking down significant targets. This is why DDoS attacks have become so prevalent.
+
+---
+
+## **Defense Summary Table**
+
+{% table %}
+- **Attack Type**
+- **Defense Mechanism**
+---
+- UDP/ICMP Flood
+- Rate limiting, upstream filtering, scrubbing
+---
+- SYN Flood
+- SYN Cookies, rate limiting, firewalls
+---
+- Amplification
+- BCP38 ingress filtering, disable vulnerable services
+---
+- HTTP Flood
+- WAF, rate limiting, CAPTCHA, CDN
+---
+- Slowloris
+- Connection timeout limits, reverse proxy
+---
+- Botnet-based
+- IP reputation filtering, scrubbing centers
+---
+- Large volumetric
+- Anycast diffusion, scrubbing centers, ISP mitigation
+{% /table %}
+
+---
+
+## **The Importance of a DDoS Response Plan**
+
+Just like an incident response plan, organizations should have a specific **DDoS response plan** prepared in advance:
+
+- Who is responsible for declaring a DDoS incident?
+- What is the escalation path — who do you call?
+- Do you have a contract with a DDoS mitigation provider ready to activate?
+- What are the steps to redirect traffic to scrubbing?
+- How do you communicate with customers during an outage?
+- When is black hole routing an acceptable last resort?
+
+Having these decisions made **before** an attack happens means you can respond in minutes instead of hours — and minutes matter enormously during an active DDoS attack.
+
+\
