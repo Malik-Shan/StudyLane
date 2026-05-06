@@ -1,0 +1,247 @@
+---
+draft: false
+readtime: true
+title: Packet Sniffing and Spoofing
+published: 2026-05-06T22:16:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is Packet Sniffing?**
+
+To understand packet sniffing, you first need to understand something fundamental about how networks work: **when data travels across a network, it doesn't travel as one big block — it travels in small chunks called packets.** Each packet contains a header (with information like source IP, destination IP, protocol, etc.) and a payload (the actual data being sent, like an email message or a webpage).
+
+Now here's the thing — on many types of networks, especially older or shared ones, **these packets don't go directly and privately from sender to receiver.** They get broadcast across the network medium, and every device on that network technically "sees" every packet. Normally, a device's **Network Interface Card (NIC)** is polite — it only picks up packets that are addressed to it and ignores everything else.
+
+**Packet sniffing is the act of intercepting and capturing these packets as they travel across a network** — including packets that weren't meant for you. A packet sniffer (also called a network analyzer or protocol analyzer) is a tool or program that does this.
+
+To capture packets not meant for the machine, the NIC is put into **promiscuous mode** — this means the NIC stops being selective and picks up ALL packets it sees on the network, regardless of the destination address. This is the key technical enabler of sniffing.
+
+---
+
+## **Why Does Packet Sniffing Exist? (Legitimate vs Malicious Use)**
+
+Packet sniffing is not inherently evil. It has **very legitimate uses:**
+
+- **Network troubleshooting** — Network administrators use sniffers to diagnose problems. If something isn't working, capturing packets tells you exactly what's happening at the data level.
+- **Performance monitoring** — You can see where delays are happening, which devices are consuming bandwidth, etc.
+- **Security analysis** — Analyzing captured traffic to detect intrusions or suspicious patterns.
+- **Protocol development and debugging** — Developers building network applications use sniffers to verify their software is sending the right data.
+
+The most famous legitimate packet sniffer is **Wireshark** — it's free, widely used, and incredibly powerful. Network professionals use it daily.
+
+However, **the same tool in the wrong hands becomes a weapon.** An attacker who gets access to a network and runs a sniffer can:
+
+- Capture **usernames and passwords** (especially on unencrypted protocols)
+- Read **emails, chat messages, file transfers**
+- Capture **session tokens** (to hijack active sessions)
+- Gather information about the **network topology** for further attacks
+
+---
+
+## **How Sniffing Works — The Technical Side**
+
+### **Shared vs Switched Networks**
+
+This is really important to understand because the network type determines how easy sniffing is.
+
+**Shared/Hub-based Networks (older technology):**\
+When you use a hub, it literally broadcasts every packet to every single port. So if 10 computers are connected to a hub, and Computer A sends a packet to Computer B, all 10 computers receive that packet. Normally 8 of them ignore it. But if any of them has their NIC in promiscuous mode, they capture it. Sniffing on a hub-based network is trivially easy.
+
+**Switched Networks (modern technology):**\
+Switches are smarter. A switch learns which device is on which port (using MAC addresses) and sends packets **only to the intended destination port.** So if Computer A sends a packet to Computer B, only Computer B's port receives it. This makes passive sniffing much harder.
+
+But attackers developed techniques to get around switches — we'll cover those shortly.
+
+---
+
+## **Types of Sniffing**
+
+### **1. Passive Sniffing**
+
+This is sniffing without doing anything active to the network. You just listen. This works perfectly on hub-based networks where traffic is already broadcast everywhere. It's stealthy because you're not generating any unusual traffic — you're just quietly listening.
+
+### **2. Active Sniffing**
+
+On switched networks, you have to actively manipulate the network to force traffic to come to you. This involves attacks like **ARP Poisoning, MAC Flooding**, etc. (explained below). Active sniffing generates traffic and is therefore more detectable.
+
+---
+
+## **Techniques Used in Active Sniffing**
+
+### **ARP Poisoning (ARP Spoofing)**
+
+This is one of the most important techniques to understand.
+
+**ARP (Address Resolution Protocol)** is a protocol used to map IP addresses to MAC addresses. When your computer wants to send data to another device on the local network, it knows the IP address but needs the MAC address (because at the hardware level, data is sent using MAC addresses). So it sends out an ARP request: *"Who has IP address 192.168.1.5? Tell me your MAC address."* The device with that IP responds with its MAC address. Your computer caches this in its **ARP table.**
+
+**The vulnerability:** ARP has no authentication. There's no verification that the reply came from the legitimate device. Anyone can send a fake ARP reply.
+
+**ARP Poisoning attack:** The attacker sends fake ARP replies to victims, saying *"I am the router — my MAC address is [attacker's MAC]"* and also tells the router *"I am that computer — my MAC address is [attacker's MAC]."* Now both the victim and the router update their ARP tables with wrong information. All traffic meant to go between the victim and the router now flows through the attacker's machine. The attacker forwards it along so nobody notices anything — this is called a **Man-in-the-Middle (MitM) attack.** The attacker can read and even modify all the traffic.
+
+### **MAC Flooding**
+
+Switches maintain a **CAM table** (Content Addressable Memory) — a table that maps MAC addresses to ports. This table has a **limited size.**
+
+In a MAC flooding attack, the attacker floods the switch with thousands of packets with fake, random source MAC addresses. The switch tries to learn all these MAC addresses and store them in its CAM table. The table fills up and **overflows.** When the CAM table is full, the switch doesn't know what to do — it falls back to behaving like a hub, **broadcasting all packets to all ports.** Now the attacker's sniffer can capture everything.
+
+### **DHCP Spoofing**
+
+DHCP is the protocol that automatically assigns IP addresses to devices when they join a network. A **rogue DHCP server** set up by an attacker can respond to DHCP requests before the legitimate server does, assigning the attacking machine as the **default gateway.** Now all traffic from the victim is routed through the attacker.
+
+### **DNS Spoofing**
+
+The attacker provides fake DNS responses, redirecting victims to malicious servers. More on this in the DNS Security topic, but it's worth knowing it's also used in sniffing-related attacks.
+
+---
+
+## **What Information Can Be Captured?**
+
+The attacker's success depends heavily on **whether the traffic is encrypted or not.**
+
+**Unencrypted protocols (extremely vulnerable):**
+
+- **HTTP** — all web traffic including form submissions (logins, passwords) visible in plain text
+- **FTP** — file transfers and login credentials in plain text
+- **Telnet** — everything including keystrokes visible in plain text
+- **SMTP/POP3/IMAP** (without TLS) — emails in plain text
+- **DNS** — domain name queries visible (privacy concern even if not a direct security breach)
+
+**Encrypted protocols (much safer):**
+
+- **HTTPS** — traffic is encrypted, sniffers can see that communication is happening but not the content
+- **SSH** — encrypted, replaces Telnet
+- **FTPS/SFTP** — encrypted file transfer
+- **SMTPS, IMAPS** — encrypted email
+
+This is why the shift to HTTPS everywhere has been so important — even if someone is sniffing your traffic, they can't read it.
+
+---
+
+## **Now Let's Talk About Packet Spoofing**
+
+**Spoofing is the act of forging or faking information in a packet to disguise the true identity of the sender or to impersonate another device.**
+
+In a normal packet, the source IP address tells the receiver where the packet came from. **IP spoofing** means the attacker puts a *fake source IP address* in the packet header. The receiving system thinks the packet came from somewhere else entirely.
+
+---
+
+## **Types of Spoofing**
+
+### **1. IP Spoofing**
+
+The attacker crafts packets with a forged source IP. This is used in several attack scenarios:
+
+- **DDoS amplification attacks** — The attacker sends requests to many servers with the victim's IP as the source address. All the servers send their (often large) responses to the victim, flooding it with traffic.
+- **Bypassing IP-based access controls** — Some systems trust certain IP addresses. If the attacker can spoof that trusted IP, they might get through.
+- **Session hijacking** — In some older protocols, if the attacker can predict sequence numbers, they can inject packets.
+
+**Important limitation of IP spoofing:** Because the replies go to the spoofed address (not the attacker), the attacker generally cannot receive responses. So it's useful for **one-way attacks** (like flooding) but not for establishing a full two-way communication. To do two-way, the attacker needs to also be on the path of the return traffic (which is why MitM attacks combine sniffing and spoofing).
+
+### **2. ARP Spoofing**
+
+Already covered above — sending fake ARP replies to poison ARP caches.
+
+### **3. DNS Spoofing**
+
+Sending fake DNS responses so that a domain name resolves to the attacker's IP address instead of the real server. When the victim types "[**www.bank.com**](http://www.bank.com/)", they end up at the attacker's fake site.
+
+### **4. MAC Spoofing**
+
+Changing your NIC's MAC address to impersonate another device. MAC addresses are supposed to be hardware-burned identifiers, but software can override them. Used to:
+
+- Bypass MAC address filtering (some networks only allow specific MAC addresses)
+- Impersonate another device on the network
+- Hide the attacker's true hardware identity
+
+### **5. Email Spoofing**
+
+Forging the "From" field in an email to make it appear to come from a trusted sender. This is heavily used in **phishing attacks.** The underlying email protocol (SMTP) originally had no authentication for the sender address.
+
+---
+
+## **Tools Used for Sniffing and Spoofing**
+
+You should know these names for exams:
+
+- **Wireshark** — Most popular packet analyzer, used for legitimate and malicious purposes
+- **tcpdump** — Command-line packet capture tool, very common on Linux systems
+- **Scapy** — A powerful Python library that lets you craft, send, sniff, and manipulate packets. Extremely flexible for both research and attacks.
+- **Ettercap** — A tool specifically designed for MitM attacks, ARP poisoning, and sniffing on switched networks
+- **Arpspoof** — Tool for ARP poisoning specifically
+- **Dsniff** — A collection of tools for network auditing and sniffing
+
+---
+
+## **Detection of Sniffing**
+
+Detecting a passive sniffer is very difficult because the sniffing machine isn't sending anything unusual — it's just listening. However, there are some techniques:
+
+**Detecting Promiscuous Mode:**
+
+- Some operating systems allow you to query whether a NIC on the network is in promiscuous mode
+- Tools like **ifconfig** (Linux) show if an interface is in promiscuous mode
+- Network management tools can sometimes detect this remotely
+
+**DNS-based detection:**\
+Sniffers often try to reverse-DNS lookup the IP addresses they capture. If you see unusual reverse DNS queries coming from a host, it might be sniffing.
+
+**Ping-based detection:**\
+Send a ping to a suspect machine with its correct IP but a slightly wrong MAC address. A normal machine would ignore it (wrong MAC). A machine in promiscuous mode might respond because its NIC accepts all packets regardless of MAC.
+
+**Detecting ARP Poisoning:**
+
+- Monitor ARP tables for unexpected changes
+- Tools like **arpwatch** send alerts when ARP mappings change unexpectedly
+- Switches with **Dynamic ARP Inspection (DAI)** can validate ARP packets
+
+---
+
+## **Defenses Against Sniffing and Spoofing**
+
+### **Encryption**
+
+This is the single most important defense. **If all traffic is encrypted, sniffing becomes useless** because even if the attacker captures every packet, they can't read the content. Use:
+
+- HTTPS everywhere
+- SSH instead of Telnet
+- VPNs to encrypt all traffic on untrusted networks
+- End-to-end encrypted messaging
+
+### **Switched Networks + Port Security**
+
+Use switches instead of hubs (already standard). Enable **port security** on switches — this limits the number of MAC addresses per port, defeating MAC flooding attacks.
+
+### **Dynamic ARP Inspection (DAI)**
+
+A switch feature that validates ARP packets. It checks ARP replies against a trusted database (usually the DHCP snooping binding table) and drops packets that don't match. This directly counters ARP poisoning.
+
+### **DHCP Snooping**
+
+A switch feature that only trusts DHCP responses from designated trusted ports (where your real DHCP server is). Prevents rogue DHCP servers.
+
+### **Ingress Filtering (BCP38)**
+
+Network providers implement filtering at their borders that **drops packets with spoofed source IPs** that couldn't possibly have come from within that network. If your ISP's network is 192.168.1.0/24 and a packet arrives on your network claiming to be from 10.0.0.5, it's clearly spoofed — drop it. This is a standard best practice (documented in RFC 2827/BCP38) but unfortunately not universally implemented.
+
+### **Static ARP Entries**
+
+For critical systems, you can manually configure static ARP entries that don't change. These can't be poisoned. Not practical for large networks but useful for specific critical infrastructure.
+
+### **Network Segmentation and VLANs**
+
+Dividing a network into segments means a sniffer on one segment can only see traffic on that segment, limiting the damage.
+
+### **Using Encrypted Authentication Protocols**
+
+Even if traffic is sniffed, using protocols like **Kerberos** or **certificate-based authentication** means the attacker can't extract reusable passwords from captured packets.
+
+---
+
+## **Summary of Key Concepts to Remember**
+
+Packet sniffing is the interception of network packets, enabled by putting a NIC into promiscuous mode. On hub-based networks this is passive and easy. On switched networks, attackers use active techniques like ARP poisoning and MAC flooding to force traffic toward themselves. The primary defense against sniffing is encryption — making captured data unreadable.
+
+Packet spoofing is the forgery of packet fields (especially source IP or MAC) to disguise identity or impersonate others. It's used in DDoS attacks, session hijacking, and bypassing access controls. Defenses include ingress filtering, Dynamic ARP Inspection, and strong authentication protocols.
