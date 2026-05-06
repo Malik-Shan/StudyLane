@@ -1,0 +1,488 @@
+---
+draft: false
+readtime: true
+title: Wireless LAN Security with 802.11i
+published: 2026-05-06T22:19:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is 802.11i?**
+
+After WEP's catastrophic failure became undeniable to the entire security community, the IEEE formed a task group to develop a **proper, long-term security standard** for wireless LANs. The result was **IEEE 802.11i**, ratified in June 2004.
+
+802.11i is the **formal IEEE standard** that defines robust security for wireless networks. When you use WPA2, you are using a product that implements 802.11i. The Wi-Fi Alliance took the 802.11i standard and created the **WPA2 certification program** to ensure interoperability between different manufacturers' devices — but the underlying technical standard is 802.11i.
+
+Understanding 802.11i means understanding exactly **what happens cryptographically and architecturally** when you connect to a WPA2 network. This is not just about knowing that "WPA2 uses AES" — it's about understanding the complete security architecture, every component, and why each design decision was made.
+
+---
+
+## **The Problems 802.11i Had to Solve**
+
+To appreciate 802.11i's design, you need to understand exactly what was broken in WEP and what requirements the new standard had to meet.
+
+**WEP's failures that needed fixing:**
+
+1. **Weak encryption** — RC4 with poor IV management was cryptographically broken
+1. **Static keys** — the same key used for everything, forever, with no rotation
+1. **No per-user authentication** — everyone shared the same key, no individual identity
+1. **Weak integrity** — CRC-32 was not cryptographically secure
+1. **No replay protection** — captured packets could be replayed without detection
+1. **No key hierarchy** — no separation between different types of keys for different purposes
+
+**802.11i had to solve all of these while also:**
+
+- Being deployable on real networks with multiple users
+- Supporting enterprise environments with centralized authentication
+- Working efficiently on hardware that may have limited processing power
+- Being backward compatible where possible
+
+---
+
+## **The 802.11i Security Architecture — The Big Picture**
+
+802.11i defines a complete security architecture with several interconnected components. Before diving into each one, let's see the full picture:
+
+text
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  802.11i Architecture               │
+│                                                     │
+│  Authentication    Key Management    Data Protection│
+│  ─────────────    ──────────────    ───────────────│
+│  802.1X / EAP  →  4-Way Handshake →  CCMP (AES)   │
+│  (or PSK)         Group Handshake    (or TKIP)     │
+│                                                     │
+│  RSNA — Robust Security Network Association        │
+└─────────────────────────────────────────────────────┘
+
+```
+
+The entire framework is called **RSNA — Robust Security Network Association.** A connection established using 802.11i security mechanisms is called an RSNA. Everything in 802.11i serves to establish and maintain an RSNA.
+
+---
+
+## **Component 1 — The RSN Information Element**
+
+When an AP broadcasts its capabilities (in beacon frames and probe responses), it includes an **RSN Information Element (RSN IE)** — a data field that tells clients exactly what security capabilities the AP supports.
+
+The RSN IE contains:
+
+- **Group Cipher Suite** — the encryption algorithm used for broadcast/multicast traffic
+- **Pairwise Cipher Suite List** — encryption algorithms supported for unicast traffic
+- **AKM Suite List** — Authentication and Key Management methods supported (PSK, 802.1X, SAE, etc.)
+- **RSN Capabilities** — flags for features like pre-authentication, management frame protection (802.11w), etc.
+
+When a client reads the RSN IE, it knows exactly what the network supports and can negotiate the security parameters it will use. This negotiation is part of the **association process.**
+
+The client includes its own RSN IE in the Association Request, specifying which cipher suites and AKM methods it wants to use (from the options the AP offered). The AP confirms in the Association Response.
+
+This is important — the security parameters are **negotiated and agreed upon before any keys are generated.**
+
+---
+
+## **Component 2 — Authentication**
+
+802.11i supports two fundamentally different authentication approaches. Which one is used determines the entire key hierarchy.
+
+### **Authentication Method 1 — 802.1X / EAP (Enterprise Mode)**
+
+This is the full enterprise authentication system. Three parties are involved:
+
+**The Supplicant:** The client device trying to connect.
+
+**The Authenticator:** The Access Point. It acts as a middleman — it doesn't actually validate credentials itself. It passes authentication messages between the supplicant and the authentication server.
+
+**The Authentication Server:** Typically a **RADIUS server** (Remote Authentication Dial-In User Service). This server holds the credentials database and makes the actual authentication decision.
+
+**The protocol used is EAP — Extensible Authentication Protocol.**
+
+EAP is not itself an authentication method — it's a **framework** that carries authentication messages. Many different EAP methods can run inside this framework:
+
+**EAP-TLS (EAP with Transport Layer Security):**\
+The strongest EAP method. Both the client and the server present **digital certificates** to authenticate each other. This is **mutual authentication** — the client proves its identity to the server AND the server proves its identity to the client. Requires a PKI (Public Key Infrastructure) to issue certificates to all clients. Most secure but most complex to deploy.
+
+**PEAP (Protected EAP):**\
+A two-phase approach:
+
+- Phase 1: A TLS tunnel is established between the client and the RADIUS server (using the server's certificate). The client verifies the server's certificate — this authenticates the server to the client.
+- Phase 2: Inside the encrypted tunnel, the client authenticates using username and password (typically MSCHAPv2). The tunnel protects these credentials from eavesdropping.\
+  PEAP is the most widely deployed EAP method in enterprise Wi-Fi. It only requires certificates on the server side.
+
+**EAP-TTLS (EAP Tunneled TLS):**\
+Similar to PEAP — establishes a TLS tunnel first, then runs authentication inside. More flexible than PEAP in what authentication methods can be used inside the tunnel.
+
+**EAP-FAST (EAP Flexible Authentication via Secure Tunneling):**\
+Cisco proprietary method. Uses a PAC (Protected Access Credential) instead of certificates to establish the tunnel.
+
+**How 802.1X authentication flows:**
+
+1. Client associates with the AP (basic 802.11 association — no data traffic allowed yet)
+1. AP blocks all traffic except **EAP** messages
+1. AP sends EAP-Request/Identity to the client
+1. Client responds with EAP-Response/Identity (username)
+1. AP forwards this to the RADIUS server (encapsulated in RADIUS protocol)
+1. RADIUS server and client exchange EAP messages (tunneled through the AP) to complete authentication
+1. If authentication succeeds, RADIUS server sends **EAP-Success** and — crucially — sends the **MSK (Master Session Key)** to the AP
+1. The client independently derives the same MSK from the authentication process
+1. Both the AP and client now have the MSK, which is used to derive the PMK
+1. The 4-way handshake begins
+
+The **MSK** (Master Session Key) is a large key (at least 64 bytes) generated during EAP authentication. The first 32 bytes become the **PMK (Pairwise Master Key).**
+
+**The critical security property of 802.1X:** Every user has their own unique credentials. Every authentication produces a different MSK and therefore a different PMK. Every session uses completely different encryption keys. If one user's session is compromised, it tells the attacker nothing about any other user's traffic.
+
+---
+
+### **Authentication Method 2 — PSK (Pre-Shared Key, Personal Mode)**
+
+In PSK mode, there is no 802.1X, no RADIUS server, no per-user credentials. Instead, everyone uses the **same password** (the Wi-Fi password).
+
+The PSK is derived from the passphrase using **PBKDF2 (Password-Based Key Derivation Function 2)**:
+
+text
+
+```
+PMK = PBKDF2(HMAC-SHA1, passphrase, SSID, 4096, 256)
+
+```
+
+Breaking this down:
+
+- **HMAC-SHA1** is the pseudorandom function used
+- **passphrase** is the Wi-Fi password
+- **SSID** is used as a salt (this means the same password on different networks produces different PMKs — rainbow tables can't be precomputed across all networks)
+- **4096** is the number of iterations (makes computation slower, which is good — it makes brute force slower too)
+- **256** means 256 bits of output → the PMK
+
+This computation is the same on every device that knows the passphrase. The result is the PMK, which is the same for everyone on the network.
+
+**The PSK limitation:** Everyone shares the same PMK. If the password is compromised (someone shares it, or it's brute-forced from a captured handshake), the attacker has the root key material for the entire network.
+
+---
+
+## **Component 3 — The Key Hierarchy**
+
+This is one of the most important and most often misunderstood parts of 802.11i. The standard uses a **hierarchy of keys** — different keys for different purposes, all derived from the PMK. Understanding this hierarchy is essential.
+
+text
+
+```
+PMK (Pairwise Master Key)
+  │
+  │ (4-Way Handshake)
+  ▼
+PTK (Pairwise Transient Key)  ←── used for unicast encryption
+  │
+  ├── KCK (Key Confirmation Key) — used to compute MIC in handshake messages
+  ├── KEK (Key Encryption Key) — used to encrypt the GTK during delivery
+  └── TK  (Temporal Key) — the actual encryption key for data frames
+
+GMK (Group Master Key) — generated by AP
+  │
+  │ (Group Key Handshake)
+  ▼
+GTK (Group Temporal Key) ←── used for broadcast/multicast encryption
+
+```
+
+Let's understand each key:
+
+**PMK (Pairwise Master Key):**\
+The root of the key hierarchy for a specific client-AP pair. In Enterprise mode, derived from the MSK. In PSK mode, derived from the passphrase. 256 bits. Never used directly for encryption — only used to derive other keys.
+
+**PTK (Pairwise Transient Key):**\
+Derived during the 4-way handshake. Unique to each client-AP session. Generated fresh for every new connection. The PTK is actually a large key (384 bits for CCMP) that is split into three sub-keys:
+
+- **KCK (Key Confirmation Key) — 128 bits:** Used to compute the MIC (Message Integrity Code) in the 4-way handshake messages. Ensures the handshake messages haven't been tampered with.
+- **KEK (Key Encryption Key) — 128 bits:** Used to encrypt the GTK when it's delivered to the client in Message 3 of the 4-way handshake.
+- **TK (Temporal Key) — 128 bits for CCMP:** The actual key used to encrypt and decrypt data frames between this client and the AP.
+
+**GMK (Group Master Key):**\
+Generated randomly by the AP. Used to derive the GTK.
+
+**GTK (Group Temporal Key):**\
+Used to encrypt broadcast and multicast frames sent by the AP. All clients on the network share the same GTK (because they all need to receive and decrypt the same broadcast traffic). Delivered to clients during the group key handshake (part of or following the 4-way handshake).
+
+**Why this hierarchy?**
+
+- **Separation of purpose** — different keys for different functions means compromising one key doesn't compromise everything
+- **Session freshness** — the PTK (and therefore TK) is generated fresh for every session, so even if one session's key is somehow recovered, old or future sessions are not affected
+- **Unicast vs multicast separation** — different keys for different traffic types provides better security properties
+
+---
+
+## **Component 4 — The 4-Way Handshake (In Full Detail)**
+
+Now that you understand the key hierarchy, let's go through the 4-way handshake in complete detail. This is where the PTK is established.
+
+**Prerequisites:** Both the AP and client have the PMK (either from 802.1X authentication or from the PSK derivation).
+
+### **Message 1: AP → Client**
+
+The AP sends:
+
+- **ANonce** — a random 256-bit nonce generated by the AP
+- The AP's **RSN IE** (security capabilities)
+
+At this point, the client has everything it needs to compute the PTK:
+
+- PMK (it already has this)
+- ANonce (just received)
+- SNonce (it generates this now)
+- AP MAC address (known from association)
+- Client MAC address (its own)
+
+The PTK derivation function:
+
+text
+
+```
+PTK = PRF-384(PMK, "Pairwise key expansion" || 
+              min(AP_MAC, Client_MAC) || max(AP_MAC, Client_MAC) ||
+              min(ANonce, SNonce) || max(ANonce, SNonce))
+
+```
+
+PRF-384 is a Pseudo-Random Function that produces 384 bits. The MAC addresses and nonces are sorted before input to ensure both sides compute the same PTK regardless of ordering.
+
+The client splits PTK into KCK (bits 0-127), KEK (bits 128-255), TK (bits 256-383).
+
+### **Message 2: Client → AP**
+
+The client sends:
+
+- **SNonce** — the client's random nonce
+- **RSN IE** — the client's security capabilities
+- **MIC** — computed over the entire message using KCK
+
+The AP now also has everything needed to compute the same PTK (it has PMK, ANonce, SNonce, both MAC addresses). It computes the PTK, splits it, uses the KCK to verify the MIC on Message 2.
+
+**If the MIC is correct:** The AP knows the client has the correct PMK (because only someone with the right PMK would produce the right PTK and therefore the right KCK and therefore the right MIC). Authentication is confirmed.
+
+**If the MIC is wrong:** The PMK doesn't match — authentication fails.
+
+### **Message 3: AP → Client**
+
+The AP sends:
+
+- **ANonce** (again, for confirmation)
+- **GTK** — encrypted using KEK (so only this client can read it)
+- **RSN IE**
+- **MIC** — computed using KCK
+
+The client verifies the MIC, decrypts the GTK using KEK, and installs both the TK (from PTK) and the GTK.
+
+### **Message 4: Client → AP**
+
+The client sends:
+
+- **MIC** — confirming receipt and installation of keys
+
+The AP verifies the MIC and installs the TK. **Both sides now have the same TK installed and encrypted communication begins.**
+
+### **Why Four Messages?**
+
+The four-message design ensures:
+
+- **Mutual proof of PMK knowledge** — both sides prove they have the PMK without revealing it
+- **Freshness** — the nonces ensure the PTK is unique to this session, even if the PMK is the same across sessions
+- **Secure GTK delivery** — the GTK is delivered encrypted so it's only known to this specific client
+- **Confirmed installation** — both sides confirm keys are installed before switching to encrypted communication
+
+---
+
+## **Component 5 — CCMP (The Encryption Protocol)**
+
+CCMP is the mandatory encryption protocol in 802.11i. It replaces WEP's broken RC4/IV approach with a cryptographically sound design based on **AES (Advanced Encryption Standard).**
+
+CCMP stands for **Counter Mode with CBC-MAC Protocol.** It provides both **confidentiality** (encryption) and **data integrity/authentication** (MIC).
+
+### **AES in CCMP**
+
+AES is a **block cipher** — it encrypts fixed-size blocks of data (128 bits at a time). It uses a 128-bit key in 802.11i. AES is computationally intensive compared to RC4, which is why it requires hardware acceleration in many devices.
+
+### **Counter Mode (CTR) — for Encryption**
+
+CCMP uses AES in **Counter Mode** to encrypt the data payload:
+
+- A counter value is maintained, starting from 1 and incrementing for each block
+- AES encrypts the counter (using the TK) to produce a keystream block
+- The keystream is XORed with the plaintext block to produce ciphertext
+
+This is similar to how a stream cipher works. Counter Mode turns AES (a block cipher) into a stream cipher. Each packet uses a different starting counter value based on the **packet number (PN)**, ensuring that even identical plaintexts produce different ciphertexts.
+
+**The Packet Number (PN)** is a 48-bit counter. It starts at 0 and increments by 1 for every packet. This serves as **replay protection** — the receiver keeps track of the last PN received and discards any packet with a PN it has already seen or that is too far out of sequence.
+
+### **CBC-MAC — for Integrity**
+
+CCMP uses **CBC-MAC (Cipher Block Chaining Message Authentication Code)** to produce an 8-byte MIC that covers:
+
+- The 802.11 header (relevant fields)
+- The data payload
+
+The MIC is computed using the TK and is appended to the frame. The receiver independently computes the MIC and verifies it matches. If the frame was modified in transit, the MIC won't match and the frame is discarded.
+
+This is cryptographically strong — unlike WEP's CRC-32, tampering with the ciphertext cannot produce a predictably valid MIC.
+
+### **CCMP Frame Structure**
+
+A CCMP-protected frame has this structure:
+
+text
+
+```
+┌────────────┬──────────┬──────────────┬─────┬─────────┐
+│ 802.11     │  CCMP    │  Encrypted   │ MIC │   FCS   │
+│  Header    │  Header  │   Payload    │ 8B  │         │
+└────────────┴──────────┴──────────────┴─────┴─────────┘
+
+```
+
+The **CCMP Header** (8 bytes) contains:
+
+- **Packet Number (PN0-PN5)** — the 48-bit counter split across the header
+- **Key ID** — identifies which key was used
+- **ExtIV flag** — indicates this is a CCMP frame
+
+The 802.11 header is authenticated (MIC covers it) but not encrypted — it needs to be readable for routing. The payload is both encrypted and authenticated.
+
+---
+
+## **Component 6 — TKIP (The Transitional Protocol)**
+
+While CCMP is the heart of 802.11i security, the standard also includes **TKIP (Temporal Key Integrity Protocol)** as a transitional option.
+
+TKIP was designed to be implementable on **existing WEP hardware** through firmware updates — it still uses RC4 but in a much more careful way. 802.11i included TKIP to allow legacy hardware to achieve better security without replacement.
+
+**TKIP improvements over WEP:**
+
+**Per-Packet Key Mixing:**\
+Instead of using the base key directly with the IV, TKIP mixes the base key with the transmitter's MAC address and a 48-bit sequence counter using a two-phase key mixing function. This produces a unique RC4 key for every single packet. Even though IV collisions could theoretically still occur at the RC4 level, the key mixing prevents the attacks that relied on related keys.
+
+**Extended IV — 48 bits:**\
+TKIP uses a 48-bit IV (called TSC — TKIP Sequence Counter) instead of WEP's 24-bit IV. With 2^48 ≈ 281 trillion possible values, IV exhaustion in a single session is not a concern.
+
+**Michael MIC:**\
+TKIP adds the **Michael** algorithm as a Message Integrity Code. Michael was designed to be computable on existing WEP hardware (low complexity) while providing better integrity protection than CRC-32. However, Michael is not cryptographically strong by modern standards — it was a compromise for hardware compatibility.
+
+**Countermeasures:**\
+If two Michael MIC failures are detected within 60 seconds, TKIP assumes an active attack is occurring and:
+
+- Deletes all keys
+- Disassociates all clients
+- Waits 60 seconds before allowing reconnection
+
+This is a countermeasure against brute-force MIC attacks — making them impractically slow.
+
+**TKIP's current status:**\
+TKIP is deprecated. Despite being better than WEP, it's still based on RC4 and has known attacks. Modern 802.11i implementations should use CCMP exclusively. The 802.11 standard formally deprecated TKIP in 2012.
+
+---
+
+## **Component 7 — Pre-Authentication**
+
+In large enterprise deployments with multiple APs, clients roam between access points. Every time a client moves from one AP's coverage area to another, it would normally have to perform the full 802.1X authentication — which involves a round trip to the RADIUS server and can take several hundred milliseconds. For real-time applications (VoIP calls, video conferencing), this delay is unacceptable.
+
+**802.11i Pre-Authentication** allows a client to authenticate with a new AP **while still connected to its current AP.** The pre-authentication happens over the existing connection:
+
+1. Client is connected to AP1, working normally
+1. Client detects AP2 (better signal, or preparing to roam)
+1. Client sends 802.1X authentication traffic to AP2, through the distribution system (the wired backbone), while still associated with AP1
+1. Full 802.1X authentication completes with AP2, PMK is established
+1. When the client actually moves to AP2, only the 4-way handshake is needed — no full RADIUS authentication
+1. Roaming delay is dramatically reduced
+
+The pre-authenticated PMK is stored as a **PMKSA (PMK Security Association)** — a cached entry associating the client's identity with the PMK for that specific AP.
+
+---
+
+## **Component 8 — PMK Caching**
+
+Related to pre-authentication but simpler — **PMK caching** (also called PMKSA caching) allows a client to **skip full re-authentication** when reconnecting to an AP it has recently authenticated with.
+
+When a client disconnects from an AP and reconnects (briefly out of range, or device sleep), both sides cache the PMK from the previous session. On reconnect, the client presents the **PMKID** (an identifier for the cached PMK), and if both sides have matching cached PMKs, they skip straight to the 4-way handshake — no full 802.1X needed.
+
+This significantly speeds up reconnection while maintaining security (the 4-way handshake still generates fresh session keys).
+
+---
+
+## **802.11i vs. WPA vs. WPA2 — Clearing Up the Confusion**
+
+Students often get confused about the relationship between these terms. Let's be very clear:
+
+**802.11i** is the IEEE technical standard. It defines the complete security architecture — RSN, RSNA, CCMP, TKIP, 4-way handshake, 802.1X integration, pre-authentication, PMK caching.
+
+**WPA (Wi-Fi Protected Access)** was an **interim standard** created by the Wi-Fi Alliance in 2003 — before 802.11i was finalized. It implements a **subset** of the draft 802.11i standard:
+
+- Mandatory: TKIP
+- Optional: CCMP (AES)
+- 802.1X support
+- 4-way handshake (same as 802.11i)
+
+**WPA2** was created by the Wi-Fi Alliance in 2004 after 802.11i was finalized. WPA2 is essentially a **certification program** for devices that implement 802.11i:
+
+- Mandatory: CCMP (AES) — this is the key difference from WPA
+- Optional: TKIP (for backward compatibility)
+- Full 802.1X support
+- Pre-authentication, PMK caching
+
+So technically: **WPA2 = 802.11i implementation certification.** When someone says a device "supports WPA2," they mean it implements the 802.11i standard with AES-CCMP.
+
+---
+
+## **Security Modes Summary**
+
+{% table %}
+- **Mode**
+- **Authentication**
+- **Encryption**
+- **Use Case**
+---
+- WPA2-Personal
+- PSK (shared password)
+- CCMP/AES
+- Home, small office
+---
+- WPA2-Enterprise
+- 802.1X/EAP + RADIUS
+- CCMP/AES
+- Corporate, university
+---
+- WPA3-Personal
+- SAE (Dragonfly)
+- CCMP/AES or GCMP
+- Home, small office
+---
+- WPA3-Enterprise
+- 802.1X/EAP + RADIUS
+- GCMP-256 (optional)
+- High-security enterprise
+{% /table %}
+
+---
+
+## **Vulnerabilities Remaining in 802.11i**
+
+Even with all of 802.11i's improvements, some vulnerabilities remain:
+
+**WPA2-Personal is vulnerable to offline dictionary attacks:**\
+The PMK is derived from the password. The 4-way handshake can be captured. Offline brute-force can try passwords. The only defense is password strength.
+
+**TKIP (if still in use) has known attacks:**\
+Beck-Tews and Ohigashi-Morii attacks against TKIP's Michael MIC allow limited packet manipulation. Don't use TKIP.
+
+**Management frames are still unprotected (without 802.11w):**\
+Deauthentication attacks remain possible without Management Frame Protection (802.11w). 802.11w is optional in 802.11i/WPA2 but mandatory in WPA3.
+
+**No protection against evil twin attacks:**\
+In PSK mode, clients don't verify the identity of the AP — any AP broadcasting the right SSID with the right PSK will be connected to. 802.1X/EAP with certificate-based methods (EAP-TLS) provides AP authentication.
+
+---
+
+## **Summary**
+
+802.11i is the complete IEEE standard for wireless LAN security, implemented as WPA2. Its architecture consists of: RSN negotiation (agreeing on security parameters during association), authentication (via 802.1X/EAP for enterprise or PSK for personal), a hierarchical key structure (PMK → PTK → TK/KCK/KEK and GMK → GTK), the 4-way handshake (establishing fresh session keys with mutual proof of PMK knowledge), and CCMP encryption (AES-based, providing both confidentiality and integrity). TKIP is a deprecated legacy option. Pre-authentication and PMK caching optimize roaming performance. WPA2 is the Wi-Fi Alliance's certification of 802.11i compliance, with CCMP as the mandatory cipher.
