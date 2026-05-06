@@ -1,0 +1,274 @@
+---
+draft: false
+readtime: true
+title: Wireless Intrusion Detection
+published: 2026-05-06T22:20:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is Intrusion Detection in a Wireless Context?**
+
+Before we get into the wireless-specific side, let's make sure the foundation is clear.
+
+An **intrusion** in networking means any unauthorized activity on your network — someone trying to break in, someone already inside doing something they shouldn't, or an attack being carried out against your infrastructure.
+
+A **Wireless Intrusion Detection System (WIDS)** is a system that **monitors wireless network traffic and activity** to detect these unauthorized or malicious events and alert administrators.
+
+Think of it like a security guard who doesn't stop people at the door (that's a firewall's job) but instead **watches everything happening inside and around the building** and raises an alarm when something looks wrong.
+
+The key word here is **detection** — a pure IDS detects and alerts. When a system can also **respond and block** threats automatically, it becomes an **Intrusion Prevention System (WIPS)**. Most modern systems are WIPS, but we need to understand detection first.
+
+---
+
+## **Why is Wireless Intrusion Detection Harder Than Wired?**
+
+In a wired network, traffic flows through defined physical paths — cables, switches, routers. You place monitoring sensors at specific choke points and you capture everything.
+
+In a wireless network, things are much more complicated:
+
+- **The medium is open air** — signals spread in all directions and anyone in range can receive them
+- **The boundary is invisible and shifting** — your Wi-Fi signal doesn't stop at your office wall, it leaks into the parking lot, the floor above, the street outside
+- **Devices are mobile** — users move around, signals vary, connections drop and reconnect constantly
+- **Attackers can operate remotely** — someone sitting in a car outside your building can attack your wireless network without ever physically entering
+- **Legitimate behavior and malicious behavior can look similar** — a client roaming between access points looks similar to some attack patterns
+
+This means wireless intrusion detection requires **specialized techniques** beyond what wired IDS systems do.
+
+---
+
+## **What Does a WIDS Monitor?**
+
+A WIDS doesn't just look at data packets. It monitors several layers of wireless activity:
+
+### **1. RF (Radio Frequency) Environment**
+
+The physical radio signals in the air. A WIDS monitors which frequencies are being used, signal strengths, and whether there are unusual transmissions.
+
+### **2. 802.11 Management Frames**
+
+These are the control messages that manage Wi-Fi connections — probe requests, probe responses, authentication frames, association frames, deauthentication frames, and beacon frames. These are extremely important because many wireless attacks **abuse management frames**.
+
+### **3. Data Frames**
+
+The actual payload — the traffic going back and forth. The WIDS looks for suspicious patterns, unusual volumes, or known attack signatures in this traffic.
+
+### **4. Device Behavior**
+
+Which devices are connecting, how often, from where, at what times. Anomalies in behavior are a strong indicator of an attack.
+
+---
+
+## **Types of Threats a WIDS Detects**
+
+Let's go through the major threats that a WIDS is specifically designed to catch:
+
+### **1. Rogue Access Points**
+
+A **rogue access point** is an unauthorized access point connected to your network — either:
+
+- **Maliciously planted** by an attacker who physically plugged a small AP into your network to create a backdoor
+- **Accidentally created** by an employee who plugged in a cheap home router thinking they were being helpful
+
+Either way, a rogue AP is a massive security risk because it creates an entry point into your network that bypasses all your security controls.
+
+A WIDS detects rogue APs by:
+
+- Maintaining a **whitelist of authorized APs** (known MAC addresses, SSIDs, channel settings)
+- Any AP broadcasting that is **not on the whitelist** is flagged as rogue
+- Correlating wireless detections with **wired network scans** to confirm if the AP is actually connected to the internal network
+
+### **2. Evil Twin / Honeypot AP Attack**
+
+An **evil twin** is a fake access point set up by an attacker that **impersonates your legitimate network**. It broadcasts the same SSID (network name) as your real network, sometimes with a stronger signal to attract clients away from the real AP.
+
+When a user connects to the evil twin:
+
+- The attacker can **intercept all their traffic** (man-in-the-middle)
+- Capture **login credentials**
+- Serve **fake web pages**
+
+A WIDS detects evil twins by:
+
+- Noticing two APs broadcasting the **same SSID but different MAC addresses or security settings**
+- Detecting APs with your SSID that are **not in your authorized list**
+- Monitoring for sudden **client migrations** away from known APs toward an unknown one
+
+### **3. Deauthentication / Disassociation Attacks**
+
+This is one of the most common wireless attacks. In standard 802.11 (before WPA3's mandatory PMF), **management frames like deauthentication frames are unauthenticated**. Anyone can forge them.
+
+An attacker sends **fake deauthentication frames** pretending to be from your legitimate AP to your clients. The clients believe they've been kicked off the network and disconnect. This is used to:
+
+- Cause a **denial of service** (keep kicking users off)
+- Force clients to **reconnect**, so the attacker can capture the WPA2 handshake for password cracking
+
+A WIDS detects this by:
+
+- Monitoring for **excessive deauthentication frames** in a short time period — legitimate networks rarely send many of these
+- Checking whether deauth frames are coming from a **known, authorized AP address**
+- Detecting clients being repeatedly disconnected and reconnecting
+
+### **4. Unauthorized Client Associations**
+
+When a device connects to your network that **shouldn't be there**. This could be:
+
+- A device that has never been seen before
+- A device connecting outside of business hours
+- A device connecting from an unusual physical location (based on signal strength triangulation)
+
+A WIDS maintains a list of **authorized client devices** and alerts on any unknown device attempting or successfully associating.
+
+### **5. Ad-Hoc Network Detection**
+
+An **ad-hoc network** is a direct device-to-device Wi-Fi connection without going through an access point. If an employee's laptop creates an ad-hoc connection with another device, this can be used to:
+
+- **Exfiltrate data** bypassing all network security controls
+- Create a **bridge** between your secure network and an external device
+
+A WIDS detects ad-hoc connections by monitoring for devices operating in ad-hoc mode rather than infrastructure mode.
+
+### **6. MAC Address Spoofing**
+
+Attackers often **change (spoof) their device's MAC address** to impersonate an authorized device or hide their identity. A WIDS detects this by:
+
+- Noticing the same MAC address appearing in **two places simultaneously** (impossible for a real device)
+- Detecting impossible **roaming patterns** — a device can't appear on an AP in one building and another AP in a different building within seconds
+- Analyzing **vendor OUI** (the first 3 bytes of a MAC address identify the manufacturer) — if a device claims to be from one manufacturer but its behavior suggests otherwise, that's suspicious
+
+### **7. Wireless DoS Attacks**
+
+Beyond deauth floods, attackers can launch various denial-of-service attacks against wireless networks:
+
+- **RF jamming** — flooding the wireless channel with noise so no legitimate device can communicate
+- **Association flooding** — sending thousands of fake association requests to overwhelm an AP
+- **Beacon flooding** — broadcasting hundreds of fake SSIDs to confuse clients
+
+A WIDS detects these through **traffic volume analysis** and RF environment monitoring.
+
+### **8. WEP/WPA Cracking Attempts**
+
+If your network (or a neighboring network) is still using WEP, or if an attacker is trying to crack a WPA2 handshake, there are detectable signs:
+
+- **Unusually high volumes of ARP requests or IV packets** (sign of WEP cracking tools like Aircrack-ng)
+- **Repeated authentication attempts** (brute force)
+- **Capturing and replaying packets** at unusual rates
+
+---
+
+## **How WIDS Detection Works — The Two Main Approaches**
+
+### **1. Signature-Based Detection**
+
+This works like antivirus software. The system has a **database of known attack patterns** (signatures). It compares observed wireless activity against this database.
+
+- If it sees **excessive deauth frames** — it matches the "deauth flood" signature → alert
+- If it sees an AP with your SSID but a different MAC — it matches the "evil twin" signature → alert
+
+**Advantages:**
+
+- Very accurate for known attacks
+- Low false positive rate for well-defined signatures
+- Fast detection
+
+**Disadvantages:**
+
+- **Cannot detect new/unknown attacks** that don't match any existing signature
+- Requires **regular signature updates** to stay current
+- Attackers can sometimes **modify their attack slightly** to evade signature matching
+
+### **2. Anomaly-Based Detection**
+
+This approach first establishes a **baseline of normal behavior** for your network — what's the normal number of clients, what APs are normally present, what are the typical traffic volumes, what times are devices normally active, etc.
+
+Once the baseline is established, the system continuously compares **current activity against the baseline**. Anything that deviates significantly is flagged as anomalous.
+
+- 200 deauth frames per second when the normal rate is 2 per hour → anomaly → alert
+- A new AP appears on a channel your network never uses → anomaly → alert
+- Clients connecting at 3 AM when the office is always empty at that time → anomaly → alert
+
+**Advantages:**
+
+- **Can detect unknown/new attacks** — doesn't rely on signatures
+- Adapts to network changes over time
+- Catches insider threats and subtle attacks
+
+**Disadvantages:**
+
+- **High false positive rate** — legitimate unusual events get flagged (e.g., a company event with many guests connecting)
+- Requires a **learning period** to establish a good baseline
+- Sophisticated attackers can try to **slowly shift the baseline** to hide their activities
+
+### **Most Real Systems Use Both**
+
+Modern WIDS/WIPS platforms combine both approaches — signatures catch known attacks immediately, and anomaly detection catches new or modified attacks.
+
+---
+
+## **WIDS Architecture — How It's Deployed**
+
+### **Dedicated Sensor-Based Architecture**
+
+Specialized **WIDS sensors** are placed throughout the facility. These sensors are radio receivers that **only monitor** — they don't serve any clients. They listen on all channels simultaneously and send captured data to a **central WIDS server** for analysis.
+
+- Best coverage and most thorough monitoring
+- More expensive — requires dedicated hardware
+- Used in high-security environments
+
+### **Integrated/Overlay Architecture**
+
+The **existing access points** are used for both serving clients and performing monitoring. APs periodically switch to monitor mode on other channels to scan for threats, then switch back.
+
+- Less expensive — uses existing infrastructure
+- **Coverage gaps** because APs can't monitor and serve clients at the same time perfectly
+- Common in enterprise wireless controllers (Cisco, Aruba, etc.)
+
+### **Virtual/Cloud-Based WIDS**
+
+The WIDS logic runs in the cloud or a central server, with lightweight sensors feeding data to it. Good for **distributed organizations** with multiple locations.
+
+---
+
+## **From Detection to Prevention — WIPS**
+
+When a WIDS detects a threat, a **WIPS (Wireless Intrusion Prevention System)** goes a step further and **automatically responds**. Common automated responses include:
+
+**1. Contain the Rogue AP**\
+The WIPS sends **targeted deauthentication frames** to clients trying to connect to the rogue AP, preventing them from associating with it. This is called **wireless containment** or **air-jacking**.
+
+**2. Block the Attacking Device**\
+The WIPS communicates with the **wired network switches** to block the physical port where a rogue AP is connected, or to block a device's MAC address at the network level.
+
+**3. Alert and Log**\
+Generate detailed **alerts to administrators** with information about the attack — what type, which device, when, from where, how long.
+
+**4. Automatically Adjust Configuration**\
+In some systems, if jamming on a channel is detected, the AP can automatically **switch to a cleaner channel**.
+
+---
+
+## **Location Tracking in WIDS**
+
+One powerful feature of modern WIDS is the ability to **physically locate attacking devices** using a technique called **RF triangulation**:
+
+- Multiple sensors measure the **signal strength (RSSI)** of a device from different positions
+- By comparing signal strength across multiple sensors, the system can **estimate the physical location** of the device
+- This helps security teams physically **locate and remove a rogue AP** or identify where an attacker is operating from
+
+This feature is especially valuable for detecting physically planted rogue APs hidden in ceilings, under desks, or in server rooms.
+
+---
+
+## **Key Concepts to Remember for Exams**
+
+- A **WIDS monitors wireless traffic** to detect unauthorized activity; a **WIPS can also respond** to block it
+- Wireless IDS is harder than wired because the **medium is open air** with no clear physical boundary
+- Major threats detected: **rogue APs, evil twins, deauth floods, unauthorized clients, ad-hoc networks, MAC spoofing, DoS**
+- **Signature-based detection** catches known attacks; **anomaly-based detection** catches new and unknown attacks
+- Both approaches have weaknesses: signatures miss new attacks; anomaly detection has high false positives
+- WIDS can be deployed as **dedicated sensors** (best coverage) or **integrated into existing APs** (cheaper)
+- WIPS adds **automated response** — containment, blocking, alerting
+- **RF triangulation** using RSSI from multiple sensors can physically locate an attacker
+- WPA3's mandatory **PMF** directly addresses deauth flood attacks at the protocol level, which WIDS was previously the main defense against
