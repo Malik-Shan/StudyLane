@@ -1,0 +1,145 @@
+---
+draft: false
+readtime: true
+title: Introduction to Network Security
+published: 2026-05-06T22:08:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is Network Security?**
+
+Network security is the practice of protecting a computer network and the data traveling through it from unauthorized access, misuse, modification, or destruction. It's not just one thing — it's a **combination of hardware, software, policies, and practices** all working together to keep a network safe.
+
+Think of it this way: a network is like a city with roads, buildings, and people. Network security is everything that keeps that city safe — the police, the locks on doors, the security cameras, the ID checks at entry points, and the rules everyone has to follow.
+
+---
+
+## **Why is Network Security Important?**
+
+In today's world, almost everything runs on networks — banks, hospitals, governments, businesses, your phone. If a network is compromised:
+
+- **Sensitive data** like passwords, financial records, or personal information can be stolen
+- **Services can go down**, causing financial loss or even endangering lives (e.g., a hospital network)
+- **Trust is broken** between organizations and their users
+- **Legal and compliance issues** can arise if data protection laws are violated
+
+So network security is not optional — it's a necessity.
+
+---
+
+## **Core Goals of Network Security — The CIA Triad**
+
+Every concept in network security revolves around three fundamental goals, known as the **CIA Triad**:
+
+### **1. Confidentiality**
+
+This means ensuring that **only authorized people can access certain information**. If you send a private message or a bank transfers money, that information should only be readable by the intended parties — not by anyone intercepting it in the middle.
+
+Example: Encrypting data so that even if someone captures it, they can't read it.
+
+### **2. Integrity**
+
+This means ensuring that **data is not altered or tampered with** during transmission or storage. The data that arrives at the destination should be exactly the same as what was sent.
+
+Example: If someone intercepts your message and changes the amount in a bank transaction from $100 to $10,000, integrity has been violated. Techniques like **hashing** are used to detect such changes.
+
+### **3. Availability**
+
+This means ensuring that **networks and services are accessible when needed** by authorized users. Even if confidentiality and integrity are maintained, if the network is down, it's useless.
+
+Example: A **Denial of Service (DoS) attack** floods a server with so much traffic that it crashes — this is an attack on availability.
+
+---
+
+## **Additional Security Goals**
+
+Beyond the CIA triad, some frameworks add:
+
+### **Authentication**
+
+Verifying that someone is **who they claim to be**. When you log in with a username and password, the system is authenticating you. More advanced methods include biometrics, smart cards, or multi-factor authentication.
+
+### **Authorization**
+
+Once authenticated, **what are you allowed to do?** A regular employee might be authenticated but not authorized to access the CEO's files.
+
+### **Non-repudiation**
+
+This means a person **cannot deny having performed an action**. For example, if you digitally sign a document, you cannot later claim you didn't sign it. This is important in legal and financial contexts.
+
+### **Accountability**
+
+Keeping **logs and records** of who did what and when, so that if something goes wrong, it can be traced back.
+
+---
+
+## **Types of Network Security**
+
+Network security is implemented at multiple layers and in multiple forms:
+
+### **Physical Security**
+
+Protecting the actual hardware — servers, routers, cables — from physical theft or damage. If someone can physically access your server, no software security can fully protect you.
+
+### **Access Control**
+
+Controlling who can enter the network and what they can do once inside.
+
+### **Firewalls**
+
+A system that monitors and filters incoming and outgoing network traffic based on rules.
+
+### **Encryption**
+
+Scrambling data so it can only be read by someone with the correct key.
+
+### **Intrusion Detection and Prevention**
+
+Monitoring the network for suspicious activity and either alerting administrators or automatically blocking threats.
+
+### **VPNs (Virtual Private Networks)**
+
+Creating a secure, encrypted tunnel for data to travel through, even over a public network.
+
+---
+
+## **Types of Attacks (Overview)**
+
+At this stage, just understand the broad categories — we'll go deep into each later:
+
+- **Passive Attacks** — The attacker **observes and collects data** without interfering. Example: eavesdropping on network traffic. These are hard to detect because nothing is being changed.
+- **Active Attacks** — The attacker **actively interferes** with data or systems. Example: modifying data, crashing a server, impersonating someone.
+- **Insider Threats** — Attacks that come from **within the organization**, like a disgruntled employee leaking data.
+- **External Threats** — Attacks coming from **outside the organization**, like hackers on the internet.
+
+---
+
+## **The Concept of Attack Surface**
+
+The **attack surface** of a network is the total number of points where an attacker could try to gain access. The larger and more complex a network, the bigger its attack surface. This is why security professionals always try to **reduce the attack surface** — disabling unnecessary services, closing unused ports, removing default accounts, etc.
+
+---
+
+## **Security as a Process, Not a Product**
+
+One very important concept introduced early in any network security course is this:
+
+**Security is not something you buy once — it's an ongoing process.**
+
+You cannot install a firewall and call it a day. New threats emerge constantly, software has new vulnerabilities, attackers find new methods. So security requires:
+
+- Regular updates and patches
+- Continuous monitoring
+- Periodic security audits
+- Training people (because humans are often the weakest link)
+
+---
+
+## **The Role of Humans in Network Security**
+
+Technology alone cannot secure a network. **People are often the biggest vulnerability.** Social engineering attacks, for example, don't attack software — they attack people. An attacker might call an employee pretending to be IT support and ask for their password. This is called **phishing** or **social engineering**, and no firewall can stop it if the person gives up the information willingly.
+
+This is why **security awareness training** for all users is considered a critical part of network security.
