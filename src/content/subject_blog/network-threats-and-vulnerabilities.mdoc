@@ -1,0 +1,361 @@
+---
+draft: false
+readtime: true
+title: Network Threats and Vulnerabilities
+published: 2026-05-06T22:09:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **Understanding the Difference: Threat vs. Vulnerability vs. Risk**
+
+These three terms are often confused, so let's be very clear about each one:
+
+### **Threat**
+
+A **threat** is any potential danger to a network or system. It's something that **could** cause harm. A threat can be a person, an event, or a circumstance.
+
+Example: A hacker trying to break into your network is a threat. A natural disaster like a flood that destroys your servers is also a threat.
+
+### **Vulnerability**
+
+A **vulnerability** is a **weakness** in a system, network, software, or process that could be exploited by a threat. Vulnerabilities don't cause harm by themselves — they just create an opportunity.
+
+Example: An outdated operating system with unpatched security flaws is a vulnerability. A weak password is a vulnerability. An unlocked server room door is a vulnerability.
+
+### **Risk**
+
+**Risk** is the **probability that a threat will exploit a vulnerability and cause harm**, combined with the potential impact of that harm.
+
+Risk = Threat × Vulnerability × Impact
+
+Example: If your server has an unpatched vulnerability (weakness) and there are known hackers targeting that vulnerability (threat), and your server contains sensitive customer data (high impact) — your risk level is very high.
+
+This distinction matters because security professionals don't just fix everything randomly — they **assess risk** and prioritize based on what's most likely to cause the most damage.
+
+### **Asset**
+
+An **asset** is anything of value that needs to be protected — servers, data, user accounts, network infrastructure, intellectual property, reputation.
+
+---
+
+## **Categories of Threats**
+
+Threats in network security come from many directions. Let's go through the main categories:
+
+### **1. Human Threats**
+
+These are threats caused by people — either intentionally or accidentally.
+
+**Intentional (Malicious):**
+
+- Hackers trying to break in for financial gain, espionage, or just to cause damage
+- Disgruntled employees leaking or destroying data
+- Nation-state actors conducting cyber warfare
+- Cybercriminals running ransomware operations
+
+**Unintentional (Accidental):**
+
+- An employee accidentally deletes important files
+- Someone clicks a phishing link without realizing it
+- A network administrator misconfigures a firewall, leaving a gap
+- A developer writes insecure code without meaning to
+
+Accidental threats are often **underestimated** but cause a huge number of security incidents.
+
+### **2. Technical Threats**
+
+These are threats that arise from **flaws in technology**:
+
+- Software bugs and vulnerabilities
+- Hardware failures
+- Protocol weaknesses (e.g., weaknesses in older encryption standards)
+- Configuration errors
+
+### **3. Environmental Threats**
+
+- Natural disasters: floods, earthquakes, fires destroying physical infrastructure
+- Power outages taking systems offline
+- Extreme temperatures damaging hardware
+
+### **4. Organizational Threats**
+
+- Poor security policies
+- Lack of staff training
+- Insufficient budget for security
+- No disaster recovery plan
+
+---
+
+## **Types of Attackers**
+
+Understanding **who** attacks networks helps you understand **why** and **how**:
+
+### **Script Kiddies**
+
+These are low-skill attackers who use **pre-made tools and scripts** written by others without really understanding how they work. They're dangerous not because of skill but because of the **volume** of attacks they launch. They typically target easy, low-hanging fruit.
+
+### **Hacktivists**
+
+Attackers motivated by **political or social causes**. They target organizations they disagree with ideologically — defacing websites, leaking data, or taking services offline to make a statement. Anonymous is a well-known hacktivist group.
+
+### **Cybercriminals**
+
+Motivated purely by **financial gain**. They steal credit card data, deploy ransomware, run phishing scams, sell stolen data on the dark web. This is the most common type of attacker today.
+
+### **Insider Threats**
+
+People **within the organization** — employees, contractors, or partners — who misuse their access. Insiders are particularly dangerous because they already have legitimate access and know where sensitive data is stored. They may be motivated by money, revenge, or coercion.
+
+### **Nation-State Actors (APTs)**
+
+These are **government-sponsored hackers** conducting cyber espionage or cyber warfare. They are highly skilled, well-funded, and patient. They use sophisticated techniques and may remain hidden inside a network for months or years gathering intelligence. These are called **Advanced Persistent Threats (APTs)**.
+
+### **White Hat, Black Hat, Grey Hat Hackers**
+
+- **Black Hat** — malicious hackers who attack without permission for personal gain
+- **White Hat** — ethical hackers hired to test systems and find vulnerabilities before black hats do
+- **Grey Hat** — somewhere in between — they may hack without permission but don't cause damage, often reporting vulnerabilities afterward
+
+---
+
+## **Common Network Threats**
+
+### **Malware (Malicious Software)**
+
+Malware is any software designed to **harm, disrupt, or gain unauthorized access** to a system. There are several types:
+
+**Virus:**\
+A virus **attaches itself to a legitimate file or program** and spreads when that file is executed. It requires human action to spread (like opening an infected file). It can corrupt or delete data, damage systems, or spread to other files.
+
+**Worm:**\
+A worm is similar to a virus but **spreads automatically** across networks without requiring human action. It exploits network vulnerabilities to copy itself from machine to machine. Worms can consume enormous amounts of bandwidth and crash networks.
+
+**Trojan Horse:**\
+A Trojan disguises itself as **legitimate, useful software** but carries a malicious payload. Unlike viruses, Trojans don't self-replicate — they rely on users being tricked into installing them. Once installed, they can create backdoors, steal data, or install other malware.
+
+**Ransomware:**\
+A particularly destructive type of malware that **encrypts the victim's files** and demands a ransom payment in exchange for the decryption key. If you don't pay, you lose your data. Ransomware attacks have hit hospitals, schools, governments, and large corporations, causing billions of dollars in damage.
+
+**Spyware:**\
+Software that **secretly monitors user activity** — recording keystrokes, capturing screenshots, stealing passwords, tracking browsing habits — and sends that information to the attacker.
+
+**Adware:**\
+Automatically displays **unwanted advertisements**. Often bundled with free software. While less harmful than other malware, it can slow systems down and sometimes leads to more serious infections.
+
+**Rootkit:**\
+A rootkit **hides deep in the operating system**, often at the kernel level, making it extremely difficult to detect. It gives attackers persistent, hidden access to the system and can conceal other malware.
+
+**Botnet:**\
+A **network of infected computers** (called "bots" or "zombies") controlled by an attacker (the "botmaster") through a command-and-control server. Botnets can have thousands or millions of infected machines and are used to launch large-scale attacks like DDoS, send spam, or mine cryptocurrency.
+
+---
+
+### **Social Engineering**
+
+Social engineering is the art of **manipulating people** into giving up confidential information or performing actions that compromise security. It exploits human psychology rather than technical vulnerabilities.
+
+**Phishing:**\
+Sending **fraudulent emails** that appear to come from trusted sources (banks, companies, colleagues) to trick recipients into clicking malicious links, downloading malware, or giving up login credentials. It's the most common form of social engineering.
+
+**Spear Phishing:**\
+A **targeted version of phishing** aimed at a specific individual or organization. The attacker researches the target and crafts a very convincing, personalized message. Much harder to detect than generic phishing.
+
+**Whaling:**\
+Spear phishing specifically targeting **high-profile individuals** like CEOs or executives — going after the "big fish."
+
+**Vishing (Voice Phishing):**\
+Using **phone calls** to manipulate victims. An attacker might call pretending to be IT support or a bank representative to extract information.
+
+**Smishing (SMS Phishing):**\
+Phishing through **text messages** — sending malicious links or fake alerts via SMS.
+
+**Pretexting:**\
+Creating a **fabricated scenario** to extract information. For example, an attacker calls an employee pretending to be from the IT department and says there's an emergency — they need the employee's password to fix a critical issue.
+
+**Baiting:**\
+Leaving an infected **USB drive** in a parking lot or common area, hoping a curious employee will plug it in. People are naturally curious — and attackers exploit that.
+
+**Tailgating (Piggybacking):**\
+Physically **following an authorized person** through a secure door without using credentials — simply walking in behind them while the door is open.
+
+---
+
+### **Man-in-the-Middle (MitM) Attacks**
+
+In a MitM attack, the attacker **secretly positions themselves between two communicating parties** — intercepting and potentially altering the communication without either party knowing.
+
+Example: You think you're communicating directly with your bank's website, but the attacker is in the middle — reading everything you send and receiving everything the bank sends, potentially modifying it.
+
+MitM attacks can be carried out through:
+
+- ARP Spoofing (on local networks)
+- Rogue Wi-Fi hotspots
+- DNS Spoofing
+- SSL Stripping (downgrading HTTPS to HTTP)
+
+---
+
+### **Denial of Service (DoS) and Distributed Denial of Service (DDoS)**
+
+These attacks aim to **overwhelm a system or network** with traffic or requests until it can no longer serve legitimate users — essentially taking it offline.
+
+- **DoS** — launched from a single machine
+- **DDoS** — launched from thousands or millions of machines (a botnet) simultaneously, making it much harder to stop
+
+We'll go into full detail on this in a dedicated topic later.
+
+---
+
+### **Password Attacks**
+
+Attackers try to **crack or steal passwords** to gain unauthorized access:
+
+**Brute Force Attack:**\
+Trying **every possible combination** of characters until the correct password is found. Very slow for long, complex passwords but effective against short or simple ones.
+
+**Dictionary Attack:**\
+Instead of trying every combination, the attacker tries a **list of common words and passwords**. Most people use common words or simple variations, making this very effective.
+
+**Credential Stuffing:**\
+Using **username/password combinations stolen from one data breach** to try to log in to other services — because many people reuse passwords across multiple sites.
+
+**Rainbow Table Attack:**\
+Using **pre-computed tables of password hashes** to quickly reverse-engineer passwords from their hashed form. This is why proper password storage uses **salting** — adding random data before hashing to make rainbow tables useless.
+
+**Keylogging:**\
+Using malware to **record every keystroke** the user makes, capturing passwords as they're typed.
+
+---
+
+### **Eavesdropping and Packet Sniffing**
+
+Attackers **capture and analyze network traffic** to extract sensitive information like passwords, emails, or financial data. This is especially effective on unencrypted connections. We'll cover this in the Packet Sniffing topic in detail.
+
+---
+
+### **IP Spoofing**
+
+The attacker **forges the source IP address** in a packet, making it appear to come from a trusted or different source. This is used to:
+
+- Bypass IP-based access controls
+- Hide the attacker's true identity
+- Conduct DDoS attacks (so the target can't trace the real source)
+
+---
+
+### **Session Hijacking**
+
+After a user authenticates and establishes a session with a server, the server gives them a **session token** to identify them for future requests. An attacker who **steals or predicts this session token** can impersonate the user and take over their session without needing their password.
+
+---
+
+### **DNS Attacks**
+
+Since DNS is the directory of the internet, attacking it can have massive effects:
+
+**DNS Spoofing / Cache Poisoning:**\
+Injecting **fake DNS records** into a DNS resolver's cache, redirecting users to malicious websites even when they type the correct address.
+
+**DNS Hijacking:**\
+Changing DNS settings on a router or system to redirect all DNS queries to an attacker-controlled server.
+
+We'll cover DNS security in its own dedicated topic.
+
+---
+
+### **Zero-Day Attacks**
+
+A **zero-day vulnerability** is a flaw in software or hardware that is **unknown to the vendor** — meaning there's no patch available yet. When attackers exploit such a flaw, it's called a zero-day attack.
+
+The term "zero-day" means the vendor has had **zero days to fix it**. These are extremely dangerous and highly valued in the hacking community and among nation-state actors.
+
+---
+
+### **Insider Threats (Technical Perspective)**
+
+Insiders can:
+
+- **Steal data** by copying it to external drives or emailing it out
+- **Sabotage systems** by deleting files or planting malware
+- **Create backdoors** for future access
+- **Sell access** to external attackers
+
+Insiders are hard to detect because their activity looks normal — they have legitimate access. This is why **monitoring, least privilege, and separation of duties** are important.
+
+---
+
+## **Common Vulnerabilities**
+
+### **Unpatched Software**
+
+Software vendors regularly release **security patches** to fix known vulnerabilities. If systems aren't updated, those vulnerabilities remain open for attackers to exploit. Many major attacks in history exploited vulnerabilities that had patches available — but people hadn't applied them.
+
+### **Weak or Default Passwords**
+
+Many devices (routers, cameras, servers) come with **default usernames and passwords** — like admin/admin. If these aren't changed, attackers can easily take control. Weak passwords are trivially cracked.
+
+### **Misconfiguration**
+
+Incorrectly configured firewalls, servers, or network devices can **leave security gaps** — open ports that should be closed, overly permissive access rules, debug features left enabled in production, etc.
+
+### **Outdated Encryption**
+
+Using old, weak encryption standards (like WEP for Wi-Fi or MD5 for hashing) that have **known mathematical weaknesses** leaves data vulnerable even when it appears to be protected.
+
+### **Lack of Input Validation**
+
+When software doesn't properly check and validate user input, attackers can inject **malicious code or commands** into the system — this is the basis of SQL injection, buffer overflow attacks, and many web application vulnerabilities.
+
+### **Open Ports and Services**
+
+Every open port is a potential entry point. Running **unnecessary services** increases the attack surface. A principle called **minimization** says you should only run what you absolutely need.
+
+### **Physical Vulnerabilities**
+
+Unlocked server rooms, unattended workstations, no surveillance cameras, visible network ports in public areas — all create opportunities for physical attacks.
+
+---
+
+## **The Concept of Defense in Depth**
+
+Because no single security measure is perfect, network security uses a concept called **Defense in Depth** — also known as **layered security**. The idea is to have **multiple layers of defense** so that if one fails, others are still in place.
+
+Think of a medieval castle:
+
+- Outer wall (perimeter defense — firewall)
+- Moat (additional barrier — DMZ)
+- Guards at the gate (access control)
+- Inner walls (network segmentation)
+- Guards inside (intrusion detection)
+- The king's chamber has its own lock (data encryption)
+
+An attacker who breaks through one layer still faces many more. This approach significantly increases the difficulty and cost of a successful attack.
+
+---
+
+## **The Concept of Least Privilege**
+
+Every user, program, and process should be given **only the minimum level of access** necessary to perform their job — nothing more. This way, if an account is compromised, the damage is limited.
+
+Example: A data entry clerk doesn't need administrator access to the server. If their account is hacked, the attacker only has data entry privileges — not full system control.
+
+---
+
+## **Attack Lifecycle (Cyber Kill Chain)**
+
+Understanding how attacks unfold helps you defend against them at each stage. The **Cyber Kill Chain** (developed by Lockheed Martin) describes the typical stages of a cyberattack:
+
+1. **Reconnaissance** — The attacker gathers information about the target (IP ranges, open ports, employee names, email formats, software versions)
+1. **Weaponization** — The attacker creates or acquires a tool/exploit to use against the target
+1. **Delivery** — The weapon is delivered to the target (via email, malicious website, USB drive)
+1. **Exploitation** — The exploit is triggered, taking advantage of a vulnerability
+1. **Installation** — Malware is installed on the victim's system
+1. **Command and Control (C2)** — The attacker establishes a remote channel to control the compromised system
+1. **Actions on Objectives** — The attacker achieves their goal — stealing data, encrypting files, causing damage
+
+If defenders can **disrupt any stage** of this chain, the attack fails. This is why early detection is so valuable.
+
+\
