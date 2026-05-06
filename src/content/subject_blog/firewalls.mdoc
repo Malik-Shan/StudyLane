@@ -1,0 +1,251 @@
+---
+draft: false
+readtime: true
+title: Firewalls
+published: 2026-05-06T22:13:00.000Z
+bannerImg:
+  discriminant: false
+category: []
+tag: []
+postedBy: admin
+---
+## **What is a Firewall?**
+
+A firewall is a network security device — either hardware, software, or a combination of both — that monitors and controls incoming and outgoing network traffic based on a set of predefined security rules. Think of it as a security guard standing at the gate between your trusted internal network and the untrusted outside world (like the internet). Every piece of data that tries to enter or leave must pass through this guard, and the guard decides whether to let it through or block it based on the rules it has been given.
+
+The word "firewall" actually comes from the construction term — a physical wall designed to stop the spread of fire. In networking, it serves a similar purpose: to stop the spread of malicious traffic or unauthorized access from one network zone to another.
+
+A firewall does not just protect against hackers trying to break in. It also controls what your own users inside the network can access on the outside. For example, a company might use a firewall to prevent employees from visiting certain websites or using certain applications during work hours.
+
+---
+
+## **Why Do We Need Firewalls?**
+
+Before firewalls existed, networks were largely open. Any computer connected to the internet could potentially communicate with any other computer freely. As the internet grew and threats increased, it became obvious that some kind of barrier was necessary.
+
+Without a firewall:
+
+- Attackers can freely probe your network for open ports and vulnerabilities
+- Malware can communicate back to its creators without any obstruction
+- Internal users can accidentally or intentionally leak sensitive data
+- Unauthorized users can gain access to internal systems
+
+A firewall creates a controlled boundary. It enforces a security policy at the network level, meaning it applies rules consistently to all traffic rather than depending on individual users or applications to behave securely.
+
+---
+
+## **How a Firewall Works — The Core Concept**
+
+At its most basic level, a firewall inspects network packets. A **packet** is a small unit of data traveling across a network. Every packet contains a **header** (which includes information like source IP address, destination IP address, source port, destination port, and protocol) and a **payload** (the actual data being sent).
+
+When a packet arrives at a firewall, the firewall looks at the information in the header and compares it against its **rule set** (also called an Access Control List or ACL). Each rule says something like:
+
+- "Allow traffic from IP address X to reach port 80"
+- "Block all traffic coming from this specific IP range"
+- "Allow outgoing traffic on port 443 (HTTPS)"
+
+If a packet matches a rule that says allow, it passes through. If it matches a rule that says deny or block, it is dropped. If no rule matches, the firewall either drops or allows the packet depending on its **default policy**. A good security practice is a **default-deny** policy — meaning if there is no specific rule allowing something, it is blocked by default.
+
+---
+
+## **Types of Firewalls**
+
+Over time, firewalls have evolved significantly. There are several types, each with increasing levels of sophistication.
+
+---
+
+### **1. Packet Filtering Firewall**
+
+This is the oldest and most basic type of firewall. It operates at **Layer 3 (Network Layer)** and **Layer 4 (Transport Layer)** of the OSI model. It inspects individual packets and filters them based on:
+
+- Source IP address
+- Destination IP address
+- Source port number
+- Destination port number
+- Protocol (TCP, UDP, ICMP, etc.)
+
+It does **not** look at the content of the packet (payload), and it does **not** keep track of the state of connections. Every packet is evaluated independently, in isolation.
+
+**Example:** You can create a rule that says "block all incoming traffic on port 23 (Telnet)" because Telnet is an insecure protocol. The firewall will drop every single packet destined for port 23, no matter where it came from.
+
+**Advantages:**
+
+- Very fast because it does minimal inspection
+- Low resource usage
+- Simple to configure for basic needs
+
+**Disadvantages:**
+
+- Cannot detect attacks that are spread across multiple packets
+- Cannot understand context or the state of a connection
+- Vulnerable to IP spoofing (an attacker can fake their source IP to bypass rules)
+- Cannot inspect application-level content
+
+---
+
+### **2. Stateful Inspection Firewall (Dynamic Packet Filtering)**
+
+This is a major improvement over basic packet filtering. A stateful firewall operates at **Layer 3 and Layer 4** but adds something critically important: it keeps track of the **state of active connections**.
+
+It maintains a **state table** — a record of all current network connections passing through it. This includes information like which IP addresses are communicating, which ports they are using, and what stage the connection is in (e.g., connection being established, established, or being closed).
+
+When a packet arrives, the firewall does not just check it against static rules — it also checks whether that packet is part of a known, legitimate, ongoing connection. This allows it to make much smarter decisions.
+
+**Example:** When your browser sends a request to a web server, the firewall records that connection. When the web server sends a response back, the firewall recognizes this response as part of an already-established, legitimate connection and allows it through — even if there is no specific rule saying "allow incoming traffic from this server." On the other hand, if an unsolicited packet arrives from a server you never contacted, the firewall will block it because there is no matching state entry.
+
+**Advantages:**
+
+- Much more secure than basic packet filtering
+- Can detect certain types of attacks like TCP session hijacking
+- Understands the context of communication
+
+**Disadvantages:**
+
+- Still cannot inspect the actual content/payload of packets
+- More resource-intensive than basic packet filtering
+- Does not protect against application-layer attacks
+
+---
+
+### **3. Application Layer Firewall (Proxy Firewall)**
+
+An application layer firewall, also called a **proxy firewall**, operates at **Layer 7 (Application Layer)** of the OSI model. This is a fundamentally different approach.
+
+Instead of simply passing packets through, a proxy firewall acts as an **intermediary** between the client and the server. When a client wants to connect to a server:
+
+1. The client connects to the proxy firewall instead
+1. The proxy firewall inspects the request fully
+1. If the request is deemed safe, the proxy makes its own separate connection to the actual server on behalf of the client
+1. The server's response comes back to the proxy, which inspects it and then forwards it to the client
+
+This means the client and the server **never directly communicate** — the firewall is always in the middle. This provides deep inspection of the actual content of the communication.
+
+A proxy firewall understands specific application protocols like HTTP, FTP, DNS, SMTP, etc. It can detect if something is using port 80 (HTTP) but not actually sending valid HTTP traffic — which is a common technique attackers use to disguise malicious traffic.
+
+**Advantages:**
+
+- Deep content inspection — can detect malicious content in the payload
+- Can filter based on URLs, file types, commands within protocols
+- Hides the internal network topology from the outside world
+- Strong protection against application-layer attacks
+
+**Disadvantages:**
+
+- Significantly slower due to deep inspection
+- High resource usage
+- A separate proxy may be needed for each protocol
+- Can become a bottleneck in high-traffic environments
+
+---
+
+### **4. Next-Generation Firewall (NGFW)**
+
+A Next-Generation Firewall is the modern standard. It combines all the capabilities of the previous types and adds even more advanced features. An NGFW can:
+
+- Perform **deep packet inspection (DPI)** — examining the full content of packets, not just headers
+- Identify and control traffic based on **applications** rather than just ports (called application awareness). For example, it can distinguish between Facebook traffic and YouTube traffic even though both use port 443
+- Integrate **Intrusion Detection and Prevention Systems (IDS/IPS)** directly into the firewall
+- Perform **SSL/TLS inspection** — it can decrypt encrypted HTTPS traffic, inspect it for threats, and re-encrypt it
+- Use **threat intelligence feeds** to block known malicious IP addresses and domains
+- Identify users, not just IP addresses, and apply policies per user
+- Sandbox suspicious files by sending them to an isolated environment for testing
+
+**Advantages:**
+
+- Comprehensive, multi-layered protection
+- Application awareness provides much finer control
+- Can detect modern, sophisticated attacks
+- Unified platform reduces complexity
+
+**Disadvantages:**
+
+- Expensive
+- Requires skilled personnel to configure and manage
+- High resource usage
+- SSL inspection can create privacy concerns and performance overhead
+
+---
+
+## **Firewall Architectures (How Firewalls are Deployed)**
+
+It is not just about what type of firewall you use, but also **where and how** you place it in your network.
+
+---
+
+### **Screening Router**
+
+The simplest architecture. A single router with packet filtering capabilities sits between the internal network and the internet. It is cheap and simple but provides minimal protection. There is no dedicated firewall device — the router itself does the filtering.
+
+---
+
+### **Dual-Homed Host**
+
+A computer with **two network interfaces** — one connected to the internet and one connected to the internal network. All traffic must pass through this host. The host runs firewall software and acts as the gateway. However, if this host is compromised, the attacker gains direct access to the internal network.
+
+---
+
+### **Screened Host Architecture**
+
+A more secure setup that combines a **packet-filtering router** and a **bastion host**.
+
+- The router filters traffic at the network level and only allows certain traffic to reach the bastion host
+- The bastion host is a hardened computer that runs the application-level proxy firewall
+- Internal users must go through the bastion host to reach the internet
+
+The bastion host is a specially secured computer that is deliberately exposed to the outside world. It is hardened — meaning unnecessary services are removed, it is carefully configured, and it is heavily monitored because it is expected to come under attack.
+
+---
+
+### **Screened Subnet (DMZ Architecture)**
+
+This is the most common and most secure architecture used in real organizations. It introduces the concept of a **DMZ (Demilitarized Zone)**.
+
+A DMZ is a separate network zone that sits **between** the internet and the internal private network. It contains servers that need to be accessible from the internet — like web servers, email servers, and DNS servers — but should not be directly connected to the internal network.
+
+The setup uses **two firewalls**:
+
+- **Outer firewall (between internet and DMZ):** Controls what traffic from the internet can reach the DMZ. It allows things like HTTP and HTTPS to the web server.
+- **Inner firewall (between DMZ and internal network):** Controls what traffic from the DMZ can reach the internal network. It is very strict and only allows specific, necessary communication.
+
+So even if an attacker successfully compromises a server in the DMZ, they still face the inner firewall before they can reach the internal network. This layered defense is a core principle of good security design.
+
+---
+
+## **Firewall Rule Sets — How Rules Work in Practice**
+
+Rules in a firewall are processed **in order**, from top to bottom. The first rule that matches a packet is applied, and the rest are ignored. This ordering is critical.
+
+A typical rule looks like this:
+
+text
+
+```
+Rule | Source IP    | Dest IP      | Protocol | Port | Action
+-----|--------------|--------------|----------|------|-------
+1    | 192.168.1.5  | Any          | TCP      | 80   | ALLOW
+2    | Any          | 10.0.0.1     | TCP      | 22   | DENY
+3    | Any          | Any          | Any      | Any  | DENY (default)
+
+```
+
+The last rule — **deny all** — is the default-deny policy. Anything not explicitly allowed by rules above it is blocked.
+
+Common mistakes in firewall rule configuration:
+
+- Rules that are too broad (e.g., allowing all traffic from an entire IP range when only one specific IP needs access)
+- Conflicting rules where a more general rule appears before a specific one
+- Forgetting to account for return traffic in stateless firewalls
+- Leaving default or test rules in place in production
+
+---
+
+## **Limitations of Firewalls**
+
+A firewall is a powerful tool, but it is not a complete security solution on its own. Understanding its limitations is just as important as understanding what it does.
+
+- **It cannot protect against threats that bypass it.** If an attacker connects through a VPN, a dial-up modem, or a compromised insider, the firewall may not see that traffic at all.
+- **It cannot protect against insider threats.** A malicious employee already inside the network is behind the firewall.
+- **Encrypted traffic is a challenge.** Traditional firewalls cannot inspect encrypted traffic (HTTPS). NGFWs can do SSL inspection, but it comes with overhead and complexity.
+- **It cannot patch vulnerabilities.** A firewall does not fix software vulnerabilities in your servers or applications. If a web application has a SQL injection vulnerability, the firewall generally cannot stop that attack because the malicious content arrives over an allowed connection (port 80/443).
+- **Misconfiguration is a real risk.** A firewall with poorly written rules can give a false sense of security while leaving gaps that attackers can exploit.
+- **Zero-day attacks.** If an attack uses a technique that has never been seen before, the firewall may have no rule or signature to detect it.
