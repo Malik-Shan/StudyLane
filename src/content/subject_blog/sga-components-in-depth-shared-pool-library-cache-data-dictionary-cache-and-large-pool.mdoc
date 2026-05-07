@@ -1,0 +1,560 @@
+---
+draft: false
+readtime: true
+title: >-
+  SGA Components In Depth: Shared Pool, Library Cache, Data Dictionary Cache &
+  Large Pool
+published: 2026-05-07T22:14:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **The Shared Pool — Deep Dive**
+
+### **What Exactly is the Shared Pool?**
+
+The **Shared Pool** is the area of the SGA responsible for **caching SQL statements, execution plans, and database metadata**. It is shared among all user sessions — hence the name.
+
+Think of it this way:
+
+- The **Buffer Cache** caches **data** (actual rows and blocks)
+- The **Shared Pool** caches **instructions and knowledge about the data** (how to access it, what it looks like, who can access it)
+
+Without the shared pool, Oracle would have to:
+
+- Re-parse every SQL statement from scratch every time
+- Re-read metadata about every table and column from disk every time
+
+Both of these are expensive operations. The shared pool eliminates that repeated work.
+
+### **How Big Should the Shared Pool Be?**
+
+If the shared pool is **too small**:
+
+- SQL statements get pushed out before they can be reused
+- Oracle has to hard parse more frequently — wasting CPU
+- Data dictionary information gets evicted — causing disk reads for metadata
+- You'll see errors like **ORA-04031** ("unable to allocate shared memory") which is one of the most common Oracle errors in production
+
+If the shared pool is **too large**:
+
+- Less memory available for the buffer cache
+- Searching through a very large shared pool for a matching SQL statement can itself become slow
+
+DBAs monitor the shared pool hit ratio:
+
+sql
+
+```
+SELECT (1 - (reloads / pins)) * 100 AS library_cache_hit_ratio
+FROM V$LIBRARYCACHE
+WHERE NAMESPACE = 'SQL AREA';
+
+```
+
+A ratio above 95% is healthy.
+
+---
+
+## **Library Cache — Deep Dive**
+
+### **What is the Library Cache?**
+
+The **Library Cache** is a sub-component of the Shared Pool. It stores:
+
+- **Parsed SQL statements** and their **execution plans**
+- **PL/SQL code** (stored procedures, functions, packages, triggers) in compiled form
+- **Java classes** stored in the database
+- **Locks and pins** on shared SQL (to prevent plans being evicted while in use)
+
+### **Understanding Parsing in Detail**
+
+When Oracle receives a SQL statement, it goes through these steps:
+
+**Step 1 — Syntax Check:**\
+Is the SQL grammatically correct?
+
+sql
+
+```
+-- This fails syntax check:
+SELCT * FORM employees;
+
+```
+
+**Step 2 — Semantic Check:**\
+Do the referenced objects actually exist? Does the user have permission?
+
+sql
+
+```
+-- This fails semantic check (table doesn't exist):
+SELECT * FROM nonexistent_table;
+
+```
+
+**Step 3 — Optimization:**\
+The **Query Optimizer** determines the most efficient execution plan:
+
+- Which index to use (or whether to scan the whole table)
+- In what order to join tables
+- What join method to use (nested loops, hash join, merge join)
+- How to filter data
+
+This step is the most expensive — the optimizer considers many possible plans and calculates the cost of each. It can take significant CPU time for complex queries.
+
+**Step 4 — Execution Plan Generation:**\
+The chosen plan is stored in the library cache for reuse.
+
+### **Hard Parse vs Soft Parse vs Soft-Soft Parse**
+
+This is very important theory:
+
+**Hard Parse:**
+
+- SQL statement is **not found** in the library cache
+- Oracle must go through ALL four steps above
+- Expensive — CPU intensive, requires library cache latch (a lock)
+- Should be minimized in production systems
+
+**Soft Parse:**
+
+- SQL statement **is found** in the library cache
+- Oracle still checks syntax and semantics but **reuses the stored execution plan**
+- Much cheaper than hard parse
+- Still requires some latch activity
+
+**Soft-Soft Parse (No Parse / Cursor Sharing):**
+
+- The application keeps the **cursor open** (doesn't close and reopen the SQL statement between executions)
+- Oracle skips even the library cache lookup
+- Fastest option — used in well-written applications with cursor caching
+
+### **How Oracle Finds a Matching Statement in the Library Cache**
+
+Oracle uses a **hash function** on the exact text of the SQL statement to look it up in the library cache. This means the match must be **exact** — character for character, including:
+
+- Case sensitivity
+- Whitespace
+- Comments
+
+These are all **different statements** to Oracle:
+
+sql
+
+```
+SELECT * FROM employees WHERE department_id = 10;
+select * from employees where department_id = 10;
+SELECT * FROM employees  WHERE department_id = 10;
+SELECT * FROM employees WHERE department_id=10;
+
+```
+
+Each generates a different hash value → each is stored separately → each requires a hard parse → the library cache fills with non-reusable plans.
+
+**This is a massive real-world performance problem** in poorly written applications.
+
+### **The Solution — Bind Variables**
+
+Instead of embedding literal values directly in SQL:
+
+sql
+
+```
+-- BAD: Different statement every time
+SELECT * FROM orders WHERE customer_id = 1001;
+SELECT * FROM orders WHERE customer_id = 1002;
+SELECT * FROM orders WHERE customer_id = 1003;
+-- 3 hard parses, 3 separate entries in library cache
+
+```
+
+Use **bind variables** — placeholders that get filled in at execution time:
+
+sql
+
+```
+-- GOOD: Same statement every time, value supplied separately
+SELECT * FROM orders WHERE customer_id = :cust_id;
+-- 1 hard parse, 1 entry in library cache
+-- Subsequent executions are soft parses reusing the plan
+
+```
+
+The execution plan is parsed **once** and reused for every different customer ID. This can make an enormous difference — an application processing thousands of transactions per second could go from thousands of hard parses per second to just a handful.
+
+### **CURSOR\_SHARING Parameter**
+
+If you have an application you cannot modify (legacy code with literals everywhere), Oracle provides a workaround:
+
+sql
+
+```
+ALTER SYSTEM SET CURSOR_SHARING = FORCE;
+
+```
+
+This makes Oracle automatically replace literals with bind variables before checking the library cache. It's not ideal (the optimizer loses some information it uses for plan selection) but it's better than thousands of hard parses.
+
+Options:
+
+- **`EXACT`** (default) — statement must match exactly
+- **`FORCE`** — Oracle replaces literals with bind variables automatically
+
+### **What is Stored Per SQL Statement in the Library Cache?**
+
+For each unique SQL statement, the library cache stores:
+
+- **Parse tree** — the internal parsed representation
+- **Execution plan** — the chosen access path
+- **Compilation locks** — to prevent the plan being used while the underlying object is being modified
+- **Statistics** — how many times it has been executed, average execution time, etc.
+- **Bind variable information**
+
+You can see what's in the library cache:
+
+sql
+
+```
+SELECT SQL_TEXT, EXECUTIONS, PARSE_CALLS, 
+       BUFFER_GETS, DISK_READS, ELAPSED_TIME
+FROM V$SQL
+ORDER BY ELAPSED_TIME DESC;
+
+```
+
+This is one of the most useful views for identifying slow or frequently executed SQL.
+
+### **PL/SQL in the Library Cache**
+
+PL/SQL stored procedures, functions, and packages are also stored in the library cache in **compiled (p-code) form**. When a procedure is called, Oracle checks if the compiled version is in the library cache. If not, it compiles it from source (stored in the data dictionary) and caches the result.
+
+Heavily used packages stay in the library cache. Rarely used ones get aged out. DBAs sometimes **pin** important packages in the library cache so they're never evicted:
+
+sql
+
+```
+EXECUTE DBMS_SHARED_POOL.KEEP('DBMS_STANDARD', 'P');
+
+```
+
+---
+
+## **Data Dictionary Cache — Deep Dive**
+
+### **What is the Data Dictionary?**
+
+The **Data Dictionary** is a collection of internal Oracle tables and views that store **metadata** — information about the database itself:
+
+- All table definitions (names, columns, data types, constraints)
+- All user accounts and their privileges
+- All indexes and what columns they cover
+- All views and their definitions
+- All stored procedures and their source code
+- Tablespace and data file information
+- Statistics about tables and indexes (used by the optimizer)
+
+The data dictionary is stored in the **SYSTEM tablespace** in regular Oracle data files. It is owned by the **SYS** user.
+
+You access it through views like:
+
+sql
+
+```
+-- Tables accessible to current user
+SELECT * FROM USER_TABLES;
+SELECT * FROM ALL_TABLES;
+SELECT * FROM DBA_TABLES;  -- requires DBA privilege
+
+-- Column information
+SELECT * FROM DBA_COLUMNS WHERE TABLE_NAME = 'EMPLOYEES';
+
+-- User privileges
+SELECT * FROM DBA_SYS_PRIVS WHERE GRANTEE = 'HR';
+
+```
+
+### **What is the Data Dictionary Cache?**
+
+The **Data Dictionary Cache** (also called the **Row Cache**) is the sub-component of the Shared Pool that caches **rows from data dictionary tables** in memory.
+
+Every time Oracle parses a SQL statement, it needs metadata:
+
+- Does this table exist?
+- What are its columns and data types?
+- Does this user have SELECT privilege on it?
+- Are there any constraints to check?
+- What indexes exist on this table?
+
+Reading this from disk (the data dictionary tables in the SYSTEM tablespace) **every single time** would be very slow. The Data Dictionary Cache keeps this information in RAM.
+
+### **What Gets Cached?**
+
+- Table and column definitions
+- User and privilege information
+- Constraint definitions
+- Tablespace and segment information
+- Rollback segment information
+
+### **Monitoring the Data Dictionary Cache**
+
+sql
+
+```
+SELECT PARAMETER, GETS, GETMISSES,
+       ROUND((1 - GETMISSES/GREATEST(GETS,1)) * 100, 2) 
+       AS HIT_RATIO
+FROM V$ROWCACHE
+ORDER BY GETS DESC;
+
+```
+
+- **GETS** = number of times Oracle looked for a dictionary item
+- **GETMISSES** = times it wasn't found in cache (had to read from disk)
+- **HIT\_RATIO** should be above 95%
+
+If the hit ratio is low, the shared pool may be too small — dictionary items are being evicted before they can be reused.
+
+### **Relationship Between Library Cache and Data Dictionary Cache**
+
+They work together during parsing:
+
+text
+
+```
+SQL Statement Arrives
+        ↓
+Library Cache Check → Found? → Soft Parse (reuse plan)
+        ↓ Not Found
+Hard Parse Begins
+        ↓
+Data Dictionary Cache Check → Table exists? Columns? Privileges?
+        ↓ Not in cache
+Read from Data Dictionary Tables on Disk (slowest path)
+        ↓
+Store result in Data Dictionary Cache
+        ↓
+Generate Execution Plan
+        ↓
+Store plan in Library Cache
+        ↓
+Execute
+
+```
+
+Every hard parse potentially touches the data dictionary cache. If both the library cache and data dictionary cache are well-sized, parsing is fast. If they're too small, parsing becomes a bottleneck.
+
+---
+
+## **Large Pool — Deep Dive**
+
+### **What is the Large Pool?**
+
+The **Large Pool** is an **optional but important** area of the SGA specifically for **large memory allocations** that don't belong in the shared pool or buffer cache.
+
+### **Why Does it Exist?**
+
+The shared pool has a problem: it uses a **Least Recently Used (LRU)** algorithm to manage memory. When large allocations are made in the shared pool, they can **flush out** many small cached SQL statements and dictionary entries — destroying the caching benefit of the shared pool.
+
+The Large Pool solves this by providing **separate memory space** for large allocations. Large allocations go here instead of competing with SQL caching in the shared pool.
+
+### **What Uses the Large Pool?**
+
+**1. RMAN (Recovery Manager) Backup and Restore:**\
+RMAN uses large I/O buffers when reading and writing data during backup and restore operations. These buffers can be several MB each. Without a large pool, RMAN borrows this memory from the shared pool.
+
+When you run:
+
+sql
+
+```
+BACKUP DATABASE PLUS ARCHIVELOG;
+
+```
+
+RMAN allocates large memory buffers — these come from the large pool.
+
+**2. Shared Server Architecture (MTS):**\
+In shared server mode, **session memory** (what would normally be in each session's PGA) is moved to the SGA so it can be shared. This session memory comes from the Large Pool.
+
+In dedicated server mode, each session has its own PGA. In shared server mode, sessions share server processes, so their UGA (User Global Area — the part of PGA containing session state) must be in shared memory — the large pool.
+
+**3. Parallel Query Execution:**\
+When Oracle runs a query in parallel (splitting it across multiple parallel execution server processes), **message buffers** for inter-process communication are allocated from the large pool.
+
+For example, if a full table scan runs with **`PARALLEL 8`** (8 parallel processes), those 8 processes need to communicate — those communication buffers come from the large pool.
+
+**4. Oracle XA Interface:**\
+XA is a standard for **distributed transactions** — transactions that span multiple databases or resource managers (like a database + a message queue). Oracle's XA interface allocates memory from the large pool.
+
+**5. Java Pool:**\
+Sometimes Oracle's Java execution environment uses large pool memory.
+
+### **What Happens Without a Large Pool?**
+
+If the large pool is not configured:
+
+- RMAN, parallel query, and shared server all **steal memory from the shared pool**
+- This pushes SQL execution plans and dictionary entries out of the shared pool
+- More hard parsing occurs
+- Performance degrades — sometimes significantly
+
+### **Configuring the Large Pool**
+
+sql
+
+```
+-- Set large pool size
+ALTER SYSTEM SET LARGE_POOL_SIZE = 64M;
+
+-- View current large pool usage
+SELECT POOL, NAME, BYTES/1024/1024 AS MB
+FROM V$SGASTAT
+WHERE POOL = 'large pool';
+
+```
+
+### **Large Pool Memory Management**
+
+Unlike the Shared Pool (which uses LRU), the Large Pool uses a **simple free list** — allocated chunks are either in use or free. There is **no aging** — memory is held until explicitly released by the process that allocated it.
+
+This makes it predictable for large allocations but means it must be sized carefully:
+
+- Too small → allocations fail → operations like RMAN fail with errors
+- Too large → wastes memory that could be used for buffer cache
+
+### **Sizing the Large Pool**
+
+As a general guideline:
+
+- If using RMAN: allocate enough for RMAN's channel buffers (**`BACKUP_TAPE_IO_SLAVES`** × buffer size)
+- If using Shared Server: multiply max shared server sessions × session memory
+- If using Parallel Query heavily: parallel degree × number of parallel operations × buffer size
+
+In practice, many DBAs start with **64MB to 128MB** and adjust based on monitoring:
+
+sql
+
+```
+SELECT * FROM V$SGASTAT WHERE POOL = 'large pool';
+
+```
+
+If you see "free memory" approaching zero, increase the large pool size.
+
+---
+
+## **How All SGA Components Work Together**
+
+Here's a complete picture of the SGA with all components:
+
+text
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                         SGA                              │
+│                                                          │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │            DATABASE BUFFER CACHE                │    │
+│  │   Caches data blocks from data files            │    │
+│  │   LRU managed, dirty blocks written by DBWn     │    │
+│  └─────────────────────────────────────────────────┘    │
+│                                                          │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │               SHARED POOL                       │    │
+│  │  ┌───────────────────┐ ┌─────────────────────┐  │    │
+│  │  │   LIBRARY CACHE   │ │  DATA DICTIONARY     │  │    │
+│  │  │                   │ │      CACHE           │  │    │
+│  │  │ - SQL statements  │ │ - Table definitions  │  │    │
+│  │  │ - Execution plans │ │ - User privileges    │  │    │
+│  │  │ - PL/SQL code     │ │ - Constraint info    │  │    │
+│  │  │ - Parse trees     │ │ - Index metadata     │  │    │
+│  │  └───────────────────┘ └─────────────────────┘  │    │
+│  └─────────────────────────────────────────────────┘    │
+│                                                          │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │                LARGE POOL                       │    │
+│  │   - RMAN backup buffers                         │    │
+│  │   - Shared Server session memory (UGA)          │    │
+│  │   - Parallel query message buffers              │    │
+│  │   - XA transaction memory                       │    │
+│  └─────────────────────────────────────────────────┘    │
+│                                                          │
+│  ┌──────────────────────┐  ┌────────────────────────┐   │
+│  │    REDO LOG BUFFER   │  │      JAVA POOL         │   │
+│  │  Redo entries before │  │  Java stored procs     │   │
+│  │  writing to log file │  │                        │   │
+│  └──────────────────────┘  └────────────────────────┘   │
+└──────────────────────────────────────────────────────────┘
+
+```
+
+---
+
+## **Quick Comparison Across DBMS**
+
+{% table %}
+- **SGA Component**
+- **Oracle**
+- **MySQL**
+- **PostgreSQL**
+---
+- Buffer Cache
+- Database Buffer Cache
+- InnoDB Buffer Pool
+- Shared Buffers
+---
+- SQL Plan Cache
+- Library Cache
+- (Query Cache — removed in 8.0)
+- pg_prepared_statements
+---
+- Metadata Cache
+- Data Dictionary Cache
+- Table Definition Cache
+- Catalog Cache
+---
+- Large Allocations
+- Large Pool
+- No direct equivalent
+- No direct equivalent
+---
+- Log Buffer
+- Redo Log Buffer
+- InnoDB Log Buffer
+- WAL Buffers
+{% /table %}
+
+---
+
+## **What to Write in an Exam**
+
+For a long exam answer on Shared Pool, Library Cache, Data Dictionary Cache, or Large Pool:
+
+**Shared Pool:**
+
+- Define it as the SGA area for SQL and metadata caching
+- Explain its two main sub-components
+- Discuss consequences of it being too small (ORA-04031, hard parsing)
+
+**Library Cache:**
+
+- Define it as the SQL and PL/SQL execution plan store
+- Explain hard parse vs soft parse in detail
+- Explain bind variables and why they matter
+- Mention CURSOR_SHARING parameter
+
+**Data Dictionary Cache:**
+
+- Define the data dictionary itself first
+- Explain why caching dictionary rows matters (parsing needs metadata)
+- Discuss hit ratio monitoring
+
+**Large Pool:**
+
+- Define it as memory for large allocations that shouldn't go in shared pool
+- List exactly what uses it: RMAN, Shared Server, Parallel Query, XA
+- Explain what happens without it (shared pool pollution)
