@@ -1,0 +1,465 @@
+---
+draft: false
+readtime: true
+title: Data File Management
+published: 2026-05-07T22:38:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **What Exactly is a Datafile?**
+
+A datafile is a **physical OS file** (like **`app_data01.dbf`** on Linux or **`app_data01.mdf`** on SQL Server) that stores the actual data of the database — table rows, index entries, undo records, temporary sort results, everything.
+
+Key facts:
+
+- Every datafile belongs to **exactly one tablespace**
+- One tablespace can have **many datafiles**
+- The datafile is the bridge between Oracle's logical world and the OS's physical world
+- Oracle reads and writes datafiles through the **Database Writer (DBWn)** background process — not directly from user processes
+
+When you query a table, Oracle doesn't read directly from the datafile every time. It first checks the **Buffer Cache** in memory. If the data isn't there, it reads from the datafile into the buffer cache, then serves it to you. Writes work similarly — changes go to the buffer cache first, and DBWn flushes them to the datafile later.
+
+---
+
+## **Datafile Internal Structure**
+
+A datafile is not just a raw dump of rows. It has a well-defined internal structure.
+
+### **File Header**
+
+Every datafile begins with a **header block**. This header contains:
+
+- **File number** — Oracle's internal ID for this file
+- **Tablespace name** it belongs to
+- **Database ID (DBID)** — ensures the file belongs to this database, not another
+- **Checkpoint SCN** — the System Change Number at the last checkpoint (explained below)
+- **Creation timestamp**
+- **Resetlogs SCN** — used during recovery to verify consistency
+
+The file header is critical. If it gets corrupted, Oracle cannot use that datafile at all. The control file also tracks information about each datafile, and Oracle cross-checks both during startup.
+
+### **Oracle Blocks**
+
+After the header, the rest of the datafile is divided into **Oracle blocks** (also called database blocks or data blocks). These are the smallest unit of I/O in Oracle.
+
+The block size is set when the tablespace is created and cannot be changed afterward. Common sizes:
+
+- **8KB** — default, most common
+- **4KB, 16KB, 32KB** — also supported
+
+The OS also has a block size (usually 512 bytes to 4KB). Oracle's block size should be a **multiple** of the OS block size. This ensures that one Oracle block read = one or a few clean OS block reads with no partial reads.
+
+---
+
+## **The Relationship Between Datafiles, Control Files, and Redo Logs**
+
+These three types of files together make up the **database**. They work as a team:
+
+text
+
+```
+Control File
+    - Knows about every datafile (name, size, status, checkpoint SCN)
+    - Knows about every redo log file
+    - Tracks the overall database checkpoint
+
+Datafiles
+    - Store the actual data
+    - Have a header with their own checkpoint SCN
+
+Redo Log Files
+    - Record every change made to the database
+    - Used to replay changes during recovery
+
+```
+
+When Oracle starts up, it compares the checkpoint SCN in the control file against the checkpoint SCN in each datafile header. If they match — the database is consistent and can open normally. If they don't match — Oracle knows that the datafile is behind and needs redo to be applied. This is the foundation of crash recovery.
+
+---
+
+## **Checkpoints — Very Important Concept**
+
+A **checkpoint** is an event where Oracle:
+
+1. Writes all **dirty buffers** (modified data in memory not yet on disk) from the Buffer Cache to the datafiles
+1. Updates the datafile headers with the current **SCN**
+1. Updates the control file
+
+### **Why Checkpoints Exist**
+
+Imagine Oracle crashes. When it restarts, it needs to know: "what data was safely written to disk and what wasn't?"
+
+The checkpoint SCN in the datafile header answers this. Oracle knows:
+
+- Everything up to this SCN is safely on disk
+- Everything after this SCN may be missing from the datafile
+- So replay redo logs from this SCN forward to recover the missing changes
+
+Without checkpoints, Oracle would have to replay redo from the very beginning of time every time it restarted — which would be impossibly slow.
+
+### **Types of Checkpoints**
+
+**Full Checkpoint:**\
+Writes ALL dirty buffers to disk. Updates all datafile headers and the control file. Happens during:
+
+- **`SHUTDOWN NORMAL / IMMEDIATE`**
+- **`ALTER SYSTEM CHECKPOINT`**
+- Taking a tablespace offline normally
+
+sql
+
+```
+-- Force a manual checkpoint
+ALTER SYSTEM CHECKPOINT;
+
+```
+
+**Incremental Checkpoint (Continuous):**\
+Oracle doesn't wait for a full checkpoint event. It continuously writes dirty buffers in the background. The **checkpoint position** moves forward constantly. This reduces the amount of redo that needs to be applied in a crash recovery because dirty buffers are being flushed regularly.
+
+**Tablespace Checkpoint:**\
+When you take a specific tablespace offline normally, Oracle checkpoints only the datafiles of that tablespace.
+
+**File Checkpoint:**\
+When a datafile is taken offline or a backup begins, Oracle checkpoints that specific file.
+
+### **CHECKPOINT vs DBWn**
+
+People confuse these:
+
+- **DBWn (Database Writer)** — the background process that physically writes dirty blocks to datafiles
+- **CKPT (Checkpoint process)** — updates the datafile headers and control file with the checkpoint SCN
+
+DBWn does the heavy lifting (disk writes). CKPT just updates the bookkeeping. They work together during a checkpoint event.
+
+---
+
+## **Datafile States**
+
+Oracle tracks the state of each datafile. These states matter for recovery and operations.
+
+{% table %}
+- **State**
+- **Meaning**
+---
+- **`ONLINE`**
+- Normal, accessible
+---
+- **`OFFLINE`**
+- Taken offline by DBA, not accessible
+---
+- **`OFFLINE DROP`**
+- Datafile was dropped (only in NOARCHIVELOG mode)
+---
+- **`RECOVER`**
+- Needs media recovery before it can come online
+---
+- **`SYSOFF`**
+- System tablespace file taken offline — unusual/emergency
+{% /table %}
+
+sql
+
+```
+-- Check datafile status
+SELECT file#, name, status, checkpoint_change#
+FROM v$datafile;
+
+-- Also useful
+SELECT file_name, tablespace_name, status, online_status
+FROM dba_data_files;
+
+```
+
+---
+
+## **Taking a Datafile Offline and Online**
+
+You can offline/online at the datafile level (more granular than tablespace level):
+
+sql
+
+```
+-- Take a specific datafile offline
+ALTER DATABASE DATAFILE '/u01/oradata/mydb/app_data01.dbf' OFFLINE;
+
+-- Bring it back (may need recovery first)
+ALTER DATABASE DATAFILE '/u01/oradata/mydb/app_data01.dbf' ONLINE;
+
+```
+
+If you take a datafile offline without a normal checkpoint (e.g., the disk is dead), you need media recovery before bringing it back online:
+
+sql
+
+```
+-- Recover the datafile (applies archived redo logs)
+RECOVER DATAFILE '/u01/oradata/mydb/app_data01.dbf';
+
+-- Then bring online
+ALTER DATABASE DATAFILE '/u01/oradata/mydb/app_data01.dbf' ONLINE;
+
+```
+
+This is different from tablespace offline because:
+
+- You can offline a single datafile within a tablespace — the rest of the tablespace still works (as long as the objects don't span that specific file)
+- Useful when one disk in a multi-disk tablespace fails
+
+---
+
+## **ARCHIVELOG vs NOARCHIVELOG Mode**
+
+This is one of the most important concepts in database administration and directly affects how datafiles are protected.
+
+### **Redo Log Files — Quick Background**
+
+Every change to every datafile is first recorded in **redo log files**. These are circular — Oracle writes to log 1, fills it, switches to log 2, fills it, switches to log 3, and then back to log 1 (overwriting it).
+
+### **NOARCHIVELOG Mode**
+
+When Oracle switches from a full redo log to the next one, it simply overwrites the old one. The old redo is **gone forever**.
+
+- **Consequence:** You can only recover from a crash if ALL datafiles are consistent. You cannot recover from a disk failure that destroyed a datafile — the redo needed to reconstruct it has been overwritten.
+- **Backup strategy:** You must do cold backups (shut down the database, copy all files). Online backups are not possible.
+- **Use case:** Development/test databases where data loss is acceptable.
+
+### **ARCHIVELOG Mode**
+
+Before Oracle overwrites a redo log, it copies it to an **archive log destination** (another directory or tape). These archived logs are kept indefinitely.
+
+- **Consequence:** You can recover from any point in time. Lost a datafile? Restore the backup copy and apply all archived logs up to the current moment. You've lost nothing (or almost nothing).
+- **Backup strategy:** Hot backups (online backups while database is running) are possible.
+- **Use case:** Any production database. Mandatory for serious use.
+
+sql
+
+```
+-- Check current mode
+SELECT log_mode FROM v$database;
+
+-- Switch to ARCHIVELOG mode (requires restart)
+SHUTDOWN IMMEDIATE;
+STARTUP MOUNT;
+ALTER DATABASE ARCHIVELOG;
+ALTER DATABASE OPEN;
+
+-- Verify
+ARCHIVE LOG LIST;
+
+```
+
+---
+
+## **Datafile Creation — What Actually Happens**
+
+When you run:
+
+sql
+
+```
+CREATE TABLESPACE app_data
+DATAFILE '/u01/oradata/mydb/app_data01.dbf' SIZE 100M;
+
+```
+
+Here's what Oracle does step by step:
+
+1. Oracle asks the OS to create a file of 100MB at that path
+1. Oracle writes the **file header** to the first block of the file — recording the file number, tablespace name, DBID, creation SCN
+1. Oracle formats some blocks as **bitmap blocks** (for locally managed tablespaces) to track free extents
+1. Oracle updates the **control file** to record this new datafile — its name, size, tablespace, and current SCN
+1. Oracle updates the **data dictionary** (**`dba_data_files`**, **`v$datafile`**, etc.)
+1. The tablespace is now ready to use
+
+This entire process is logged in the redo logs so it can be recovered if something crashes mid-creation.
+
+---
+
+## **Datafile Size Limits**
+
+There are limits to how large a datafile can be, based on the Oracle block size:
+
+{% table %}
+- **Block Size**
+- **Max Datafile Size**
+---
+- 2KB
+- ~8 GB
+---
+- 4KB
+- ~16 GB
+---
+- 8KB
+- ~32 GB
+---
+- 16KB
+- ~64 GB
+---
+- 32KB
+- ~128 GB
+{% /table %}
+
+This limit exists because Oracle uses a **block address** that includes a file number and block number. The number of bits available for the block number limits the total addressable blocks per file.
+
+If you need a tablespace larger than the limit, you simply add more datafiles. There's no practical limit to the number of datafiles a tablespace can have (well, Oracle has a maximum of 65,533 datafiles per database total, but you'll never hit that).
+
+**Bigfile Tablespaces** (Oracle 10g+) solve this differently:
+
+sql
+
+```
+CREATE BIGFILE TABLESPACE big_data
+DATAFILE '/u01/oradata/mydb/big_data01.dbf' SIZE 100G;
+
+```
+
+A bigfile tablespace has exactly **one** datafile but that file can be up to **128TB** (with 32KB blocks). Simpler to manage at large scale.
+
+---
+
+## **Temporary Datafiles (Tempfiles)**
+
+Temporary tablespaces use **tempfiles** instead of datafiles. They look similar but behave differently:
+
+- Tempfiles are **not** recovered after a crash — they're just recreated empty
+- Tempfiles do **not** generate redo log entries (writes to temp are not logged)
+- Tempfiles do **not** appear in **`dba_data_files`** — they appear in **`dba_temp_files`**
+
+sql
+
+```
+-- View tempfiles
+SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb
+FROM dba_temp_files;
+
+-- Add a tempfile
+ALTER TABLESPACE temp ADD TEMPFILE '/u01/oradata/mydb/temp02.dbf'
+SIZE 100M AUTOEXTEND ON;
+
+```
+
+If a tempfile goes missing (e.g., you accidentally delete it), the database will still open. But any query that needs temp space will fail. You just recreate the tempfile:
+
+sql
+
+```
+ALTER TABLESPACE temp ADD TEMPFILE '/u01/oradata/mydb/temp01.dbf' SIZE 100M;
+
+```
+
+This is much less serious than a regular datafile going missing.
+
+---
+
+## **Tracking and Monitoring Datafiles**
+
+### **Key Dynamic Performance Views**
+
+sql
+
+```
+-- v$datafile: Current state of all datafiles (from control file)
+SELECT file#, name, status, bytes/1024/1024 AS size_mb,
+       checkpoint_change#, last_change#
+FROM v$datafile;
+
+-- v$datafile_header: Info from the datafile headers themselves
+SELECT file#, status, checkpoint_change#, to_char(checkpoint_time,'DD-MON-YYYY HH24:MI:SS') AS ckpt_time
+FROM v$datafile_header;
+
+-- Compare v$datafile vs v$datafile_header
+-- If checkpoint_change# doesn't match → file needs recovery
+
+-- dba_data_files: Data dictionary view (user-friendly)
+SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb,
+       maxbytes/1024/1024 AS max_mb, autoextensible, status
+FROM dba_data_files
+ORDER BY tablespace_name;
+
+-- Find files that need recovery
+SELECT * FROM v$recover_file;
+
+-- I/O statistics per datafile (for performance tuning)
+SELECT name, phyrds, phywrts, readtim, writetim
+FROM v$datafile df JOIN v$filestat fs ON df.file# = fs.file#
+ORDER BY phyrds DESC;
+
+```
+
+### **Detecting I/O Hotspots**
+
+The **`v$filestat`** view is very useful for performance. If one datafile has dramatically more reads/writes than others, it's an I/O hotspot. Solutions:
+
+- Move that datafile to a faster disk (SSD)
+- Split the tablespace — add another datafile on a different disk so I/O is distributed
+- Check if the objects in that tablespace can be reorganized or cached
+
+---
+
+## **What Happens When a Datafile Goes Missing**
+
+Say a disk fails and **`/u01/oradata/mydb/app_data01.dbf`** is gone. Here's what happens:
+
+1. **If the database is running:** The first time Oracle tries to read or write that file, DBWn gets an I/O error. Oracle marks the file as offline and raises an error. If it's a critical file (SYSTEM tablespace), Oracle may shut down.
+1. **If the database is starting up:** Oracle opens the control file, sees the datafile listed, tries to verify the file header, fails, and refuses to open.
+
+**Recovery path (ARCHIVELOG mode):**
+
+sql
+
+```
+-- Start in mount state
+STARTUP MOUNT;
+
+-- Restore the datafile from backup (OS level or RMAN)
+-- Then recover it
+RECOVER DATAFILE '/u01/oradata/mydb/app_data01.dbf';
+
+-- Oracle applies archived logs, asks for each one needed
+-- When done:
+ALTER DATABASE DATAFILE '/u01/oradata/mydb/app_data01.dbf' ONLINE;
+
+-- Open database
+ALTER DATABASE OPEN;
+
+```
+
+**Without ARCHIVELOG mode:** You can only restore the entire database from the last cold backup. All changes since that backup are lost.
+
+---
+
+## **Multiplexing Control Files (Related Best Practice)**
+
+The control file records all datafile information. If the control file is lost, Oracle can't find its datafiles. Best practice:
+
+sql
+
+```
+-- Check current control files
+SELECT name FROM v$controlfile;
+
+-- Add more copies in init.ora / spfile
+-- control_files = '/u01/control01.ctl','/u02/control02.ctl','/u03/control03.ctl'
+
+```
+
+Keep control files on **different disks**. If one disk dies, the others keep the database running.
+
+---
+
+## **Key Exam Points**
+
+- A datafile is a physical OS file. It belongs to exactly one tablespace. One tablespace can have many datafiles.
+- Every datafile has a **header** containing the file number, DBID, and checkpoint SCN.
+- **Checkpoints** write dirty buffer cache blocks to datafiles and update the SCN in the file header — this is how crash recovery knows where to start replaying redo.
+- DBWn writes data to datafiles. CKPT updates the file headers. They work together during checkpoints.
+- In **ARCHIVELOG mode**, filled redo logs are archived before being overwritten — this enables point-in-time recovery. Production databases must use ARCHIVELOG.
+- In **NOARCHIVELOG mode**, old redo is lost — only crash recovery is possible, not media recovery.
+- Tempfiles don't generate redo and don't need recovery — losing one is not a crisis.
+- **`v$datafile`** reads from the control file. **`v$datafile_header`** reads from the actual file header. Comparing checkpoint SCNs between these two tells you if a file needs recovery.
+- Bigfile tablespaces have one giant datafile; regular tablespaces can have many smaller ones.
