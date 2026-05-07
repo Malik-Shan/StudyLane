@@ -1,0 +1,570 @@
+---
+draft: false
+readtime: true
+title: Maintaining Data Integrity
+published: 2026-05-07T23:30:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **What is Data Integrity?**
+
+Data integrity means that the data stored in your database is **accurate, consistent, valid, and reliable** at all times. It is not just about preventing wrong data from being entered — it is about ensuring that the relationships between data across different tables remain meaningful and correct.
+
+Imagine a university database where a student record references a department that does not exist, or an order record references a customer that has been deleted. That is a data integrity violation. The data is technically stored but it is meaningless and misleading.
+
+Data integrity is one of the most fundamental responsibilities of a DBA. Without it, even the most perfectly designed and tuned database becomes unreliable and untrustworthy.
+
+There are four main categories of data integrity:
+
+---
+
+### **1. Entity Integrity**
+
+Every table must have a primary key, and that primary key must be unique and never null. Each row must be uniquely identifiable.
+
+If two rows have the same primary key value, the database cannot distinguish between them. If a primary key is null, the row has no identity at all.
+
+**Example:** In an **`employees`** table, each employee must have a unique **`employee_id`**. No two employees can share the same ID, and no employee can exist without one.
+
+---
+
+### **2. Referential Integrity**
+
+When one table references another through a foreign key, the referenced value must actually exist in the parent table. You cannot have a child record pointing to a parent that does not exist.
+
+**Example:** If an **`orders`** table has a **`customer_id`** column that references the **`customers`** table, you cannot insert an order with a **`customer_id`** of 999 if customer 999 does not exist. Similarly, you cannot delete customer 999 if orders belonging to that customer still exist — unless you have defined what should happen in that case.
+
+---
+
+### **3. Domain Integrity**
+
+Every value stored in a column must be valid according to the rules defined for that column. This includes the correct data type, acceptable range of values, format, and whether null values are allowed.
+
+**Example:** An **`age`** column should not accept negative numbers. A **`gender`** column might only accept 'M' or 'F'. A **`salary`** column should not accept text values.
+
+---
+
+### **4. User-Defined Integrity**
+
+These are business-specific rules that go beyond standard data type and relationship rules.
+
+**Example:** A business rule might say that a manager's salary must always be higher than their subordinates' salaries. Or that a product's discount cannot exceed 50%. These rules are specific to the business logic and are enforced through constraints or triggers.
+
+---
+
+## **Constraints — The Primary Mechanism for Enforcing Integrity**
+
+Constraints are rules defined on a table that the database engine enforces automatically. Whenever someone tries to insert, update, or delete data, the database checks the applicable constraints first. If the operation violates a constraint, the database rejects it and rolls it back.
+
+This is far better than relying on application code to validate data, because:
+
+- Application code can have bugs
+- Multiple applications may access the same database
+- Direct database access (through scripts, tools, admin operations) bypasses application validation entirely
+
+Constraints enforce integrity **at the database level**, no matter how the data is being modified.
+
+---
+
+## **Types of Constraints**
+
+---
+
+### **1. NOT NULL Constraint**
+
+This is the simplest constraint. It ensures that a column cannot store a NULL value. Every row must provide a value for this column.
+
+NULL in databases does not mean zero or empty string. It means **unknown** or **absent**. A NOT NULL constraint says "this information is mandatory — a row without this value is incomplete and not acceptable."
+
+**Syntax at table creation:**
+
+sql
+
+```
+CREATE TABLE employees (
+    employee_id   NUMBER(6)     NOT NULL,
+    first_name    VARCHAR2(20),
+    last_name     VARCHAR2(25)  NOT NULL,
+    email         VARCHAR2(25)  NOT NULL,
+    salary        NUMBER(8,2)
+);
+
+```
+
+Here **`employee_id`**, **`last_name`**, and **`email`** are mandatory. **`first_name`** and **`salary`** are optional (can be NULL).
+
+**Adding NOT NULL to an existing column in Oracle:**
+
+sql
+
+```
+ALTER TABLE employees 
+MODIFY (last_name VARCHAR2(25) NOT NULL);
+
+```
+
+**In SQL Server:**
+
+sql
+
+```
+ALTER TABLE employees 
+ALTER COLUMN last_name VARCHAR(25) NOT NULL;
+
+```
+
+**In PostgreSQL:**
+
+sql
+
+```
+ALTER TABLE employees 
+ALTER COLUMN last_name SET NOT NULL;
+
+```
+
+**Important:** Before adding a NOT NULL constraint to an existing column, all existing rows must already have a value in that column. If any row has NULL in that column, the constraint addition will fail.
+
+---
+
+### **2. UNIQUE Constraint**
+
+A unique constraint ensures that all values in a column (or combination of columns) are distinct across all rows. No two rows can have the same value in a unique-constrained column.
+
+Unlike primary keys, a unique constraint **does allow NULL values** (because NULL means unknown, and two unknown values are not necessarily the same — though behavior varies slightly between databases).
+
+**Example:** An **`email`** column should be unique. Two employees cannot share the same email address.
+
+sql
+
+```
+CREATE TABLE employees (
+    employee_id   NUMBER(6),
+    email         VARCHAR2(25)  CONSTRAINT uq_emp_email UNIQUE,
+    last_name     VARCHAR2(25)  NOT NULL
+);
+
+```
+
+**As a table-level constraint (useful for composite unique constraints):**
+
+sql
+
+```
+CREATE TABLE course_enrollments (
+    student_id    NUMBER(6),
+    course_id     NUMBER(6),
+    CONSTRAINT uq_enrollment UNIQUE (student_id, course_id)
+);
+
+```
+
+This says that the combination of **`student_id`** and **`course_id`** must be unique — a student cannot enroll in the same course twice.
+
+When you define a UNIQUE constraint, most databases automatically create a unique index on that column to enforce it efficiently.
+
+**Adding to an existing table:**
+
+sql
+
+```
+ALTER TABLE employees 
+ADD CONSTRAINT uq_emp_email UNIQUE (email);
+
+```
+
+---
+
+### **3. PRIMARY KEY Constraint**
+
+The primary key uniquely identifies each row in a table. It is essentially a combination of NOT NULL and UNIQUE — the column cannot be null and must be unique.
+
+Each table can have **only one primary key**, but that primary key can consist of multiple columns (called a **composite primary key**).
+
+The primary key is the cornerstone of entity integrity.
+
+sql
+
+```
+CREATE TABLE employees (
+    employee_id   NUMBER(6)     CONSTRAINT pk_employees PRIMARY KEY,
+    last_name     VARCHAR2(25)  NOT NULL,
+    email         VARCHAR2(25)  NOT NULL
+);
+
+```
+
+**Composite primary key:**
+
+sql
+
+```
+CREATE TABLE order_items (
+    order_id      NUMBER(10),
+    item_id       NUMBER(5),
+    quantity      NUMBER(3),
+    CONSTRAINT pk_order_items PRIMARY KEY (order_id, item_id)
+);
+
+```
+
+Here neither **`order_id`** alone nor **`item_id`** alone uniquely identifies a row — but together they do.
+
+When you define a primary key, the database automatically creates a unique index on the primary key column(s) to enforce uniqueness and to support fast lookups on the primary key.
+
+**Adding a primary key to an existing table:**
+
+sql
+
+```
+ALTER TABLE employees 
+ADD CONSTRAINT pk_employees PRIMARY KEY (employee_id);
+
+```
+
+**Natural Key vs Surrogate Key:**
+
+A **natural key** uses real-world data as the primary key — like a national ID number or an email address. The problem is that natural keys can change in the real world (people change their email, companies change their tax IDs), which causes cascading problems in a database.
+
+A **surrogate key** is an artificial, system-generated identifier with no real-world meaning — like an auto-incrementing integer. It never changes, making it much safer as a primary key. This is why most modern databases use surrogate keys (like **`employee_id = 1001`**, **`1002`**, **`1003`**...).
+
+---
+
+### **4. FOREIGN KEY Constraint (Referential Integrity Constraint)**
+
+A foreign key in one table points to the primary key (or unique key) of another table. It creates a parent-child relationship between tables.
+
+The table with the foreign key is called the **child table** (or dependent table). The table being referenced is called the **parent table** (or referenced table).
+
+The foreign key constraint enforces that:
+
+- Every value in the foreign key column must exist in the parent table's referenced column
+- You cannot insert a child row with a foreign key value that doesn't exist in the parent
+- You cannot delete a parent row that has child rows depending on it (unless a cascading action is defined)
+
+**Example:**
+
+sql
+
+```
+-- Parent table
+CREATE TABLE departments (
+    department_id   NUMBER(4)    PRIMARY KEY,
+    department_name VARCHAR2(30) NOT NULL
+);
+
+-- Child table
+CREATE TABLE employees (
+    employee_id   NUMBER(6)   PRIMARY KEY,
+    last_name     VARCHAR2(25) NOT NULL,
+    department_id NUMBER(4),
+    CONSTRAINT fk_emp_dept 
+        FOREIGN KEY (department_id) 
+        REFERENCES departments(department_id)
+);
+
+```
+
+Now if you try to insert an employee with **`department_id = 99`** and department 99 does not exist in **`departments`**, the database will reject the insert.
+
+---
+
+### **Cascading Actions on Foreign Keys**
+
+What happens when you try to delete or update a parent row that has child rows? The database needs to know. You define this behavior with cascading actions.
+
+**ON DELETE CASCADE:**\
+When a parent row is deleted, all child rows referencing it are automatically deleted too.
+
+sql
+
+```
+CONSTRAINT fk_emp_dept 
+    FOREIGN KEY (department_id) 
+    REFERENCES departments(department_id)
+    ON DELETE CASCADE
+
+```
+
+If you delete department 10, all employees in department 10 are also automatically deleted.
+
+**ON DELETE SET NULL:**\
+When a parent row is deleted, the foreign key column in all child rows is set to NULL instead of deleting the child rows.
+
+sql
+
+```
+CONSTRAINT fk_emp_dept 
+    FOREIGN KEY (department_id) 
+    REFERENCES departments(department_id)
+    ON DELETE SET NULL
+
+```
+
+If you delete department 10, employees who were in department 10 still exist but their **`department_id`** becomes NULL — they become "unassigned."
+
+**ON DELETE RESTRICT / NO ACTION (Default behavior):**\
+The deletion of the parent is rejected if any child rows exist. This is the safest option — it prevents accidental mass deletions.
+
+**ON DELETE SET DEFAULT (SQL Server):**\
+Sets the foreign key column to its default value when the parent is deleted.
+
+---
+
+### **5. CHECK Constraint**
+
+A check constraint defines a condition that every row must satisfy. The database evaluates this condition for every INSERT and UPDATE. If the condition evaluates to FALSE, the operation is rejected.
+
+This is how you enforce domain integrity and business rules directly at the database level.
+
+**Examples:**
+
+sql
+
+```
+CREATE TABLE employees (
+    employee_id   NUMBER(6)   PRIMARY KEY,
+    last_name     VARCHAR2(25) NOT NULL,
+    salary        NUMBER(8,2)  CONSTRAINT chk_salary CHECK (salary > 0),
+    gender        CHAR(1)      CONSTRAINT chk_gender CHECK (gender IN ('M', 'F')),
+    hire_date     DATE,
+    termination_date DATE,
+    CONSTRAINT chk_dates CHECK (termination_date > hire_date)
+);
+
+```
+
+Notice the last CHECK constraint spans two columns — it ensures that an employee's termination date is always after their hire date. This is a table-level check constraint.
+
+**Another example with a range:**
+
+sql
+
+```
+CONSTRAINT chk_discount CHECK (discount_percent BETWEEN 0 AND 50)
+
+```
+
+**Limitations of CHECK constraints:**
+
+- You cannot use subqueries in a CHECK constraint in most databases (you cannot say "check that department_id exists in the departments table" using a CHECK — that is what foreign keys are for)
+- In Oracle, CHECK constraints that reference a subquery are not allowed
+- The condition must be evaluable from the data in the row itself
+
+---
+
+## **Constraint States (Oracle Specific — Important for Exam)**
+
+Oracle allows you to control the state of constraints, which is a powerful feature for DBAs especially when loading large amounts of data.
+
+### **ENABLE vs DISABLE**
+
+A constraint can be **enabled** (actively enforced) or **disabled** (defined but not enforced).
+
+sql
+
+```
+-- Disable a constraint
+ALTER TABLE employees 
+DISABLE CONSTRAINT fk_emp_dept;
+
+-- Enable it again
+ALTER TABLE employees 
+ENABLE CONSTRAINT fk_emp_dept;
+
+```
+
+DBAs sometimes temporarily disable constraints before a large bulk data load, then re-enable them afterward. This makes the load faster because the database doesn't have to check every row during the load. However, this is risky — you must validate the data yourself.
+
+---
+
+### **VALIDATE vs NOVALIDATE**
+
+**VALIDATE** means the constraint is checked against all **existing** data in the table.\
+**NOVALIDATE** means the constraint is only enforced for **new** data going forward — existing rows are not checked.
+
+The combination of these two states creates four possible modes:
+
+**ENABLE VALIDATE (default):**\
+All new data and all existing data must comply. Standard behavior.
+
+**ENABLE NOVALIDATE:**\
+New data going forward must comply, but existing rows are not checked. Useful when you know your existing data has violations you plan to clean up later but you want to stop new violations immediately.
+
+sql
+
+```
+ALTER TABLE employees 
+ENABLE NOVALIDATE CONSTRAINT fk_emp_dept;
+
+```
+
+**DISABLE VALIDATE:**\
+No new data can be inserted at all (because the constraint is tied to an index that's been dropped). Existing data is validated. Rarely used.
+
+**DISABLE NOVALIDATE:**\
+Constraint exists in the data dictionary but is completely inactive. Old and new data are not checked.
+
+sql
+
+```
+ALTER TABLE employees 
+DISABLE NOVALIDATE CONSTRAINT fk_emp_dept;
+
+```
+
+---
+
+### **DEFERRABLE vs NOT DEFERRABLE**
+
+This is an important concept. By default, constraints are **NOT DEFERRABLE** — they are checked immediately after every single SQL statement.
+
+But sometimes you need to violate a constraint temporarily during a transaction and only have it checked at the end when you COMMIT.
+
+**Example of the problem:**
+
+Suppose you have two employees — Employee A is the manager of Employee B, and Employee B is also listed as the manager of Employee A (circular reference). You need to insert both of them. But inserting Employee A first requires Employee B to already exist (as the manager reference), and inserting Employee B first requires Employee A to already exist. It is a chicken-and-egg problem.
+
+**Solution — Deferrable Constraints:**
+
+sql
+
+```
+-- Define the constraint as deferrable
+CONSTRAINT fk_emp_manager 
+    FOREIGN KEY (manager_id) 
+    REFERENCES employees(employee_id)
+    DEFERRABLE INITIALLY DEFERRED
+
+```
+
+With **`INITIALLY DEFERRED`**, the constraint check is postponed until COMMIT time. Within the transaction, you can have temporarily inconsistent data, as long as everything is consistent when you commit.
+
+With **`INITIALLY IMMEDIATE`** (can be changed per session), the constraint is checked after each statement by default, but can be deferred for a session using:
+
+sql
+
+```
+SET CONSTRAINT fk_emp_manager DEFERRED;
+
+```
+
+---
+
+## **Naming Constraints**
+
+Always name your constraints explicitly. If you let the database auto-generate names, you get cryptic names like **`SYS_C0045678`**. When a constraint violation occurs, the error message shows the constraint name — a meaningful name makes debugging much faster.
+
+**Convention:**
+
+- **`pk_tablename`** for primary keys
+- **`fk_childtable_parenttable`** for foreign keys
+- **`uq_tablename_column`** for unique constraints
+- **`chk_tablename_column`** for check constraints
+- **`nn_tablename_column`** for not null (though NOT NULL is usually defined inline)
+
+---
+
+## **Viewing Constraints in the Database**
+
+**In Oracle:**
+
+sql
+
+```
+-- See all constraints on a table
+SELECT constraint_name, constraint_type, status, validated, deferrable
+FROM user_constraints
+WHERE table_name = 'EMPLOYEES';
+
+-- Constraint types:
+-- P = Primary Key
+-- R = Foreign Key (Referential)
+-- U = Unique
+-- C = Check (includes NOT NULL)
+
+-- See columns involved in each constraint
+SELECT constraint_name, column_name, position
+FROM user_cons_columns
+WHERE table_name = 'EMPLOYEES'
+ORDER BY constraint_name, position;
+
+```
+
+**In SQL Server:**
+
+sql
+
+```
+SELECT 
+    tc.constraint_name,
+    tc.constraint_type,
+    kcu.column_name
+FROM information_schema.table_constraints tc
+JOIN information_schema.key_column_usage kcu
+    ON tc.constraint_name = kcu.constraint_name
+WHERE tc.table_name = 'employees';
+
+```
+
+**In PostgreSQL:**
+
+sql
+
+```
+SELECT conname, contype, pg_get_constraintdef(oid)
+FROM pg_constraint
+WHERE conrelid = 'employees'::regclass;
+
+```
+
+**In MySQL:**
+
+sql
+
+```
+SELECT constraint_name, constraint_type
+FROM information_schema.table_constraints
+WHERE table_name = 'employees';
+
+```
+
+---
+
+## **Dropping Constraints**
+
+sql
+
+```
+-- Oracle, SQL Server, PostgreSQL
+ALTER TABLE employees 
+DROP CONSTRAINT pk_employees;
+
+-- MySQL (primary key)
+ALTER TABLE employees DROP PRIMARY KEY;
+
+-- MySQL (foreign key)
+ALTER TABLE employees DROP FOREIGN KEY fk_emp_dept;
+
+```
+
+---
+
+## **Integrity Enforcement Through Triggers vs Constraints**
+
+Sometimes constraints cannot express a complex business rule. In those cases, database **triggers** are used — pieces of code that automatically execute before or after an INSERT, UPDATE, or DELETE.
+
+For example, a constraint cannot enforce "salary of a manager must be higher than all their direct reports" because that requires looking at other rows. A trigger can do this.
+
+However, constraints are always preferred over triggers when they can do the job because:
+
+- Constraints are simpler and easier to understand
+- Constraints are optimized by the database engine
+- Constraints are less prone to errors
+- Triggers add complexity and can cause performance issues if not written carefully
+
+The general rule is: **use constraints first, use triggers only when constraints cannot do the job.**
