@@ -1,0 +1,491 @@
+---
+draft: false
+readtime: true
+title: Server Side Configuration
+published: 2026-05-07T23:42:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **What is Server Side Configuration?**
+
+Server side configuration refers to all the settings, parameters, and components that are configured **on the database server itself** to control how the database engine operates, how it listens for incoming connections, how it manages resources, and how clients can connect to it.
+
+Think of the database server as a service provider. Before it can serve anyone, it needs to be properly set up — what port to listen on, how many connections to allow, what protocol to use, how to authenticate users, etc. All of this is "server side" configuration.
+
+---
+
+## **1. Listener Configuration**
+
+The **listener** is the most fundamental server-side component when it comes to connectivity. It is a separate process that runs on the database server and "listens" for incoming client connection requests.
+
+### **How it works:**
+
+When a client application wants to connect to a database, it sends a connection request over the network. The listener picks up this request, verifies it, and then either:
+
+- Hands it off to a server process (in dedicated server mode), or
+- Routes it to a dispatcher (in shared server mode)
+
+Without a running listener, **no remote client can connect** to the database. Local connections using OS authentication may still work, but network-based connections will fail entirely.
+
+### **Listener in Oracle (Oracle Net Listener):**
+
+In Oracle, the listener is configured through a file called **`listener.ora`**. This file is located in the **`$ORACLE_HOME/network/admin/`** directory.
+
+A basic **`listener.ora`** looks like this:
+
+text
+
+```
+LISTENER =
+  (DESCRIPTION_LIST =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)
+                 (HOST = mydbserver.example.com)
+                 (PORT = 1521))
+    )
+  )
+
+SID_LIST_LISTENER =
+  (SID_LIST =
+    (SID_DESC =
+      (GLOBAL_DBNAME = orcl)
+      (ORACLE_HOME = /u01/app/oracle/product/19c/dbhome_1)
+      (SID_NAME = orcl)
+    )
+  )
+
+```
+
+Let's break this down:
+
+- **`LISTENER`** — this is the name of the listener (you can have multiple listeners with different names)
+- **`PROTOCOL = TCP`** — the communication protocol being used (TCP/IP is most common)
+- **`HOST`** — the hostname or IP address of the server
+- **`PORT = 1521`** — the port number (1521 is Oracle's default)
+- **`SID_NAME`** — the System Identifier of the database instance
+- **`GLOBAL_DBNAME`** — the globally unique name of the database
+
+### **In other DBMS:**
+
+- **MySQL/MariaDB** — the server listens on port **`3306`** by default. You configure this in **`my.cnf`** or **`my.ini`** using the **`bind-address`** and **`port`** parameters
+- **PostgreSQL** — listens on port **`5432`** by default. Configured in **`postgresql.conf`** using **`listen_addresses`** and **`port`**
+- **SQL Server** — uses SQL Server Configuration Manager to set up TCP/IP and named pipes, default port **`1433`**
+
+---
+
+## **2. Initialization Parameters (Server Parameters)**
+
+Every DBMS has a set of initialization parameters that control the behavior of the database engine at startup and during operation. These parameters are set on the server side.
+
+### **In Oracle — the `init.ora` / `spfile`:**
+
+Oracle uses either:
+
+- **`init.ora`** (also called **`pfile`**) — a plain text file you can edit manually
+- **`spfile`** (Server Parameter File) — a binary file managed by Oracle itself, preferred in modern setups
+
+Common and important initialization parameters:
+
+{% table %}
+- **Parameter**
+- **Purpose**
+---
+- **`DB_NAME`**
+- Name of the database
+---
+- **`DB_BLOCK_SIZE`**
+- Size of database blocks (e.g., 8192 bytes)
+---
+- **`SGA_TARGET`**
+- Total size of the System Global Area
+---
+- **`PGA_AGGREGATE_TARGET`**
+- Memory for all server processes combined
+---
+- **`PROCESSES`**
+- Maximum number of OS processes
+---
+- **`SESSIONS`**
+- Maximum number of concurrent sessions
+---
+- **`UNDO_TABLESPACE`**
+- Which tablespace manages undo data
+---
+- **`LOG_ARCHIVE_DEST`**
+- Where archived log files go
+---
+- **`CONTROL_FILES`**
+- Location of control files
+{% /table %}
+
+These parameters have a massive impact on performance, memory usage, and stability. If **`PROCESSES`** is set too low, new users will not be able to log in. If **`SGA_TARGET`** is too small, the database will constantly do physical disk reads instead of serving data from memory.
+
+### **Changing Parameters:**
+
+sql
+
+```
+-- Change a parameter for the current session only
+ALTER SESSION SET parameter_name = value;
+
+-- Change a parameter for the whole system (memory only, resets on restart)
+ALTER SYSTEM SET parameter_name = value SCOPE = MEMORY;
+
+-- Change a parameter permanently in spfile (takes effect after restart)
+ALTER SYSTEM SET parameter_name = value SCOPE = SPFILE;
+
+-- Change both immediately and permanently
+ALTER SYSTEM SET parameter_name = value SCOPE = BOTH;
+
+```
+
+### **In MySQL:**
+
+MySQL uses **`my.cnf`** (Linux) or **`my.ini`** (Windows). Example settings:
+
+text
+
+```
+[mysqld]
+port = 3306
+bind-address = 0.0.0.0
+max_connections = 200
+innodb_buffer_pool_size = 1G
+datadir = /var/lib/mysql
+log_error = /var/log/mysql/error.log
+
+```
+
+### **In PostgreSQL:**
+
+**`postgresql.conf`** controls the server. Example:
+
+text
+
+```
+listen_addresses = '*'
+port = 5432
+max_connections = 100
+shared_buffers = 256MB
+work_mem = 4MB
+maintenance_work_mem = 64MB
+
+```
+
+---
+
+## **3. Authentication and Security Configuration**
+
+The server must know **who is allowed to connect** and **how to verify their identity**.
+
+### **Oracle Authentication Modes:**
+
+**OS Authentication:**\
+Oracle can trust the operating system. If a user is in the **`dba`** OS group (called **`osdba`**), they can connect without a password using **`/ as sysdba`**. This is powerful and must be controlled carefully.
+
+**Password File Authentication:**\
+Oracle maintains a password file (**`orapwd`**) for privileged users like **`SYS`**. This allows DBAs to connect remotely with full privileges using a password.
+
+bash
+
+```
+orapwd file=$ORACLE_HOME/dbs/orapworcl password=mypassword entries=10
+
+```
+
+**Database Authentication:**\
+Regular users are authenticated by username and password stored inside the database itself in the data dictionary.
+
+### **PostgreSQL — `pg_hba.conf`:**
+
+PostgreSQL uses a file called **`pg_hba.conf`** (Host-Based Authentication) to control who can connect, from where, and how they authenticate.
+
+text
+
+```
+# TYPE   DATABASE   USER      ADDRESS         METHOD
+local    all        all                       peer
+host     all        all       127.0.0.1/32    md5
+host     all        all       0.0.0.0/0       md5
+
+```
+
+- **`local`** — connections over Unix socket
+- **`host`** — TCP/IP connections
+- **`peer`** — trust the OS username
+- **`md5`** — password hashed with MD5
+- **`scram-sha-256`** — more modern, secure password method
+
+### **MySQL — User Host-Based Access:**
+
+In MySQL, users are created with a host specification:
+
+sql
+
+```
+-- This user can only connect from localhost
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'password';
+
+-- This user can connect from anywhere
+CREATE USER 'admin'@'%' IDENTIFIED BY 'password';
+
+GRANT ALL PRIVILEGES ON mydb.* TO 'admin'@'localhost';
+FLUSH PRIVILEGES;
+
+```
+
+---
+
+## **4. Network Configuration and Protocols**
+
+The server must be configured to communicate over specific **network protocols**.
+
+### **Protocols Used:**
+
+- **TCP/IP** — most common, used over a network
+- **IPC (Inter-Process Communication)** — used for local connections on the same machine, faster than TCP
+- **Named Pipes** — Windows-specific, used by SQL Server for local or LAN communication
+- **SSL/TLS** — encryption layer on top of TCP for secure transmission
+
+### **Oracle Net Services:**
+
+Oracle has its own networking layer called **Oracle Net** (formerly called SQL*Net). On the server side, this is configured via:
+
+- **`listener.ora`** — as discussed above
+- **`sqlnet.ora`** — controls Oracle Net behavior for the server
+
+Example **`sqlnet.ora`**:
+
+text
+
+```
+SQLNET.AUTHENTICATION_SERVICES = (NTS)
+NAMES.DIRECTORY_PATH = (TNSNAMES, EZCONNECT)
+SQLNET.EXPIRE_TIME = 10
+
+```
+
+- **`SQLNET.AUTHENTICATION_SERVICES = (NTS)`** — use Windows native authentication
+- **`SQLNET.EXPIRE_TIME`** — how often (in minutes) to send a probe to detect dead connections
+- **`NAMES.DIRECTORY_PATH`** — how Oracle resolves connection names (TNSNAMES file or Easy Connect)
+
+### **SQL Server Network Configuration:**
+
+In SQL Server, you use the **SQL Server Configuration Manager** to:
+
+- Enable/disable protocols (TCP/IP, Named Pipes, Shared Memory)
+- Set the TCP port (default 1433)
+- Configure SSL certificates for encrypted connections
+
+---
+
+## **5. Memory Configuration on the Server**
+
+How much memory the DBMS uses is controlled by server-side parameters. This is deeply tied to performance.
+
+### **Oracle SGA and PGA:**
+
+- **SGA (System Global Area)** — shared memory used by all sessions (buffer cache, shared pool, redo log buffer, etc.)
+- **PGA (Program Global Area)** — private memory per server process
+
+sql
+
+```
+-- View current memory settings
+SHOW PARAMETER SGA_TARGET;
+SHOW PARAMETER PGA_AGGREGATE_TARGET;
+
+-- Set memory automatically managed
+ALTER SYSTEM SET MEMORY_TARGET = 2G SCOPE = SPFILE;
+
+```
+
+### **MySQL InnoDB Buffer Pool:**
+
+The most critical memory setting in MySQL:
+
+text
+
+```
+innodb_buffer_pool_size = 4G
+
+```
+
+This should typically be set to **60-80% of total RAM** on a dedicated database server.
+
+### **PostgreSQL Shared Buffers:**
+
+text
+
+```
+shared_buffers = 1GB
+effective_cache_size = 3GB
+
+```
+
+---
+
+## **6. Logging Configuration**
+
+Server-side logging is crucial for monitoring, debugging, and auditing.
+
+### **Oracle:**
+
+- **Alert Log** — records major events, errors, and startup/shutdown. Located in **`$ORACLE_BASE/diag/rdbms/`**
+- **Trace Files** — detailed diagnostic information per process
+- **Audit Trail** — records security-related events
+
+sql
+
+```
+-- Enable auditing
+AUDIT SELECT TABLE, INSERT TABLE BY ACCESS;
+
+-- View audit trail
+SELECT * FROM DBA_AUDIT_TRAIL;
+
+```
+
+### **MySQL:**
+
+text
+
+```
+[mysqld]
+log_error = /var/log/mysql/error.log
+general_log = 1
+general_log_file = /var/log/mysql/general.log
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+
+```
+
+### **PostgreSQL:**
+
+text
+
+```
+logging_collector = on
+log_directory = 'pg_log'
+log_filename = 'postgresql-%Y-%m-%d.log'
+log_statement = 'all'
+log_min_duration_statement = 1000
+
+```
+
+---
+
+## **7. Starting and Stopping the Server (Service Management)**
+
+The DBA is responsible for starting and stopping the database server properly.
+
+### **Oracle:**
+
+sql
+
+```
+-- Connect as privileged user
+CONNECT / AS SYSDBA
+
+-- Start the database
+STARTUP;                  -- full startup
+STARTUP MOUNT;            -- mount without opening
+STARTUP NOMOUNT;          -- start instance only (for creation/recovery)
+
+-- Shutdown options
+SHUTDOWN NORMAL;          -- wait for all users to disconnect
+SHUTDOWN IMMEDIATE;       -- rollback active transactions, disconnect users
+SHUTDOWN ABORT;           -- like pulling the power plug (not recommended)
+
+```
+
+### **MySQL:**
+
+bash
+
+```
+# Start
+systemctl start mysql
+
+# Stop
+systemctl stop mysql
+
+# Restart
+systemctl restart mysql
+
+# Check status
+systemctl status mysql
+
+```
+
+### **PostgreSQL:**
+
+bash
+
+```
+# Start
+pg_ctl start -D /var/lib/postgresql/data
+
+# Stop gracefully
+pg_ctl stop -D /var/lib/postgresql/data -m fast
+
+# Restart
+systemctl restart postgresql
+
+```
+
+---
+
+## **8. Connection Limits and Resource Management**
+
+A server must control how many connections and resources it allows to avoid being overwhelmed.
+
+### **Oracle:**
+
+sql
+
+```
+-- Set maximum sessions
+ALTER SYSTEM SET SESSIONS = 300 SCOPE = SPFILE;
+
+-- Create a profile to limit user resources
+CREATE PROFILE limited_user LIMIT
+  SESSIONS_PER_USER       3
+  CPU_PER_SESSION         UNLIMITED
+  CONNECT_TIME            60
+  IDLE_TIME               30
+  FAILED_LOGIN_ATTEMPTS   5
+  PASSWORD_LOCK_TIME      1/24;
+
+-- Assign profile to user
+ALTER USER john PROFILE limited_user;
+
+```
+
+### **MySQL:**
+
+text
+
+```
+max_connections = 200
+max_user_connections = 50
+wait_timeout = 600
+interactive_timeout = 600
+
+```
+
+### **PostgreSQL:**
+
+text
+
+```
+max_connections = 100
+
+```
+
+Connection pooling tools like **PgBouncer** are recommended in PostgreSQL when you need many connections, since each connection spawns an OS process.
