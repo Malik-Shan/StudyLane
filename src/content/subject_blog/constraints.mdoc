@@ -1,0 +1,423 @@
+---
+draft: false
+readtime: true
+title: Constraints
+published: 2026-05-07T23:30:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **What Are Constraints?**
+
+A **constraint** is a rule enforced on data in a database table to ensure the **accuracy, consistency, and integrity** of the data stored. Think of constraints as the "laws" of your database — they prevent bad or invalid data from entering your tables.
+
+When you define a constraint, the DBMS automatically checks every INSERT, UPDATE, or DELETE operation against that rule. If the operation violates the constraint, the DBMS **rejects it** and returns an error. This enforcement happens at the **database level**, not the application level — meaning even if someone bypasses your application and accesses the database directly, the rules still apply.
+
+---
+
+## **Why Are Constraints Important?**
+
+Without constraints, your database could contain:
+
+- Duplicate records where only unique ones are expected
+- References to records that don't exist (orphaned data)
+- NULL values in columns that must always have a value
+- Values outside acceptable ranges
+
+This is called **data anomaly** or **integrity violation**, and it can cause serious problems in reporting, queries, and business logic. Constraints are the first line of defense against this.
+
+---
+
+## **Types of Constraints**
+
+---
+
+### **1. NOT NULL Constraint**
+
+This is the simplest constraint. It ensures that a column **cannot have a NULL value** — meaning every row must provide a value for that column.
+
+**Why it matters:** NULL in a database doesn't mean zero or empty string — it means *unknown* or *missing*. If a column like **`employee_salary`** has NULL, you don't know if the person earns nothing or if the data was simply never entered. NOT NULL removes that ambiguity.
+
+**Example in SQL (works in Oracle, MySQL, PostgreSQL, SQL Server):**
+
+sql
+
+```
+CREATE TABLE employees (
+    emp_id      NUMBER,
+    emp_name    VARCHAR2(100) NOT NULL,
+    emp_salary  NUMBER        NOT NULL
+);
+
+```
+
+If someone tries to insert a row without a name:
+
+sql
+
+```
+INSERT INTO employees (emp_id, emp_salary) VALUES (1, 50000);
+-- ERROR: emp_name cannot be NULL
+
+```
+
+---
+
+### **2. UNIQUE Constraint**
+
+This constraint ensures that **all values in a column (or combination of columns) are distinct** — no two rows can have the same value in that column.
+
+**Important distinction from PRIMARY KEY:** A table can have **only one** primary key, but it can have **multiple** UNIQUE constraints. Also, a UNIQUE column **can contain NULL values** (in most DBMS), whereas a primary key cannot.
+
+**Example:**
+
+sql
+
+```
+CREATE TABLE users (
+    user_id     NUMBER,
+    username    VARCHAR2(50) UNIQUE,
+    email       VARCHAR2(100) UNIQUE
+);
+
+```
+
+Now if you try to register two users with the same username:
+
+sql
+
+```
+INSERT INTO users VALUES (1, 'zarslan', 'a@mail.com');
+INSERT INTO users VALUES (2, 'zarslan', 'b@mail.com');
+-- ERROR: unique constraint violated on username
+
+```
+
+**Composite UNIQUE constraint** — You can also make uniqueness apply to a *combination* of columns:
+
+sql
+
+```
+CREATE TABLE course_enrollment (
+    student_id  NUMBER,
+    course_id   NUMBER,
+    CONSTRAINT uq_enrollment UNIQUE (student_id, course_id)
+);
+
+```
+
+This allows the same student to enroll in different courses, but not in the **same course twice**.
+
+---
+
+### **3. PRIMARY KEY Constraint**
+
+A primary key **uniquely identifies each row** in a table. It is a combination of **NOT NULL + UNIQUE** — the column must have a value, and that value must be unique across all rows.
+
+**Rules:**
+
+- Only **one primary key** per table
+- Can be a **single column** or a **composite** (multiple columns)
+- Cannot contain NULL
+
+**Example:**
+
+sql
+
+```
+CREATE TABLE products (
+    product_id   NUMBER        PRIMARY KEY,
+    product_name VARCHAR2(200) NOT NULL,
+    price        NUMBER
+);
+
+```
+
+In Oracle, when you define a primary key, the database automatically creates a **unique index** on that column behind the scenes to speed up searches.
+
+**Composite Primary Key example:**
+
+sql
+
+```
+CREATE TABLE order_items (
+    order_id    NUMBER,
+    item_id     NUMBER,
+    quantity    NUMBER,
+    CONSTRAINT pk_order_items PRIMARY KEY (order_id, item_id)
+);
+
+```
+
+Here, neither **`order_id`** nor **`item_id`** alone is unique — but their *combination* is.
+
+---
+
+### **4. FOREIGN KEY Constraint (Referential Integrity)**
+
+A foreign key establishes a **relationship between two tables**. It ensures that a value in one table **must exist** in another table's primary key column.
+
+This is the foundation of **referential integrity** — one of the most critical concepts in relational databases.
+
+**Example:**
+
+sql
+
+```
+CREATE TABLE departments (
+    dept_id   NUMBER PRIMARY KEY,
+    dept_name VARCHAR2(100)
+);
+
+CREATE TABLE employees (
+    emp_id    NUMBER PRIMARY KEY,
+    emp_name  VARCHAR2(100),
+    dept_id   NUMBER,
+    CONSTRAINT fk_dept
+        FOREIGN KEY (dept_id)
+        REFERENCES departments(dept_id)
+);
+
+```
+
+Now if you try to add an employee to a department that doesn't exist:
+
+sql
+
+```
+INSERT INTO employees VALUES (1, 'Ali', 999);
+-- ERROR: parent key not found (no dept_id = 999 in departments)
+
+```
+
+**What happens on DELETE?**
+
+This is an important concept. If you try to delete a department that has employees, what should happen?
+
+You have options — called **referential actions:**
+
+- **`ON DELETE CASCADE`** — deleting the parent automatically deletes all children
+- **`ON DELETE SET NULL`** — deleting the parent sets the child's foreign key to NULL
+- Default (no action) — the delete is **rejected** if children exist
+
+sql
+
+```
+CONSTRAINT fk_dept
+    FOREIGN KEY (dept_id)
+    REFERENCES departments(dept_id)
+    ON DELETE CASCADE
+
+```
+
+---
+
+### **5. CHECK Constraint**
+
+A CHECK constraint lets you define a **custom condition** that every row must satisfy. If a value violates the condition, the insert or update is rejected.
+
+**Example:**
+
+sql
+
+```
+CREATE TABLE employees (
+    emp_id     NUMBER PRIMARY KEY,
+    emp_name   VARCHAR2(100),
+    emp_salary NUMBER,
+    emp_age    NUMBER,
+    gender     VARCHAR2(10),
+    CONSTRAINT chk_salary CHECK (emp_salary > 0),
+    CONSTRAINT chk_age    CHECK (emp_age BETWEEN 18 AND 65),
+    CONSTRAINT chk_gender CHECK (gender IN ('Male', 'Female', 'Other'))
+);
+
+```
+
+Trying to enter a negative salary:
+
+sql
+
+```
+INSERT INTO employees VALUES (1, 'Sara', -5000, 25, 'Female');
+-- ERROR: check constraint (chk_salary) violated
+
+```
+
+**Limitations:** CHECK constraints generally **cannot reference other tables** or use subqueries (in most DBMS). For that, you'd use triggers.
+
+---
+
+## **Defining Constraints: Two Ways**
+
+---
+
+### **Column-Level (Inline)**
+
+Defined right next to the column:
+
+sql
+
+```
+CREATE TABLE students (
+    student_id NUMBER CONSTRAINT pk_student PRIMARY KEY,
+    name       VARCHAR2(100) NOT NULL,
+    age        NUMBER CHECK (age >= 16)
+);
+
+```
+
+### **Table-Level (Out of Line)**
+
+Defined separately after all columns — **required for composite constraints:**
+
+sql
+
+```
+CREATE TABLE students (
+    student_id  NUMBER,
+    name        VARCHAR2(100) NOT NULL,
+    age         NUMBER,
+    CONSTRAINT pk_student PRIMARY KEY (student_id),
+    CONSTRAINT chk_age    CHECK (age >= 16)
+);
+
+```
+
+---
+
+## **Naming Constraints**
+
+Always **name your constraints**. If you don't, the DBMS assigns a system-generated name like **`SYS_C007392`**, which is meaningless when an error occurs. A good naming convention:
+
+{% table %}
+- **Type**
+- **Prefix Example**
+---
+- Primary Key
+- **`pk_tablename`**
+---
+- Foreign Key
+- **`fk_column`**
+---
+- Unique
+- **`uq_column`**
+---
+- Check
+- **`chk_column`**
+---
+- Not Null
+- Usually inline
+{% /table %}
+
+---
+
+## **Enabling and Disabling Constraints**
+
+Sometimes during **bulk data loading**, you may temporarily disable constraints to improve performance, then re-enable them after.
+
+**In Oracle:**
+
+sql
+
+```
+-- Disable
+ALTER TABLE employees DISABLE CONSTRAINT fk_dept;
+
+-- Enable
+ALTER TABLE employees ENABLE CONSTRAINT fk_dept;
+
+-- Drop
+ALTER TABLE employees DROP CONSTRAINT fk_dept;
+
+```
+
+**In MySQL:**
+
+sql
+
+```
+SET FOREIGN_KEY_CHECKS = 0;  -- disables FK checks globally
+SET FOREIGN_KEY_CHECKS = 1;  -- re-enables
+
+```
+
+**VALIDATE vs NOVALIDATE (Oracle-specific):**
+
+When re-enabling a constraint, Oracle lets you choose:
+
+- **`ENABLE VALIDATE`** — checks **all existing data** plus future data
+- **`ENABLE NOVALIDATE`** — only checks **future** data, ignores existing rows that might already violate the rule
+
+sql
+
+```
+ALTER TABLE employees
+    ENABLE NOVALIDATE CONSTRAINT fk_dept;
+
+```
+
+---
+
+## **Deferred Constraints**
+
+By default, constraints are checked **immediately** after every statement. But in some situations — like inserting into two tables that reference each other — you might need to check constraints only at the **end of the transaction**.
+
+This is called a **deferrable constraint.**
+
+sql
+
+```
+CONSTRAINT fk_dept
+    FOREIGN KEY (dept_id)
+    REFERENCES departments(dept_id)
+    DEFERRABLE INITIALLY DEFERRED
+
+```
+
+- **`DEFERRABLE INITIALLY IMMEDIATE`** — deferrable, but checked immediately by default
+- **`DEFERRABLE INITIALLY DEFERRED`** — checking is postponed until COMMIT
+
+---
+
+## **Viewing Constraints (Data Dictionary)**
+
+In Oracle, you can query the data dictionary to see all constraints:
+
+sql
+
+```
+-- View all constraints on your tables
+SELECT constraint_name, constraint_type, table_name, status
+FROM user_constraints;
+
+-- See which columns a constraint applies to
+SELECT constraint_name, column_name
+FROM user_cons_columns
+WHERE table_name = 'EMPLOYEES';
+
+```
+
+Constraint type codes in Oracle:
+
+{% table %}
+- **Code**
+- **Meaning**
+---
+- P
+- Primary Key
+---
+- U
+- Unique
+---
+- R
+- Foreign Key (Referential)
+---
+- C
+- Check / Not Null
+{% /table %}
+
+\
