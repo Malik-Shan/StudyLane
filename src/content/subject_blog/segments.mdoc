@@ -1,0 +1,581 @@
+---
+draft: false
+readtime: true
+title: Segments
+published: 2026-05-07T22:44:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+Now we go deeper into the storage hierarchy. We've covered tablespaces (logical containers) and datafiles (physical files). Now we look at **segments** — the structures that actually hold your data inside a tablespace.
+
+---
+
+## **The Full Storage Hierarchy**
+
+Before diving in, let's firmly establish where segments fit:
+
+text
+
+```
+Database
+  └── Tablespace (logical grouping)
+        └── Segment (one per object — table, index, etc.)
+              └── Extent (contiguous set of blocks allocated at once)
+                    └── Oracle Block (smallest unit of I/O)
+                          └── Rows / index entries / undo records
+
+```
+
+Every object that **stores data** in Oracle gets its own segment. A segment is entirely contained within one tablespace (though its extents can span multiple datafiles of that tablespace).
+
+---
+
+## **What is a Segment?**
+
+A **segment** is a set of extents that Oracle allocates to store a specific database object. The key word is "specific" — each object gets its own dedicated segment.
+
+When you create a table, Oracle doesn't immediately allocate a segment. The segment is created when:
+
+- The table gets its **first row inserted** (for standard tables)
+- Or immediately at creation if you specify **`SEGMENT CREATION IMMEDIATE`**
+
+sql
+
+```
+-- Segment created immediately even if no rows
+CREATE TABLE employees (
+    emp_id   NUMBER,
+    emp_name VARCHAR2(100)
+) SEGMENT CREATION IMMEDIATE;
+
+-- Segment deferred until first row (default in Oracle 11g+)
+CREATE TABLE employees (
+    emp_id   NUMBER,
+    emp_name VARCHAR2(100)
+) SEGMENT CREATION DEFERRED;
+
+```
+
+This deferred creation is useful in large applications that create thousands of tables at installation time — many tables may never be used, so deferring segment creation saves space.
+
+---
+
+## **Types of Segments**
+
+This is the most important part. There are four main types of segments, each serving a different purpose.
+
+---
+
+### **1. Data Segments (Table Segments)**
+
+This is the most obvious type. When you create a table, Oracle creates a **data segment** to store its rows.
+
+sql
+
+```
+CREATE TABLE orders (
+    order_id   NUMBER PRIMARY KEY,
+    customer   VARCHAR2(100),
+    order_date DATE,
+    amount     NUMBER(10,2)
+);
+
+```
+
+One table = one data segment (in most cases).
+
+**How rows are stored inside:**\
+Rows are stored in Oracle blocks. Multiple rows fit in one block. Oracle tries to pack as many rows as possible into each block while leaving some free space for future updates (controlled by PCTFREE — covered in a later topic).
+
+**Partitioned Tables:**\
+A partitioned table is an exception — each partition gets its own segment. So a table with 12 monthly partitions has 12 segments. This allows you to manage each partition independently (back up, drop, move one month's data without touching the others).
+
+sql
+
+```
+-- Each partition is its own segment
+CREATE TABLE sales (
+    sale_id   NUMBER,
+    sale_date DATE,
+    amount    NUMBER
+)
+PARTITION BY RANGE (sale_date) (
+    PARTITION p_2024 VALUES LESS THAN (DATE '2025-01-01'),
+    PARTITION p_2025 VALUES LESS THAN (DATE '2026-01-01')
+);
+
+```
+
+**Clustered Tables:**\
+A cluster is a special structure where multiple related tables share one segment. Rows from different tables that have the same cluster key are stored in the same block. This is great for joins — the data is already co-located.
+
+sql
+
+```
+-- Rarely used today but worth knowing
+CREATE CLUSTER emp_dept_cluster (dept_id NUMBER);
+CREATE TABLE departments (...) CLUSTER emp_dept_cluster (dept_id);
+CREATE TABLE employees (...) CLUSTER emp_dept_cluster (dept_id);
+
+```
+
+---
+
+### **2. Index Segments**
+
+Every index you create gets its own segment, separate from the table segment. This is why it's good practice to put indexes in a **separate tablespace** from table data — you can manage them independently.
+
+sql
+
+```
+CREATE INDEX idx_emp_name
+ON employees(emp_name)
+TABLESPACE idx_data;  -- separate tablespace
+
+```
+
+**Why separate tablespace for indexes?**
+
+- If an index gets corrupted, you can drop and rebuild it without touching table data
+- You can put index tablespace on faster storage since indexes are read very frequently
+- During large data loads, you can disable indexes, load data fast, then rebuild — all without affecting the data tablespace
+
+**Types of Index Segments:**
+
+**B-Tree Index** — The default. A balanced tree structure. Most indexes are this type. Great for high-cardinality columns (columns with many distinct values like employee ID, email).
+
+**Bitmap Index** — Stores a bitmap (series of 0s and 1s) for each distinct value. Great for low-cardinality columns (gender, status, region). Very compact. Terrible for OLTP (frequent updates lock large portions of the bitmap).
+
+**Index-Organized Table (IOT)** — The table itself is stored as a B-tree index ordered by the primary key. There's no separate table segment — the index IS the table. Excellent for lookup tables accessed primarily by primary key.
+
+sql
+
+```
+CREATE TABLE product_lookup (
+    prod_id   NUMBER PRIMARY KEY,
+    prod_name VARCHAR2(200),
+    price     NUMBER
+) ORGANIZATION INDEX;
+
+```
+
+---
+
+### **3. Undo Segments (Rollback Segments)**
+
+Every time a transaction modifies data, Oracle saves the **before-image** of that data in an **undo segment**. This serves three purposes:
+
+**Transaction Rollback:**\
+If you run **`ROLLBACK`**, Oracle reads the before-image from the undo segment and restores the original data.
+
+**Read Consistency:**\
+If User A is in the middle of updating 1 million rows and User B queries that table, User B should see the table as it was before User A started — not a half-updated mess. Oracle uses undo to reconstruct the consistent view for User B.
+
+**Flashback Queries:**\
+If you accidentally delete rows, you can use undo to look back in time:
+
+sql
+
+```
+-- See what the table looked like 1 hour ago
+SELECT * FROM employees
+AS OF TIMESTAMP (SYSTIMESTAMP - INTERVAL '1' HOUR);
+
+```
+
+**Automatic Undo Management (AUM):**\
+Modern Oracle uses AUM. You create one UNDO tablespace and Oracle manages undo segments automatically inside it:
+
+sql
+
+```
+CREATE UNDO TABLESPACE undo_ts
+DATAFILE '/u01/oradata/mydb/undo01.dbf'
+SIZE 500M AUTOEXTEND ON;
+
+-- Tell Oracle to use it
+ALTER SYSTEM SET undo_tablespace = undo_ts;
+
+```
+
+Oracle creates multiple undo segments inside this tablespace and assigns transactions to them automatically. No manual management needed.
+
+**UNDO\_RETENTION:**\
+This parameter tells Oracle how long to keep old undo data (in seconds) even after the transaction committed. This supports read consistency for long-running queries and flashback operations.
+
+sql
+
+```
+-- Keep undo for at least 30 minutes
+ALTER SYSTEM SET undo_retention = 1800;
+
+```
+
+If undo space runs out, Oracle recycles older undo even if UNDO_RETENTION hasn't expired. That's why sizing the undo tablespace properly matters.
+
+---
+
+### **4. Temporary Segments**
+
+When Oracle needs to sort data that doesn't fit in memory (sorts, hash joins, group by operations), it writes to a **temporary segment** in the TEMP tablespace.
+
+Key characteristics:
+
+- Created when a sort/hash operation starts
+- Dropped when the operation completes
+- Multiple sessions can have multiple temp segments simultaneously
+- They do NOT generate redo log entries (so no recovery overhead)
+- They are NOT permanent — if Oracle crashes, temp segments are gone, but that's fine because their contents were transient
+
+sql
+
+```
+-- Monitor temp segment usage
+SELECT username, segtype, blocks * 8192 / 1024 / 1024 AS size_mb
+FROM v$tempseg_usage;
+
+-- See overall temp tablespace usage
+SELECT tablespace_name,
+       total_blocks * 8 / 1024 AS total_mb,
+       used_blocks * 8 / 1024 AS used_mb,
+       free_blocks * 8 / 1024 AS free_mb
+FROM v$temp_space_header;
+
+```
+
+**Sort-Merge vs Hash:**
+
+- Sort operations write intermediate sort runs to temp, then merge them
+- Hash joins use temp when the hash table doesn't fit in memory (hash area)
+- Bitmap merge operations also use temp
+
+If your TEMP tablespace fills up, you get:
+
+text
+
+```
+ORA-01652: unable to extend temp segment by 128 in tablespace TEMP
+
+```
+
+Solution: Add more tempfiles to the TEMP tablespace.
+
+---
+
+### **5. LOB Segments**
+
+When a table has a LOB (Large Object) column — CLOB (character), BLOB (binary), NCLOB — Oracle stores the LOB data in a **separate LOB segment** by default. The table segment just stores a LOB locator (a pointer to the actual data).
+
+sql
+
+```
+CREATE TABLE documents (
+    doc_id      NUMBER,
+    doc_name    VARCHAR2(200),
+    doc_content CLOB,
+    doc_image   BLOB
+)
+LOB (doc_content) STORE AS SECUREFILE lob_seg_content (
+    TABLESPACE lob_data
+    ENABLE STORAGE IN ROW  -- small LOBs stored inline in the table block
+    CHUNK 8192
+)
+LOB (doc_image) STORE AS SECUREFILE lob_seg_image (
+    TABLESPACE lob_data
+);
+
+```
+
+**ENABLE STORAGE IN ROW:**\
+LOBs smaller than approximately 4000 bytes are stored directly in the table block (inline) rather than in a separate LOB segment. This is a performance optimization for small LOBs.
+
+---
+
+## **Extents — How Segments Grow**
+
+A segment doesn't grab all its space at once. It grows by allocating **extents**.
+
+An extent is a **contiguous set of Oracle blocks**. "Contiguous" means they are physically next to each other within a datafile — block 1001, 1002, 1003... 1128. This contiguity means Oracle can read the whole extent in one sequential I/O sweep rather than many random reads.
+
+### **Initial Extent Allocation**
+
+When a segment is first created (or when the first row is inserted for deferred segments), Oracle allocates the **initial extent**. The size depends on:
+
+- Your explicit **`STORAGE`** clause settings
+- The tablespace's default storage settings
+- Whether the tablespace is locally managed with UNIFORM or AUTOALLOCATE sizing
+
+### **How Oracle Allocates Extents**
+
+**AUTOALLOCATE (default for locally managed tablespaces):**\
+Oracle decides the extent size automatically. Small segments get small extents (64KB). As the segment grows larger, Oracle allocates larger extents (1MB, 8MB, 64MB). The logic is: large segments need large extents to avoid having too many extents.
+
+sql
+
+```
+CREATE TABLESPACE app_data
+DATAFILE '/u01/oradata/mydb/app_data01.dbf' SIZE 500M
+EXTENT MANAGEMENT LOCAL AUTOALLOCATE;
+
+```
+
+**UNIFORM SIZE:**\
+Every extent in the tablespace is the same size. Predictable, no fragmentation.
+
+sql
+
+```
+CREATE TABLESPACE app_data
+DATAFILE '/u01/oradata/mydb/app_data01.dbf' SIZE 500M
+EXTENT MANAGEMENT LOCAL UNIFORM SIZE 1M;
+-- Every extent is exactly 1MB
+
+```
+
+**Dictionary Managed (old way, don't use):**\
+You specified INITIAL, NEXT, PCTINCREASE in the storage clause:
+
+sql
+
+```
+-- Old style, avoid this
+CREATE TABLE old_table (...)
+STORAGE (INITIAL 64K NEXT 64K PCTINCREASE 0 MINEXTENTS 1 MAXEXTENTS 100);
+
+```
+
+**`PCTINCREASE`** was particularly problematic — it grew each successive extent by a percentage, leading to wildly different extent sizes and severe fragmentation.
+
+### **When Does Oracle Allocate a New Extent?**
+
+When the current last extent of a segment fills up (no more free blocks), Oracle allocates a new extent from the tablespace's free space. This is called **dynamic extent allocation**.
+
+The new extent may come from:
+
+- A different part of the same datafile
+- A different datafile in the same tablespace
+
+There's no guarantee that the new extent is physically adjacent to the previous one. Extents of the same segment can be **scattered** across multiple datafiles. Oracle's extent map (stored in the segment header) tracks where all extents are.
+
+---
+
+## **Segment Header**
+
+Every segment has a **segment header block** — typically the first block of the first extent. It contains:
+
+- The extent map (list of all extents belonging to this segment)
+- Free block information (for MSSM) or bitmap pointers (for ASSM)
+- High Water Mark (HWM) information
+
+### **High Water Mark (HWM) — Important Concept**
+
+The **High Water Mark** is a pointer that separates the "ever used" portion of a segment from the "never used" portion.
+
+text
+
+```
+[   Used blocks   |   HWM   |   Never used blocks   ]
+
+```
+
+When Oracle does a **full table scan**, it reads ALL blocks up to the HWM — even blocks that currently have no rows (because rows were deleted from those blocks). This is a crucial performance concept.
+
+**Example:**
+
+1. You insert 1 million rows into a table → HWM moves forward to cover all those blocks
+1. You delete all 1 million rows → HWM stays where it is
+1. You do **`SELECT COUNT(*) FROM table`** → Oracle reads all blocks up to HWM even though they're empty
+1. Full table scan is just as slow as before the delete
+
+**How to reset the HWM:**
+
+sql
+
+```
+-- Method 1: Truncate (instant, resets HWM to zero, deletes ALL rows)
+TRUNCATE TABLE employees;
+
+-- Method 2: Segment shrink (compacts data, resets HWM, keeps rows)
+ALTER TABLE employees ENABLE ROW MOVEMENT;
+ALTER TABLE employees SHRINK SPACE;
+ALTER TABLE employees DISABLE ROW MOVEMENT;
+
+-- Method 3: Move the segment (rebuilds it, resets HWM)
+ALTER TABLE employees MOVE TABLESPACE app_data;
+-- Note: MOVE invalidates indexes, you must rebuild them after
+
+```
+
+**`DELETE`** does NOT reset the HWM. **`TRUNCATE`** does. This is one of the most commonly tested exam distinctions.
+
+---
+
+## **Segment Advisor**
+
+Oracle has a built-in **Segment Advisor** that identifies segments wasting space (lots of empty blocks below HWM, highly fragmented, reclaimable space):
+
+sql
+
+```
+-- Run segment advisor for a specific tablespace
+DECLARE
+  l_task_name VARCHAR2(30) := 'SEG_ADV_TASK';
+BEGIN
+  DBMS_ADVISOR.CREATE_TASK('Segment Advisor', l_task_name);
+  DBMS_ADVISOR.CREATE_OBJECT(l_task_name, 'TABLESPACE', 'APP_DATA', NULL, NULL, NULL, NULL);
+  DBMS_ADVISOR.SET_TASK_PARAMETER(l_task_name, 'recommend_all', 'TRUE');
+  DBMS_ADVISOR.EXECUTE_TASK(l_task_name);
+END;
+/
+
+-- View recommendations
+SELECT segname, recommendations, solution
+FROM dba_advisor_findings
+WHERE task_name = 'SEG_ADV_TASK';
+
+```
+
+---
+
+## **Monitoring Segments**
+
+sql
+
+```
+-- All segments in the database with size
+SELECT owner, segment_name, segment_type,
+       tablespace_name,
+       bytes/1024/1024 AS size_mb,
+       extents,
+       blocks
+FROM dba_segments
+ORDER BY bytes DESC;
+
+-- Find largest segments
+SELECT owner, segment_name, segment_type,
+       ROUND(bytes/1024/1024/1024, 2) AS size_gb
+FROM dba_segments
+WHERE bytes > 100*1024*1024  -- bigger than 100MB
+ORDER BY bytes DESC;
+
+-- How many extents does a segment have?
+SELECT segment_name, count(*) AS num_extents
+FROM dba_extents
+WHERE owner = 'HR'
+GROUP BY segment_name
+ORDER BY num_extents DESC;
+
+-- Find segments that might need shrinking (many extents)
+SELECT owner, segment_name, segment_type, extents
+FROM dba_segments
+WHERE extents > 1000
+ORDER BY extents DESC;
+
+```
+
+---
+
+## **Segment Types in dba\_segments**
+
+When you query **`dba_segments`**, you'll see various segment types:
+
+{% table %}
+- **SEGMENT\_TYPE**
+- **What It Is**
+---
+- **`TABLE`**
+- Regular heap table
+---
+- **`TABLE PARTITION`**
+- One partition of a partitioned table
+---
+- **`INDEX`**
+- Regular B-tree or bitmap index
+---
+- **`INDEX PARTITION`**
+- One partition of a partitioned index
+---
+- **`CLUSTER`**
+- Clustered table
+---
+- **`LOBSEGMENT`**
+- LOB data segment
+---
+- **`LOBINDEX`**
+- Index on a LOB segment
+---
+- **`ROLLBACK`**
+- Old-style manual rollback segment
+---
+- **`TYPE2 UNDO`**
+- Automatic undo segment
+---
+- **`NESTED TABLE`**
+- Nested table storage
+---
+- **`TEMPORARY`**
+- Temporary segment (sort/hash)
+{% /table %}
+
+---
+
+## **Practical Scenario — Putting It All Together**
+
+Imagine you're building an HR application:
+
+sql
+
+```
+-- Create separate tablespaces
+CREATE TABLESPACE hr_data DATAFILE '/u01/.../hr_data01.dbf' SIZE 500M;
+CREATE TABLESPACE hr_idx  DATAFILE '/u01/.../hr_idx01.dbf'  SIZE 200M;
+CREATE TABLESPACE hr_lob  DATAFILE '/u01/.../hr_lob01.dbf'  SIZE 1G;
+
+-- Create table - gets a DATA SEGMENT in hr_data
+CREATE TABLE employees (
+    emp_id    NUMBER PRIMARY KEY,
+    emp_name  VARCHAR2(100),
+    photo     BLOB,
+    resume    CLOB
+)
+TABLESPACE hr_data
+LOB (photo)  STORE AS (TABLESPACE hr_lob)
+LOB (resume) STORE AS (TABLESPACE hr_lob);
+
+-- Creates INDEX SEGMENT in hr_idx
+CREATE INDEX idx_emp_name ON employees(emp_name) TABLESPACE hr_idx;
+
+-- Each object = its own segment, in its proper tablespace
+
+```
+
+Now check what segments were created:
+
+sql
+
+```
+SELECT segment_name, segment_type, tablespace_name, bytes/1024 AS size_kb
+FROM dba_segments
+WHERE owner = 'HR'
+ORDER BY segment_type;
+
+```
+
+---
+
+## **Key Exam Points**
+
+- A segment is a set of extents allocated to one specific database object. One table = one segment (unless partitioned).
+- Four main types: **Data segments** (tables), **Index segments**, **Undo segments** (before-images for rollback/read consistency), **Temporary segments** (sort/hash operations).
+- Segments grow by allocating **extents** — contiguous groups of blocks.
+- **High Water Mark (HWM)** — full table scans read all blocks up to HWM even if empty. DELETE doesn't lower HWM. TRUNCATE does.
+- AUTOALLOCATE lets Oracle choose extent sizes. UNIFORM SIZE makes all extents the same size.
+- Undo segments store before-images for rollback, read consistency, and flashback.
+- Temp segments don't generate redo and disappear after the session ends.
+- LOB columns get their own LOB segment separate from the table segment.
+- Too many extents on a segment (thousands) was a problem in old dictionary-managed tablespaces. With locally managed tablespaces, it's much less of an issue, but still worth monitoring.
+- **`dba_segments`** shows all segments. **`dba_extents`** shows all extents with their file and block locations.
