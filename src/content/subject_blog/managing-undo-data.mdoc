@@ -1,0 +1,698 @@
+---
+draft: false
+readtime: true
+title: Managing Undo Data
+published: 2026-05-07T22:50:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+Undo data is one of the most misunderstood but critically important concepts in database administration. Every modification to data in Oracle generates undo. Without undo, you cannot roll back transactions, you cannot have read consistency, and you cannot use flashback features. Let's build a complete understanding from the ground up.
+
+---
+
+## **What Exactly is Undo Data?**
+
+When a transaction modifies data — whether INSERT, UPDATE, or DELETE — Oracle saves the **before-image** of that data before making the change. This saved before-image is the **undo data** (also historically called rollback data).
+
+Think of it like this:
+
+text
+
+```
+Original row: emp_id=1, salary=50000
+
+Transaction: UPDATE employees SET salary=60000 WHERE emp_id=1
+
+Oracle does TWO things simultaneously:
+1. Changes the block in Buffer Cache: salary → 60000  (the change)
+2. Writes to undo segment: "emp_id=1, salary WAS 50000"  (the undo)
+
+```
+
+If the transaction rolls back, Oracle reads the undo record and reverses the change — putting 50000 back.
+
+### **What Undo is Generated for Each DML Type**
+
+**UPDATE:**\
+Oracle saves the old column values for every column being changed. If you update 3 columns, only those 3 old values go into undo.
+
+**DELETE:**\
+Oracle saves the **entire row** — every column value. This is why deleting many rows generates more undo than updating them.
+
+**INSERT:**\
+Oracle only saves the **ROWID** of the inserted row. To undo an insert, Oracle just deletes the row at that ROWID. Very little undo generated.
+
+**MERGE, direct-path INSERT:**\
+Similar patterns — Oracle records what's needed to reverse the operation.
+
+---
+
+## **Three Purposes of Undo Data**
+
+### **Purpose 1 — Transaction Rollback**
+
+The most obvious purpose. If a transaction fails or the user runs **`ROLLBACK`**, Oracle uses the undo records to reverse every change made by that transaction, in **reverse chronological order**.
+
+sql
+
+```
+BEGIN
+    UPDATE accounts SET balance = balance - 1000 WHERE acct_id = 101;
+    UPDATE accounts SET balance = balance + 1000 WHERE acct_id = 202;
+    -- Something goes wrong
+    ROLLBACK;
+    -- Oracle reverses both UPDATEs using undo records
+END;
+
+```
+
+Rollback can happen:
+
+- Explicitly by the user (**`ROLLBACK`**)
+- Automatically when a session disconnects abnormally
+- Automatically when Oracle recovers from a crash (instance recovery)
+
+### **Purpose 2 — Read Consistency**
+
+This is what makes Oracle's concurrency model so powerful. Oracle guarantees that every query sees a **consistent snapshot** of the data as of the moment the query began — regardless of what other transactions are doing simultaneously.
+
+**Example:**
+
+text
+
+```
+Time 10:00:00 — User A starts a query: SELECT SUM(salary) FROM employees
+                 This will take 5 minutes to scan all rows
+
+Time 10:01:00 — User B runs: UPDATE employees SET salary=99999 WHERE emp_id=50
+                 User B commits immediately
+
+Time 10:05:00 — User A's query reaches emp_id=50
+                 The block now shows salary=99999 (User B's committed change)
+                 But User A started at 10:00:00 — before User B's change
+                 Oracle needs to show User A the value as of 10:00:00
+
+```
+
+Oracle solves this using undo:
+
+- The block has a commit SCN in its ITL entry (or Oracle can check the undo)
+- Oracle knows User B's change happened after User A's query started (higher SCN)
+- Oracle reads the undo record and **reconstructs** the old version of the block
+- User A sees salary=50000 (the original value)
+
+This is called **Consistent Read (CR) Block Creation**. Oracle creates a read-consistent version of the block in memory from the current block + undo records. Neither user is blocked — they work simultaneously without locking each other.
+
+This is fundamentally different from SQL Server's default behavior (which uses shared locks and can cause readers to block writers and vice versa). Oracle's model is **readers never block writers, writers never block readers**.
+
+### **Purpose 3 — Flashback Operations**
+
+Oracle can use retained undo data to let you look back in time:
+
+sql
+
+```
+-- See what a table looked like 2 hours ago
+SELECT * FROM employees
+AS OF TIMESTAMP (SYSTIMESTAMP - INTERVAL '2' HOUR);
+
+-- See what a specific row looked like at a specific SCN
+SELECT * FROM employees
+AS OF SCN 1234567
+WHERE emp_id = 100;
+
+-- Flashback an entire table to a past state
+FLASHBACK TABLE employees TO TIMESTAMP
+(SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+-- See all versions of a row between two times
+SELECT versions_starttime, versions_endtime,
+       versions_operation, salary
+FROM employees
+VERSIONS BETWEEN TIMESTAMP
+    (SYSTIMESTAMP - INTERVAL '1' HOUR) AND SYSTIMESTAMP
+WHERE emp_id = 100;
+
+```
+
+All of these work by reading retained undo records. If the undo has been overwritten (because undo space was needed), flashback queries for that time period will fail with:
+
+text
+
+```
+ORA-01555: snapshot too old: rollback segment number X with name "..." too small
+
+```
+
+This error means Oracle needed undo data for read consistency or flashback but it had already been overwritten. This is one of the most important errors a DBA must understand and prevent.
+
+---
+
+## **Undo Segments — Internal Structure**
+
+The UNDO tablespace contains multiple **undo segments** (also called rollback segments). Each undo segment is divided into **extents**, and each extent contains **undo blocks**.
+
+text
+
+```
+UNDO Tablespace
+  ├── Undo Segment 1
+  │     ├── Extent 1 (blocks 1-128)
+  │     ├── Extent 2 (blocks 129-256)
+  │     └── Extent 3 (blocks 257-384)
+  ├── Undo Segment 2
+  │     └── ...
+  └── Undo Segment N
+        └── ...
+
+```
+
+### **How Undo Segments Are Used**
+
+Oracle maintains a **transaction table** in the undo segment header. Each active transaction gets an entry in this table, and undo records from that transaction are written into the segment's blocks.
+
+Undo segments are written **circularly** — like a circular buffer. Oracle fills extent 1, then extent 2, then extent 3, then wraps back to extent 1 (overwriting old undo if it's no longer needed).
+
+text
+
+```
+Circular writing:
+Extent 1 → Extent 2 → Extent 3 → Extent 1 (overwrite) → ...
+
+```
+
+Old undo can be overwritten only if:
+
+1. The transaction that generated it has committed or rolled back
+1. AND the undo is no longer needed for read consistency (no active queries need it)
+1. AND the undo retention period has expired (UNDO_RETENTION parameter)
+
+---
+
+## **Automatic Undo Management (AUM)**
+
+In modern Oracle (9i and later), you use **Automatic Undo Management**. You create one UNDO tablespace and set one parameter, and Oracle handles everything:
+
+sql
+
+```
+-- Create undo tablespace
+CREATE UNDO TABLESPACE undotbs1
+DATAFILE '/u01/oradata/mydb/undotbs01.dbf'
+SIZE 500M
+AUTOEXTEND ON
+NEXT 50M
+MAXSIZE 2G;
+
+-- Activate it
+ALTER SYSTEM SET undo_tablespace = undotbs1 SCOPE=BOTH;
+
+-- Confirm it's being used
+SELECT value FROM v$parameter WHERE name = 'undo_tablespace';
+
+```
+
+Oracle automatically:
+
+- Creates the right number of undo segments (based on CPU count)
+- Assigns transactions to undo segments
+- Manages space within the undo tablespace
+- Retires and extends undo segments as needed
+
+### **How Many Undo Segments Does Oracle Create?**
+
+Oracle creates undo segments based on the number of CPUs. Roughly:
+
+- Up to 10 CPUs → 10 undo segments
+- More than 10 → proportionally more
+
+Each active transaction is assigned to one undo segment. If all segments are busy, Oracle creates more (up to a limit). The key is that **no two transactions share an undo segment block simultaneously** — this avoids contention.
+
+---
+
+## **UNDO\_RETENTION Parameter**
+
+sql
+
+```
+-- Set undo retention (in seconds)
+ALTER SYSTEM SET undo_retention = 3600; -- 1 hour
+
+```
+
+This tells Oracle: **try to keep undo data for at least this many seconds after the transaction commits**.
+
+The word "try" is important. UNDO_RETENTION is a **best-effort** guarantee, not an absolute one. If the undo tablespace runs out of space, Oracle will overwrite old undo even if UNDO_RETENTION hasn't expired — to make room for new transactions.
+
+### **RETENTION GUARANTEE**
+
+If you want Oracle to absolutely honor the retention period and never overwrite unexpired undo — even if it means failing new transactions — you can enable RETENTION GUARANTEE:
+
+sql
+
+```
+ALTER TABLESPACE undotbs1 RETENTION GUARANTEE;
+-- Now unexpired undo is NEVER overwritten
+-- But: new transactions may fail with ORA-30036 if undo space fills up
+
+-- Turn it off
+ALTER TABLESPACE undotbs1 RETENTION NOGUARANTEE;
+
+```
+
+**When to use RETENTION GUARANTEE:**
+
+- When flashback queries are critical to your application
+- When you have very long-running reports that need consistent reads
+- Only when you've sized the undo tablespace generously enough
+
+**When NOT to use it:**
+
+- On busy OLTP systems with limited undo space — you risk transaction failures
+
+---
+
+## **ORA-01555: Snapshot Too Old**
+
+This error deserves special attention because it's common and important.
+
+text
+
+```
+ORA-01555: snapshot too old: rollback segment number 11
+           with name "_SYSSMU11_3087654321$" too small
+
+```
+
+### **When Does It Happen?**
+
+A long-running query starts at SCN X. While it runs, other transactions modify blocks that the query needs to read. Oracle needs undo records (from before SCN X) to construct consistent read versions of those blocks. But if the undo records from before SCN X have been overwritten (because UNDO_RETENTION expired or space ran out), Oracle cannot reconstruct the consistent read — and throws ORA-01555.
+
+### **Common Scenarios**
+
+**Scenario 1 — Very long query + small undo retention:**
+
+text
+
+```
+10:00 — Report query starts (reads millions of rows)
+10:05 — Undo retention expires (only set to 300 seconds)
+10:30 — Query reaches a block modified at 10:01 — undo already gone
+       → ORA-01555
+
+```
+
+**Scenario 2 — Fetch across commits (bad practice):**
+
+sql
+
+```
+-- Application opens a cursor
+OPEN cur FOR SELECT * FROM orders;
+
+-- Application fetches rows, processes them, commits in a loop
+LOOP
+    FETCH cur INTO v_order;
+    -- Process the order
+    UPDATE orders SET processed = 'Y' WHERE order_id = v_order.order_id;
+    COMMIT;  -- This advances the SCN
+END LOOP;
+-- The cursor now needs undo from before the first commit
+-- That undo may have been overwritten
+
+```
+
+This is a **bad application design pattern**. You should not commit inside a fetch loop against the same table.
+
+### **Solutions for ORA-01555**
+
+1. **Increase UNDO\_RETENTION:**
+
+sql
+
+```
+ALTER SYSTEM SET undo_retention = 7200; -- 2 hours
+
+```
+
+2. **Increase undo tablespace size** so old undo isn't overwritten:
+
+sql
+
+```
+ALTER TABLESPACE undotbs1 ADD DATAFILE '/u01/.../undo02.dbf' SIZE 1G;
+
+```
+
+3. **Fix the application** — don't fetch across commits on the same table
+1. **Schedule long reports during off-peak hours** when less undo is being generated and overwritten
+1. **Use RETENTION GUARANTEE** if flashback is critical
+
+---
+
+## **Undo Data Statistics**
+
+Oracle provides detailed statistics about undo usage — essential for monitoring and sizing.
+
+### **Key Dynamic Views**
+
+sql
+
+```
+-- Current undo segments and their status
+SELECT usn, name, status, extents, rssize/1024/1024 AS size_mb,
+       xacts AS active_transactions, shrinks, wraps
+FROM v$rollstat rs
+JOIN v$rollname rn ON rs.usn = rn.usn;
+
+```
+
+{% table %}
+- **Column**
+- **Meaning**
+---
+- **`STATUS`**
+- ONLINE, OFFLINE, PENDING OFFLINE
+---
+- **`EXTENTS`**
+- Number of extents in this undo segment
+---
+- **`RSSIZE`**
+- Current size of the segment in bytes
+---
+- **`XACTS`**
+- Number of active transactions using this segment
+---
+- **`SHRINKS`**
+- How many times the segment has shrunk
+---
+- **`WRAPS`**
+- How many times writing has wrapped around
+{% /table %}
+
+sql
+
+```
+-- Overall undo statistics since instance started
+SELECT name, value
+FROM v$sysstat
+WHERE name IN (
+    'undo change vector size',
+    'rollback changes - undo records applied',
+    'transaction rollbacks',
+    'consistent gets',
+    'consistent changes'
+);
+
+```
+
+sql
+
+```
+-- Undo tablespace usage right now
+SELECT tablespace_name,
+       SUM(bytes)/1024/1024 AS total_mb
+FROM dba_data_files
+WHERE tablespace_name = 'UNDOTBS1'
+GROUP BY tablespace_name;
+
+-- How much undo is active, unexpired, expired
+SELECT status,
+       SUM(bytes)/1024/1024 AS size_mb
+FROM dba_undo_extents
+GROUP BY status;
+
+```
+
+The three statuses of undo extents:
+
+{% table %}
+- **Status**
+- **Meaning**
+---
+- **`ACTIVE`**
+- Transaction is still running — cannot be overwritten
+---
+- **`UNEXPIRED`**
+- Transaction committed but UNDO_RETENTION not yet expired — should not be overwritten
+---
+- **`EXPIRED`**
+- Transaction committed and retention period passed — can be overwritten freely
+{% /table %}
+
+sql
+
+```
+-- v$undostat: Historical undo statistics (10-minute snapshots)
+SELECT begin_time, end_time,
+       undoblks,          -- undo blocks consumed
+       txncount,          -- number of transactions
+       maxquerylen,       -- longest query (seconds)
+       maxquerysqlid,     -- SQL ID of longest query
+       ssolderrcnt,       -- ORA-01555 errors in this period
+       nospaceerrcnt,     -- "undo out of space" errors
+       activeblks,        -- blocks used by active transactions
+       unexpiredblks,     -- blocks with unexpired undo
+       expiredblks        -- blocks with expired undo
+FROM v$undostat
+ORDER BY begin_time DESC;
+
+```
+
+**`v$undostat`** is your best friend for undo analysis. Key things to watch:
+
+- **ssolderrcnt > 0** — You're getting ORA-01555 errors → increase retention or undo size
+- **nospaceerrcnt > 0** — Undo tablespace is too small → add space
+- **maxquerylen** — How long your longest queries run → UNDO_RETENTION should be at least this value
+
+sql
+
+```
+-- Active transactions and their undo usage right now
+SELECT s.sid, s.serial#, s.username,
+       t.used_ublk * 8192 / 1024 / 1024 AS undo_mb_used,
+       t.start_time,
+       t.status
+FROM v$transaction t
+JOIN v$session s ON t.ses_addr = s.saddr
+ORDER BY t.used_ublk DESC;
+
+```
+
+This shows you which sessions are generating the most undo right now. Useful when undo space is filling up and you need to find the culprit.
+
+---
+
+## **Sizing the Undo Tablespace**
+
+This is a practical and important skill. The formula Oracle recommends:
+
+text
+
+```
+Undo Size = UndoBlocks × DB_BLOCK_SIZE + Active undo
+
+Where:
+UndoBlocks = UNDO_RETENTION × UPS (Undo blocks Per Second)
+UPS = Average undo blocks generated per second
+
+```
+
+### **Using v$undostat to Calculate**
+
+sql
+
+```
+-- Calculate recommended undo tablespace size
+SELECT
+  d.undo_retention,
+  d.db_block_size,
+  u.undoblks_per_sec,
+  ROUND(
+    (d.undo_retention * u.undoblks_per_sec * d.db_block_size) / 1024 / 1024
+  ) AS recommended_undo_mb
+FROM
+  (SELECT
+     TO_NUMBER(value) AS undo_retention
+   FROM v$parameter WHERE name = 'undo_retention') d,
+  (SELECT
+     TO_NUMBER(value) AS db_block_size
+   FROM v$parameter WHERE name = 'db_block_size') d2,
+  (SELECT
+     MAX(undoblks / ((end_time - begin_time) * 86400)) AS undoblks_per_sec
+   FROM v$undostat
+   WHERE end_time > SYSDATE - 7) u; -- peak from last 7 days
+
+```
+
+### **Oracle's Undo Advisor**
+
+Oracle Enterprise Manager and DBMS_ADVISOR include an **Undo Advisor** that automatically recommends undo tablespace sizing:
+
+sql
+
+```
+DECLARE
+  l_task_id NUMBER;
+  l_undo_size NUMBER;
+BEGIN
+  -- Get recommended size for 1-hour retention with 90-minute query support
+  DBMS_UNDO_ADV.RUN_UNDO_ADVISOR(
+    l_task_id,
+    start_time  => SYSDATE - 7,  -- analyze last 7 days
+    end_time    => SYSDATE,
+    target_size => NULL,
+    undo_retention => 3600       -- 1 hour desired retention
+  );
+END;
+/
+
+-- View recommendation
+SELECT * FROM dba_advisor_findings WHERE task_id = l_task_id;
+
+```
+
+### **Practical Sizing Guidelines**
+
+**Step 1:** Find your peak undo generation rate:
+
+sql
+
+```
+SELECT MAX(undoblks) AS peak_blocks_per_10min,
+       MAX(txncount) AS peak_transactions,
+       MAX(maxquerylen) AS longest_query_secs
+FROM v$undostat
+WHERE begin_time > SYSDATE - 30; -- last 30 days
+
+```
+
+**Step 2:** Set UNDO_RETENTION to at least the longest query length:
+
+sql
+
+```
+-- If longest query is 45 minutes:
+ALTER SYSTEM SET undo_retention = 2700; -- 45 minutes in seconds
+
+```
+
+**Step 3:** Size the tablespace:
+
+text
+
+```
+Minimum size = peak_blocks_per_10_min × (undo_retention / 600) × block_size
+Add 25% buffer for safety
+Add space for ACTIVE transactions (always needs room for running transactions)
+
+```
+
+**Step 4:** Monitor and adjust:
+
+sql
+
+```
+-- Check if you're hitting space issues
+SELECT nospaceerrcnt, ssolderrcnt
+FROM v$undostat
+WHERE nospaceerrcnt > 0 OR ssolderrcnt > 0;
+
+```
+
+---
+
+## **Multiple Undo Tablespaces**
+
+A database can have multiple undo tablespaces but only **one can be active at a time** per instance. This is useful for:
+
+- Switching to a larger undo tablespace during a known heavy workload period
+- Having a smaller undo tablespace for normal operations
+- RAC (Real Application Clusters) — each instance has its own undo tablespace
+
+sql
+
+```
+-- Create a second, larger undo tablespace
+CREATE UNDO TABLESPACE undotbs_large
+DATAFILE '/u01/oradata/mydb/undo_large01.dbf' SIZE 2G
+AUTOEXTEND ON;
+
+-- Switch to it (ongoing transactions still use the old one)
+ALTER SYSTEM SET undo_tablespace = undotbs_large;
+
+-- The old tablespace enters PENDING OFFLINE state
+-- It becomes fully offline when all its transactions finish
+SELECT status FROM dba_tablespaces WHERE tablespace_name = 'UNDOTBS1';
+-- Shows: PENDING OFFLINE until all transactions complete, then OFFLINE
+
+```
+
+---
+
+## **Undo and Instance Recovery**
+
+When Oracle crashes (power failure, server crash), the undo tablespace is critical to recovery:
+
+**Phase 1 — Roll Forward (Redo):**\
+Oracle applies all redo log entries since the last checkpoint to bring all datafiles up to the crash point. This may re-apply changes from both committed AND uncommitted transactions.
+
+**Phase 2 — Roll Back (Undo):**\
+Oracle reads the undo segments to identify which transactions were active (uncommitted) at crash time. It rolls back all those uncommitted transactions using undo records.
+
+After both phases complete, the database is in a consistent state and can open for users.
+
+This is why the UNDO tablespace must be available when the database starts. You cannot open the database without a functioning undo tablespace.
+
+---
+
+## **Manual Rollback Segments (Old Way — Know It Exists)**
+
+Before AUM, DBAs manually created and managed rollback segments:
+
+sql
+
+```
+-- Old style (pre-9i, or when UNDO_MANAGEMENT = MANUAL)
+CREATE ROLLBACK SEGMENT rbs01
+TABLESPACE rbs_tablespace
+STORAGE (INITIAL 1M NEXT 1M MINEXTENTS 2 MAXEXTENTS 50 OPTIMAL 2M);
+
+ALTER ROLLBACK SEGMENT rbs01 ONLINE;
+
+-- Transaction could be directed to specific rollback segment
+SET TRANSACTION USE ROLLBACK SEGMENT rbs01;
+
+```
+
+**`OPTIMAL`** was important — it told Oracle the preferred size for the rollback segment. If the segment grew beyond OPTIMAL (during a large transaction), Oracle would shrink it back to OPTIMAL when the transaction committed.
+
+Problems with manual management:
+
+- DBAs had to predict how large transactions would be
+- Wrong sizing caused ORA-01555 or "snapshot too old" errors
+- Contention between transactions for rollback segment space
+- Very labor-intensive
+
+AUM eliminates all of this. **You should never use manual rollback segments on modern Oracle systems.**
+
+---
+
+## **Key Exam Points**
+
+- Undo data stores **before-images** of changed data. Generated for every DML operation.
+- **Three purposes:** Transaction rollback, Read consistency, Flashback operations.
+- INSERT generates the least undo (just the ROWID). DELETE generates the most (entire row saved).
+- **Read consistency:** Oracle constructs consistent-read block versions from current block + undo records. Readers never block writers.
+- **UNDO\_RETENTION:** How long Oracle tries to keep undo after commit. Best-effort unless RETENTION GUARANTEE is set.
+- **RETENTION GUARANTEE:** Forces Oracle to never overwrite unexpired undo — but risks transaction failures if undo space fills up.
+- **ORA-01555 (Snapshot Too Old):** Oracle couldn't find undo data needed for read consistency. Fix by increasing UNDO_RETENTION, increasing undo tablespace size, or fixing bad application patterns (fetch across commits).
+- **v$undostat:** Best view for undo monitoring — shows undo consumption, ORA-01555 count, longest query, no-space errors.
+- **dba\_undo\_extents:** Shows ACTIVE (cannot touch), UNEXPIRED (should not touch), EXPIRED (free to reuse) undo extents.
+- During **instance recovery:** Phase 1 = roll forward with redo. Phase 2 = roll back uncommitted transactions using undo.
+- Only ONE undo tablespace active per instance at a time. Switching is possible — old tablespace goes PENDING OFFLINE until its transactions finish.
+- **AUM is always preferred** over manual rollback segments. Let Oracle manage undo automatically.
