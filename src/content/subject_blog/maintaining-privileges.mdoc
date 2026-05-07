@@ -1,0 +1,439 @@
+---
+draft: false
+readtime: true
+title: Maintaining Privileges
+published: 2026-05-07T23:39:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **What Are Privileges?**
+
+A **privilege** is a **permission** granted to a user or role that allows them to perform a specific operation on the database or on a specific database object.
+
+In a multi-user database environment, not everyone should be able to do everything. A junior data entry operator should not be able to drop tables. A reporting analyst should not be able to modify salary records. Privileges are how the DBA **controls who can do what**.
+
+This entire concept falls under **Database Security**, and it operates on a simple principle:
+
+> *"Give users only the minimum access they need to do their job — nothing more."*
+
+This is called the **Principle of Least Privilege**.
+
+---
+
+## **Two Categories of Privileges**
+
+---
+
+### **1. System Privileges**
+
+System privileges give a user the ability to **perform actions on the database itself** — not on a specific table or object, but on the system as a whole.
+
+These are typically granted by the DBA to other DBAs or developers.
+
+**Common examples:**
+
+{% table %}
+- **Privilege**
+- **What It Allows**
+---
+- **`CREATE SESSION`**
+- Connect/log in to the database
+---
+- **`CREATE TABLE`**
+- Create tables in your own schema
+---
+- **`CREATE VIEW`**
+- Create views
+---
+- **`CREATE USER`**
+- Create new database users
+---
+- **`DROP USER`**
+- Delete a database user
+---
+- **`CREATE SEQUENCE`**
+- Create sequences
+---
+- **`ALTER DATABASE`**
+- Modify database-level settings
+---
+- **`SHUTDOWN`**
+- Shut down the database instance
+---
+- **`CREATE ANY TABLE`**
+- Create tables in **any** user's schema
+---
+- **`DROP ANY TABLE`**
+- Drop tables in **any** user's schema
+{% /table %}
+
+The **`ANY`** keyword is very powerful and should be granted carefully. **`CREATE TABLE`** only lets you create in your own schema. **`CREATE ANY TABLE`** lets you create in anyone's schema.
+
+**Granting a system privilege (Oracle/standard SQL):**
+
+sql
+
+```
+GRANT CREATE SESSION TO ali;
+GRANT CREATE TABLE TO ali;
+GRANT CREATE TABLE, CREATE VIEW TO sara;
+
+```
+
+**Revoking a system privilege:**
+
+sql
+
+```
+REVOKE CREATE TABLE FROM ali;
+
+```
+
+---
+
+### **2. Object Privileges**
+
+Object privileges give a user the ability to **perform specific actions on a specific database object** — like a particular table, view, sequence, or procedure.
+
+**Common object privileges:**
+
+{% table %}
+- **Privilege**
+- **Applies To**
+- **What It Allows**
+---
+- **`SELECT`**
+- Table, View
+- Read/query data
+---
+- **`INSERT`**
+- Table, View
+- Add new rows
+---
+- **`UPDATE`**
+- Table, View
+- Modify existing rows
+---
+- **`DELETE`**
+- Table, View
+- Remove rows
+---
+- **`ALTER`**
+- Table, Sequence
+- Modify structure
+---
+- **`INDEX`**
+- Table
+- Create indexes on it
+---
+- **`REFERENCES`**
+- Table
+- Create a FK referencing it
+---
+- **`EXECUTE`**
+- Procedure, Function
+- Run the procedure/function
+---
+- **`ALL`**
+- Any object
+- All applicable privileges at once
+{% /table %}
+
+**Granting object privileges:**
+
+sql
+
+```
+-- Allow ali to only read the employees table
+GRANT SELECT ON employees TO ali;
+
+-- Allow sara to read and add data
+GRANT SELECT, INSERT ON employees TO sara;
+
+-- Allow someone to update only specific columns
+GRANT UPDATE (salary, department_id) ON employees TO manager1;
+
+-- Give all privileges on a table
+GRANT ALL ON employees TO senior_dev;
+
+```
+
+**Revoking object privileges:**
+
+sql
+
+```
+REVOKE INSERT ON employees FROM sara;
+REVOKE ALL ON employees FROM senior_dev;
+
+```
+
+---
+
+## **The GRANT Statement in Detail**
+
+The full syntax of GRANT is:
+
+sql
+
+```
+GRANT privilege_name [, privilege_name...]
+ON object_name
+TO user_name [, user_name... | PUBLIC | role_name]
+[WITH GRANT OPTION];
+
+```
+
+### **Granting to PUBLIC**
+
+**`PUBLIC`** is a special keyword that means **every user in the database**:
+
+sql
+
+```
+GRANT SELECT ON company_info TO PUBLIC;
+
+```
+
+Now every user can query **`company_info`**. Use this carefully — it's a broad permission.
+
+### **WITH GRANT OPTION**
+
+This is a critical concept. Normally, if Ali is given SELECT on a table, Ali can query it but **cannot give that privilege to anyone else**. **`WITH GRANT OPTION`** changes that — it allows the recipient to **pass the privilege on** to other users:
+
+sql
+
+```
+GRANT SELECT ON employees TO ali WITH GRANT OPTION;
+
+```
+
+Now Ali can do:
+
+sql
+
+```
+GRANT SELECT ON employees TO khalid;  -- Ali can do this
+
+```
+
+**Risk:** If you later revoke the privilege from Ali, it is also automatically revoked from everyone Ali granted it to (cascade revoke). This can cause unexpected loss of access for multiple users.
+
+---
+
+## **Roles — Managing Privileges Efficiently**
+
+Imagine you have 50 developers and each needs 10 privileges. Granting 10 privileges to 50 users = 500 GRANT statements. And when requirements change, you'd have to update all 50 users individually.
+
+A **role** is a **named collection of privileges** that can be granted and revoked as a single unit.
+
+**Creating and using a role:**
+
+sql
+
+```
+-- Step 1: Create the role
+CREATE ROLE developer_role;
+
+-- Step 2: Grant privileges to the role
+GRANT CREATE SESSION TO developer_role;
+GRANT CREATE TABLE TO developer_role;
+GRANT CREATE VIEW TO developer_role;
+GRANT SELECT, INSERT, UPDATE ON employees TO developer_role;
+
+-- Step 3: Grant the role to users
+GRANT developer_role TO ali;
+GRANT developer_role TO sara;
+GRANT developer_role TO khalid;
+
+```
+
+Now all three users have all those privileges. If you need to add a new privilege:
+
+sql
+
+```
+GRANT DELETE ON employees TO developer_role;
+-- All 3 users automatically get this privilege
+
+```
+
+If you need to revoke access from one person:
+
+sql
+
+```
+REVOKE developer_role FROM khalid;
+-- Khalid loses all those privileges at once
+
+```
+
+---
+
+### **Predefined Roles in Oracle**
+
+Oracle comes with built-in roles:
+
+{% table %}
+- **Role**
+- **What It Includes**
+---
+- **`CONNECT`**
+- Basic connection privilege (**`CREATE SESSION`**)
+---
+- **`RESOURCE`**
+- Ability to create tables, sequences, procedures etc.
+---
+- **`DBA`**
+- All system privileges with GRANT OPTION — full control
+---
+- **`SELECT_CATALOG_ROLE`**
+- Read access to data dictionary views
+---
+- **`EXP_FULL_DATABASE`**
+- Export the full database
+---
+- **`IMP_FULL_DATABASE`**
+- Import the full database
+{% /table %}
+
+**Note:** In older Oracle versions, the **`CONNECT`** role had many privileges. In modern Oracle (10g and later), it was reduced to just **`CREATE SESSION`**. This is worth knowing for exams.
+
+---
+
+## **Column-Level Privileges**
+
+Some DBMS allow you to restrict UPDATE and INSERT to **specific columns** rather than the whole table:
+
+sql
+
+```
+-- Manager can only update salary and department, nothing else
+GRANT UPDATE (salary, dept_id) ON employees TO manager_role;
+
+-- HR can only see name and department, not salary
+GRANT SELECT (emp_name, dept_id) ON employees TO hr_readonly;
+
+```
+
+This is more fine-grained control than table-level access.
+
+---
+
+## **The REVOKE Statement**
+
+REVOKE removes a previously granted privilege:
+
+sql
+
+```
+REVOKE privilege ON object FROM user;
+
+```
+
+**Important behavior — CASCADE vs RESTRICT:**
+
+- In Oracle, revoking a privilege from a user **automatically cascades** and removes it from anyone that user passed it to via **`WITH GRANT OPTION`**
+- Any objects (like views or procedures) that depended on that privilege may become **invalid**
+
+sql
+
+```
+-- Ali created a view based on SELECT privilege on employees
+-- If you revoke SELECT from Ali:
+REVOKE SELECT ON employees FROM ali;
+-- Ali's view is now invalid/broken
+
+```
+
+---
+
+## **Checking Privileges — Data Dictionary Views**
+
+In Oracle, you can query the data dictionary to see what privileges exist:
+
+sql
+
+```
+-- System privileges granted to current user
+SELECT * FROM user_sys_privs;
+
+-- Object privileges granted to current user
+SELECT * FROM user_tab_privs;
+
+-- Object privileges granted BY current user to others
+SELECT * FROM user_tab_privs_made;
+
+-- Roles granted to current user
+SELECT * FROM user_role_privs;
+
+-- All system privileges (DBA view)
+SELECT * FROM dba_sys_privs WHERE grantee = 'ALI';
+
+-- All object privileges (DBA view)
+SELECT * FROM dba_tab_privs WHERE grantee = 'ALI';
+
+```
+
+---
+
+## **Privilege Management in Other DBMS**
+
+### **MySQL / MariaDB**
+
+MySQL uses a similar GRANT/REVOKE model:
+
+sql
+
+```
+-- Grant all privileges on a database
+GRANT ALL PRIVILEGES ON mydb.* TO 'ali'@'localhost';
+
+-- Grant only SELECT on a specific table
+GRANT SELECT ON mydb.employees TO 'ali'@'localhost';
+
+-- Apply the changes
+FLUSH PRIVILEGES;
+
+-- Revoke
+REVOKE INSERT ON mydb.employees FROM 'ali'@'localhost';
+
+-- View privileges
+SHOW GRANTS FOR 'ali'@'localhost';
+
+```
+
+### **SQL Server**
+
+SQL Server uses similar concepts but different syntax:
+
+sql
+
+```
+-- Grant
+GRANT SELECT ON employees TO ali;
+
+-- Deny (stronger than revoke — explicitly blocks even if role grants it)
+DENY DELETE ON employees TO ali;
+
+-- Revoke
+REVOKE SELECT ON employees FROM ali;
+
+```
+
+SQL Server has a unique **`DENY`** statement which **explicitly blocks** a privilege even if the user has it through a role. This overrides any grants.
+
+### **PostgreSQL**
+
+sql
+
+```
+GRANT SELECT, INSERT ON employees TO ali;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO developer_role;
+REVOKE DELETE ON employees FROM ali;
+
+```
