@@ -1,0 +1,635 @@
+---
+draft: false
+readtime: true
+title: Blocks
+published: 2026-05-07T22:47:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+This is one of the most fundamental topics in database internals. Everything ultimately comes down to the block — it's the smallest unit Oracle reads from and writes to disk. Understanding blocks deeply will help you understand performance tuning, space management, and many of the later topics like PCTFREE, PCTUSED, and block efficiency.
+
+---
+
+## **What is an Oracle Block?**
+
+An Oracle block (also called a **data block** or **database block**) is the smallest unit of I/O in Oracle. When Oracle needs data, it doesn't read individual rows from disk — it reads entire blocks. Even if you want one row, Oracle reads the whole block containing that row into the Buffer Cache.
+
+Key facts:
+
+- The block size is set at **database creation time** for the default block size
+- It cannot be changed afterward for existing tablespaces
+- Common sizes: 4KB, 8KB, 16KB, 32KB — with **8KB being the default and most common**
+- Every datafile is divided into Oracle blocks from start to finish
+- Blocks are identified by a **Data Block Address (DBA)** — a combination of the file number and block number within that file
+
+The relationship:
+
+text
+
+```
+Datafile = thousands of blocks laid end to end
+Block    = fixed size (e.g., 8192 bytes = 8KB)
+Row      = stored inside a block (possibly spanning blocks if very large)
+
+```
+
+---
+
+## **Why Block Size Matters**
+
+**Larger blocks:**
+
+- More rows fit per block
+- Better for full table scans (fewer I/O operations to read the whole table)
+- Better for large sequential reads (data warehouses, reporting)
+- More wasted space per block if rows are small
+- Risk of more contention — many users wanting different rows in the same block
+
+**Smaller blocks:**
+
+- Less data per read
+- Better for OLTP systems where you access one row at a time — less wasted I/O reading rows you don't need
+- Less contention per block
+- More overhead (more block headers relative to data)
+
+**General rule:**
+
+- OLTP systems → 8KB (default is usually fine)
+- Data warehouse / DSS systems → 16KB or 32KB
+- Mixed workloads → 8KB default, with specific tablespaces using larger blocks for large tables
+
+Oracle allows **multiple block sizes** in the same database — you can have some tablespaces with 8KB blocks and others with 16KB blocks. But the Buffer Cache must have separate pools for each block size:
+
+sql
+
+```
+-- In init.ora / spfile
+db_block_size = 8192          -- default, set at creation
+db_cache_size = 500M          -- cache for default block size
+db_16k_cache_size = 100M      -- cache for 16KB blocks
+
+-- Create a tablespace with non-default block size
+CREATE TABLESPACE large_blocks
+DATAFILE '/u01/oradata/mydb/large01.dbf' SIZE 500M
+BLOCKSIZE 16K;
+
+```
+
+---
+
+## **Internal Structure of an Oracle Block**
+
+This is where it gets detailed. Every Oracle block has a defined internal layout:
+
+text
+
+```
+┌──────────────────────────────────┐
+│         Block Header             │  ← Fixed overhead
+│  (Common + Variable portions)    │
+├──────────────────────────────────┤
+│         Table Directory          │  ← Which tables have rows here
+├──────────────────────────────────┤
+│         Row Directory            │  ← Pointers to each row's location
+├──────────────────────────────────┤
+│                                  │
+│         Free Space               │  ← Grows from middle
+│                                  │
+├──────────────────────────────────┤
+│         Row Data                 │  ← Rows grow from bottom up
+│  (actual row content)            │
+└──────────────────────────────────┘
+
+```
+
+Let's go through each section in detail.
+
+---
+
+### **1. Block Header — Common Portion (Fixed)**
+
+This part is always the same size regardless of what's in the block. It contains:
+
+**Block type:** What kind of block this is:
+
+- Data block (stores table rows)
+- Index block (stores index entries)
+- Undo block (stores undo records)
+- Segment header block
+- Extent map block
+- Free block
+
+**System Change Number (SCN):** The SCN at which this block was last changed. Used during recovery to determine if this block needs redo applied.
+
+**Block address (DBA):** The block's own address — file number + block number. Oracle stores this inside the block itself as a self-verification mechanism. When Oracle reads a block from disk, it checks that the DBA in the block header matches where it was read from. If they don't match — the block is corrupt (wrong block read due to a disk error).
+
+**Transaction slots (ITL entries):** The Interested Transaction List. This is critically important for concurrency.
+
+---
+
+### **2. Block Header — Variable Portion (ITL — Interested Transaction List)**
+
+The ITL is a list of **transaction slots** in the block header. Each slot records:
+
+- Transaction ID
+- Undo block address (where the undo record for this transaction is)
+- SCN when the transaction committed (or flag showing it's still active)
+- Lock byte flag
+
+**Why ITL exists:**\
+When a transaction wants to modify a row in a block, it first claims an ITL slot. This slot serves as the "lock" on the rows it's modifying. Other transactions that want to modify rows in the same block must:
+
+1. Either claim their own ITL slot (if one is free)
+1. Or wait if all ITL slots are taken
+
+**INITRANS:** The initial number of ITL slots allocated in a block when it's created. Default is 2 for data blocks, 2 for index blocks.
+
+**MAXTRANS:** The maximum number of ITL slots the block can grow to. Default is 255.
+
+sql
+
+```
+CREATE TABLE employees (...)
+INITRANS 4   -- start with 4 ITL slots
+MAXTRANS 10; -- allow up to 10 concurrent transactions per block
+
+```
+
+**ITL contention:**\
+If many transactions frequently modify the same block simultaneously and all ITL slots are taken, transactions must wait. This is called **ITL waits** and shows up in AWR reports as **`enq: TX - allocate ITL entry`**. Solution: increase INITRANS on that table/index.
+
+---
+
+### **3. Table Directory**
+
+For clustered tables (where multiple tables share one segment), the table directory records which tables have rows in this block. For regular heap tables, this area is minimal since only one table's rows are in a given block.
+
+---
+
+### **4. Row Directory**
+
+The row directory is a list of **pointers (slots)** — one for each row in the block. Each slot contains the **offset** (byte position from the start of the block) where that row's data begins.
+
+This is how Oracle locates a specific row in a block using a **ROWID**:
+
+- ROWID = file number + block number + **row slot number**
+- Oracle reads the block into memory
+- Looks up the row slot number in the row directory
+- Gets the byte offset
+- Jumps directly to that offset to read the row
+
+The row directory grows **downward from the top** of the free space area.
+
+**Important:** When a row is deleted, its row directory slot is freed, but the slot itself may remain as an empty entry. When a new row is inserted, it may reuse an existing slot or create a new one.
+
+---
+
+### **5. Free Space**
+
+The middle section of the block is free space. It's the gap between the row directory (growing down from the top) and the row data (growing up from the bottom).
+
+Oracle manages this free space using two mechanisms:
+
+- **PCTFREE** — reserves a portion of the block for updates (covered in detail soon)
+- **PCTUSED** — determines when a block re-enters the free list after rows are deleted (also covered soon)
+
+The free space is not necessarily one contiguous gap. After many inserts and deletes, free space can be fragmented within the block — many small gaps between rows rather than one big gap. Oracle can **compact** (coalesce) the free space within a block when needed without logging the operation — it's an in-memory reorganization of the block content.
+
+---
+
+### **6. Row Data**
+
+Rows are stored from the **bottom of the block upward**. Each row has its own internal structure:
+
+text
+
+```
+┌─────────────────────────────────────────┐
+│ Row Header                              │
+│  - Number of columns                    │
+│  - Lock byte (which ITL slot holds lock)│
+│  - Cluster key (if in cluster)          │
+├─────────────────────────────────────────┤
+│ Column 1 length + Column 1 data         │
+│ Column 2 length + Column 2 data         │
+│ Column 3 length + Column 3 data         │
+│ ...                                     │
+│ Column N length + Column N data         │
+└─────────────────────────────────────────┘
+
+```
+
+**Row Header (3 bytes typically):**
+
+- **Lock byte:** Records which ITL slot has locked this row. Value 0 = row not locked. Value 1 = ITL slot 1 has locked it, etc.
+- **Number of columns:** How many columns follow
+- **Cluster indicator:** Whether this row is part of a cluster
+
+**Column data storage:**
+
+- Each column is stored as: 1 byte length + actual data (or 3 bytes for lengths > 250)
+- NULL columns at the end of a row take **zero bytes** (the row header just says fewer columns exist)
+- NULL columns in the middle of a row take **1 byte** (a length byte of 0)
+- This means putting frequently NULL columns last in the table definition saves space
+
+**VARCHAR2 vs CHAR:**
+
+- VARCHAR2 stores only the actual characters — **`'ABC'`** in a VARCHAR2(100) takes 3 bytes
+- CHAR pads with spaces — **`'ABC'`** in a CHAR(100) takes 100 bytes
+- Always use VARCHAR2 unless you specifically need fixed-length behavior
+
+---
+
+## **PCTFREE — Reserving Space for Updates**
+
+**PCTFREE** (Percent Free) is the percentage of each block that Oracle reserves exclusively for **updates to existing rows**.
+
+sql
+
+```
+CREATE TABLE employees (
+    emp_id   NUMBER,
+    emp_name VARCHAR2(100),
+    comments VARCHAR2(4000)
+)
+PCTFREE 20;  -- Reserve 20% of each block for updates
+
+```
+
+### **How It Works**
+
+When Oracle inserts rows into a block, it keeps inserting until the **free space drops to PCTFREE**. At that point, the block is considered **full for inserts**. No more new rows go into that block (but existing rows can still be updated and grow).
+
+text
+
+```
+Block with PCTFREE = 20:
+
+[Row data fills up to 80% of block]
+[─────────────── 80% filled ──────────────]
+[──── 20% reserved (PCTFREE zone) ────────]
+
+→ Oracle stops inserting new rows here
+→ This 20% is reserved in case existing rows grow due to updates
+
+```
+
+### **Why Is PCTFREE Needed?**
+
+When you update a row and the new value is **larger** than the old value, the row needs more space in the block. If the block is completely full, there's nowhere to expand.
+
+**Example:**
+
+sql
+
+```
+-- Original row: comments = NULL (0 bytes)
+INSERT INTO employees VALUES (1, 'John', NULL);
+
+-- Later update: comments now has 500 bytes of text
+UPDATE employees SET comments = 'Very long comment...' WHERE emp_id = 1;
+
+```
+
+The row needs to grow by 500 bytes. If PCTFREE reserved space, this growth fits in the block. If not, Oracle has a problem (row migration — covered next).
+
+### **Choosing the Right PCTFREE**
+
+{% table %}
+- **Scenario**
+- **Recommended PCTFREE**
+---
+- Mostly read-only table, rarely updated
+- 5% or even 0%
+---
+- Standard OLTP with moderate updates
+- 10% (default)
+---
+- Frequently updated with growing rows
+- 20-30%
+---
+- Table with many VARCHAR2/NULL columns
+- 20-30%
+---
+- Pure insert/read table (logs, history)
+- 1-5%
+{% /table %}
+
+Setting PCTFREE too **high** wastes space — you're reserving too much and fitting fewer rows per block, causing more blocks to be read for full table scans.
+
+Setting PCTFREE too **low** causes row migration (performance problem — explained next).
+
+---
+
+## **PCTUSED — Controlling Block Reuse**
+
+**PCTUSED** (Percent Used) only applies to **Manual Segment Space Management (MSSM)**. With ASSM (automatic), Oracle ignores PCTUSED.
+
+PCTUSED determines when a block that was full (reached PCTFREE and stopped accepting inserts) becomes eligible for new inserts again.
+
+sql
+
+```
+CREATE TABLE employees (...)
+PCTFREE 20
+PCTUSED 40;
+-- Default PCTUSED is 40
+
+```
+
+### **How PCTFREE and PCTUSED Work Together**
+
+Think of it as a two-threshold system:
+
+text
+
+```
+100% ──────────────────────────────
+      Block accepts new row inserts
+PCTFREE (e.g. 20%) ────────────────  ← INSERT threshold
+      Block is "full" - no new inserts
+      Only updates to existing rows
+      ...rows get deleted...
+      ...used space drops...
+PCTUSED (e.g. 40%) ────────────────  ← RE-ENTRY threshold
+      Block goes back on free list
+      Accepts new inserts again
+0%  ──────────────────────────────
+
+```
+
+**The cycle:**
+
+1. Block starts empty → Oracle inserts rows → block fills to 80% (PCTFREE = 20%)
+1. Block removed from free list — no more inserts allowed
+1. Some rows get deleted → used space drops
+1. Used space drops to 40% (PCTUSED = 40%) → block goes back on free list
+1. Oracle starts inserting into this block again
+1. Back to step 1
+
+### **Why the Gap Between PCTFREE and PCTUSED?**
+
+If PCTFREE = 20 and PCTUSED = 80, the block would constantly flip on and off the free list with just a few inserts/deletes. This thrashing wastes CPU maintaining the free list. The gap (20% to 40% in our example = 40% gap) means the block must lose a significant amount of data before it's eligible again. This is efficient.
+
+The sum of PCTFREE + PCTUSED should be less than 100. If they add up to 100 or more, it doesn't make logical sense.
+
+### **PCTUSED and ASSM**
+
+With **Automatic Segment Space Management** (ASSM — the modern default), PCTUSED is **ignored**. Oracle uses bitmaps to track free space in blocks at multiple levels:
+
+- Level 0: 0-25% full
+- Level 1: 25-50% full
+- Level 2: 50-75% full
+- Level 3: 75-100% full
+
+Oracle automatically chooses blocks with appropriate free space based on the size of the row being inserted. This is smarter and has no free list contention — multiple processes can find free blocks without competing for the same free list.
+
+---
+
+## **Row Chaining and Row Migration**
+
+These are two distinct problems that hurt performance. Both result in Oracle needing **multiple block reads** to get one row.
+
+---
+
+### **Row Migration**
+
+**What it is:** A row that was originally in Block A gets updated and grows larger than the available free space in Block A. Oracle **moves the entire row** to a new block (Block B) that has enough space. However, Oracle leaves a **forwarding pointer** in Block A pointing to Block B.
+
+text
+
+```
+Before update:
+Block A: [Row 1 data | Row 2 data | ... free space ...]
+                                         ↑ Not enough for Row 2 to grow
+
+After update (Row 2 grows):
+Block A: [Row 1 data | POINTER→Block B | ... free space ...]
+Block B: [Row 2 data (full size) | ... ]
+
+```
+
+**Why it hurts performance:**
+
+- An index entry still points to Block A (using the original ROWID)
+- Oracle reads Block A (1 I/O) → finds the pointer → reads Block B (2nd I/O) → gets the row
+- Every access to that row costs **2 block reads instead of 1**
+- For a frequently accessed table with many migrated rows, this doubles your I/O
+
+**Cause:** PCTFREE set too low — not enough reserved space for rows to grow.
+
+**Detection:**
+
+sql
+
+```
+-- Analyze the table to collect migration statistics
+ANALYZE TABLE employees LIST CHAINED ROWS INTO chained_rows;
+
+-- Check results
+SELECT * FROM chained_rows WHERE table_name = 'EMPLOYEES';
+
+-- Or use DBA_TABLES
+SELECT table_name, chain_cnt
+FROM dba_tables
+WHERE owner = 'HR'
+AND chain_cnt > 0;
+
+```
+
+**Fix:**
+
+1. Increase PCTFREE on the table
+1. Export the migrated rows, delete them, re-insert them (they'll go into blocks with enough space now)
+1. Or move/rebuild the entire table: **`ALTER TABLE employees MOVE;`**
+
+---
+
+### **Row Chaining**
+
+**What it is:** A row is so large that it **cannot fit in a single block at all** — not because of updates, but because the row itself is bigger than one block. Oracle stores the row across **multiple blocks**, with each block containing a chain pointer to the next.
+
+text
+
+```
+Block A: [Row start: col1, col2, col3... → chain to Block B]
+Block B: [Row continuation: col4, col5, col6... → chain to Block C]
+Block C: [Row end: col7, col8]
+
+```
+
+**Cause:**
+
+- Very wide tables with many columns
+- Large VARCHAR2/CLOB/BLOB inline data
+- Row is genuinely larger than block size
+
+**Row chaining is fundamentally different from row migration:**
+
+- Migration: row WAS small, GREW to not fit
+- Chaining: row NEVER fit in one block
+
+**You cannot eliminate row chaining without:**
+
+- Increasing the block size (requires creating a new tablespace with larger block size and moving the table there)
+- Redesigning the table to be narrower (move some columns to a related table)
+- Using LOB storage for large data instead of inline
+
+**Performance impact:** Same as migration — multiple block reads per row — but unavoidable for genuinely large rows unless you change block size.
+
+---
+
+## **Block Cleanout**
+
+When a transaction commits, Oracle ideally cleans up the transaction information from every block it touched — updating the lock bytes in each row and clearing the ITL entry. This is called **block cleanout**.
+
+**Delayed Block Cleanout:**\
+For large transactions that touched thousands of blocks, cleaning every block at commit time would be very slow. So Oracle uses **delayed block cleanout** — it commits quickly without cleaning all blocks immediately.
+
+The cleanup happens the next time each block is accessed:
+
+- The accessing session notices the ITL entry for the committed transaction
+- It looks up the transaction in the undo to confirm it committed
+- It cleans the block (clears lock bytes, updates ITL)
+- This generates redo (the cleanout itself is a logged operation)
+
+This means the first access to a block after a large transaction's commit may be slightly slower and generate redo even though it's a read. This is normal Oracle behavior.
+
+---
+
+## **Buffer Cache and Block Lifecycle**
+
+Understanding how blocks move between disk and memory is essential:
+
+text
+
+```
+1. User process requests row
+2. Server process checks Buffer Cache
+   ├── Block found (Cache HIT) → read directly from memory
+   └── Block not found (Cache MISS) → read from datafile into Buffer Cache
+3. If modification:
+   a. Server process modifies the block in Buffer Cache (dirty block)
+   b. Change is recorded in Redo Log Buffer
+   c. LGWR writes redo to redo log files (before data is written to disk)
+   d. DBWn eventually writes dirty block to datafile
+4. Block stays in Buffer Cache (LRU basis) until evicted
+
+```
+
+**The key point:** Oracle never writes data directly to datafiles from user processes. User processes work in the Buffer Cache. DBWn writes dirty blocks to disk asynchronously.
+
+---
+
+## **Block Corruption**
+
+Block corruption is one of the most serious problems a DBA faces. A block is corrupt when its content is inconsistent or unreadable.
+
+**Types of corruption:**
+
+**Physical corruption (media corruption):**
+
+- The block cannot be read at all — disk I/O error
+- Or the block content is garbled — hardware or OS error
+- Oracle detects this by verifying the block checksum (if DB_BLOCK_CHECKSUM is enabled)
+
+**Logical corruption:**
+
+- The block is readable but its internal structure is inconsistent
+- For example: a block claims to have 10 rows but the row directory only has 8 entries
+
+**Detection:**
+
+sql
+
+```
+-- Enable block checking (slight performance cost but catches corruption early)
+ALTER SYSTEM SET db_block_checking = MEDIUM;
+
+-- Enable checksums (Oracle computes and verifies checksum on every block read/write)
+ALTER SYSTEM SET db_block_checksum = TYPICAL;
+
+-- RMAN can validate all blocks in the database
+RMAN> BACKUP VALIDATE CHECK LOGICAL DATABASE;
+
+-- Check for known corrupt blocks
+SELECT * FROM v$database_block_corruption;
+
+```
+
+**Recovery from corruption:**
+
+- If you have a backup: restore the affected datafile or just the corrupt block (RMAN block media recovery)
+- RMAN block media recovery is powerful — it can restore just one corrupt block without taking the datafile offline:
+
+sql
+
+```
+-- In RMAN
+RMAN> RECOVER CORRUPTION LIST;
+-- or
+RMAN> RECOVER DATAFILE 5 BLOCK 392;
+
+```
+
+---
+
+## **Monitoring Block-Level Information**
+
+sql
+
+```
+-- Block size for each tablespace
+SELECT tablespace_name, block_size
+FROM dba_tablespaces;
+
+-- Default database block size
+SELECT value FROM v$parameter WHERE name = 'db_block_size';
+
+-- PCTFREE and PCTUSED settings for tables
+SELECT table_name, pct_free, pct_used, ini_trans, max_trans
+FROM dba_tables
+WHERE owner = 'HR';
+
+-- Block statistics per datafile (I/O)
+SELECT df.name, fs.phyrds, fs.phywrts,
+       fs.phyrds + fs.phywrts AS total_io
+FROM v$filestat fs
+JOIN v$datafile df ON fs.file# = df.file#
+ORDER BY total_io DESC;
+
+-- Buffer cache hit ratio (how often blocks are found in memory)
+SELECT
+  ROUND(1 - (phyrds / (consistent_gets + db_block_gets)), 4) * 100
+  AS hit_ratio_pct
+FROM (
+  SELECT
+    SUM(phyrds) phyrds,
+    SUM(consistent_gets) consistent_gets,
+    SUM(db_block_gets) db_block_gets
+  FROM v$buffer_pool_statistics
+);
+-- Aim for > 95% hit ratio in OLTP systems
+
+```
+
+---
+
+## **Key Exam Points**
+
+- A block is the **smallest unit of I/O** in Oracle. Even reading one row reads the whole block.
+- Block structure: **Header (ITL entries) → Table Directory → Row Directory → Free Space → Row Data**
+- **ITL (Interested Transaction List):** Transaction slots in the block header. Each concurrent transaction modifying the block needs one ITL slot. ITL contention = transactions waiting for a slot → increase INITRANS.
+- **PCTFREE:** Percentage of block reserved for row updates. Too low → row migration. Default is 10%.
+- **PCTUSED:** Threshold at which a block re-enters the free list for inserts. Only relevant for MSSM. Default is 40%.
+- **Row migration:** Row moved to another block due to growth. Forwarding pointer left behind. Costs 2 I/Os per access. Caused by low PCTFREE.
+- **Row chaining:** Row too large for one block from the start. Stored across multiple blocks. Cannot be fixed without changing block size or row structure.
+- **Migration vs Chaining:** Migration = row grew and moved. Chaining = row never fit in one block. Both hurt performance.
+- **DELETE does not compact blocks or reset HWM.** TRUNCATE resets everything.
+- **Delayed block cleanout:** Oracle doesn't clean up transaction info from all blocks at commit time for large transactions. Cleanup happens on next access.
+- **ASSM ignores PCTUSED** — uses bitmaps instead of free lists. More efficient for concurrent inserts.
+- Buffer cache hit ratio should be above 95% for OLTP — if lower, you need more memory.

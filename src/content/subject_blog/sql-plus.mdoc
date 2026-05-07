@@ -1,0 +1,731 @@
+---
+draft: false
+readtime: true
+title: SQL*Plus
+published: 2026-05-07T22:00:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **What is SQL\*Plus?**
+
+**SQL\*Plus** is Oracle's command-line interface tool that allows you to interact directly with an Oracle database. Think of it as a terminal/console where you type commands and the database responds.
+
+It is one of the oldest and most important tools in Oracle's ecosystem. Even though modern graphical tools exist today, SQL*Plus is still widely used by DBAs because:
+
+- It is **always available** — it comes with every Oracle installation, no separate setup needed
+- It works in **scripts and automation** — you can run files full of commands automatically
+- It works even when **graphical tools fail** — if the network is down or GUI tools crash, SQL*Plus still works via direct server access
+- It is **lightweight** — no heavy interface, just a terminal
+
+**Important note:** SQL*Plus is specific to Oracle. Other DBMS have their own equivalents:
+
+- MySQL has **mysql** command-line client
+- PostgreSQL has **psql**
+- SQL Server has **sqlcmd**
+
+The concepts are the same — a text-based interface to run commands against the database.
+
+---
+
+## **How SQL\*Plus Works**
+
+When you open SQL*Plus, it connects to an Oracle database instance and gives you a prompt:
+
+text
+
+```
+SQL>
+
+```
+
+From here you can:
+
+- Run **SQL statements** (SELECT, INSERT, UPDATE, DELETE, CREATE, etc.)
+- Run **PL/SQL blocks** (Oracle's procedural extension to SQL)
+- Run **SQL\*Plus commands** (special commands only SQL*Plus understands, for formatting, settings, etc.)
+- Run **script files** (**`.sql`** files containing multiple commands)
+
+---
+
+## **Starting SQL\*Plus**
+
+### **Method 1 — Basic Connection (Local)**
+
+bash
+
+```
+sqlplus username/password
+
+```
+
+Example:
+
+bash
+
+```
+sqlplus system/mypassword
+
+```
+
+This connects to the **default database** on the local machine (defined by the **`ORACLE_SID`** environment variable).
+
+### **Method 2 — Connect to a Specific Database (Remote or Local)**
+
+bash
+
+```
+sqlplus username/password@database_alias
+
+```
+
+Example:
+
+bash
+
+```
+sqlplus scott/tiger@orcl
+
+```
+
+Here **`orcl`** is the **TNS alias** — a name that maps to a specific database's host, port, and service name. This is defined in Oracle's **`tnsnames.ora`** file.
+
+### **Method 3 — Connect Without Password in Command (Secure)**
+
+bash
+
+```
+sqlplus /nolog
+
+```
+
+This starts SQL*Plus without connecting to any database. Then you connect inside:
+
+text
+
+```
+SQL> CONNECT username/password@database
+
+```
+
+This method is preferred when you don't want your password visible in the terminal history.
+
+### **Method 4 — OS Authentication (Sysdba)**
+
+bash
+
+```
+sqlplus / as sysdba
+
+```
+
+This is a very powerful connection method. It connects you as **SYS** (the most privileged Oracle user) using **Operating System authentication** — meaning Oracle trusts you because you are already logged in as the Oracle OS user. No password needed.
+
+DBAs use this to:
+
+- Start and stop the database
+- Perform recovery operations
+- Access the database even when it is not fully open
+
+---
+
+## **Types of Users in SQL\*Plus Context**
+
+When connecting, you specify a user. In Oracle there are special administrative users:
+
+**SYS:**
+
+- The most powerful user in Oracle
+- Owns the **data dictionary** (all internal Oracle tables)
+- Must connect **`AS SYSDBA`** or **`AS SYSOPER`**
+- Used for startup, shutdown, recovery
+
+**SYSTEM:**
+
+- Second most powerful user
+- Used for general DBA tasks
+- Does not own the data dictionary
+- Can connect normally without **`AS SYSDBA`**
+
+**Regular Users (like SCOTT, HR):**
+
+- Have limited privileges
+- Can only access their own objects unless given permission
+
+---
+
+## **SQL\*Plus Commands vs SQL Commands**
+
+This is a very important distinction that many students confuse.
+
+### **SQL Commands**
+
+These are standard database commands that are sent **to the database engine** for processing:
+
+sql
+
+```
+SELECT * FROM employees;
+CREATE TABLE students (id NUMBER, name VARCHAR2(50));
+INSERT INTO products VALUES (1, 'Laptop', 75000);
+
+```
+
+These work in any Oracle interface, not just SQL*Plus.
+
+### **SQL\*Plus Commands**
+
+These are commands understood **only by SQL\*Plus itself**, not by the database. They control how SQL*Plus behaves:
+
+text
+
+```
+SET PAGESIZE 50
+SET LINESIZE 120
+SPOOL output.txt
+@myscript.sql
+DESCRIBE employees
+
+```
+
+Let's go through the important ones in detail.
+
+---
+
+## **Important SQL\*Plus Commands**
+
+### **1. CONNECT / CONN**
+
+Connects to a database from within an active SQL*Plus session:
+
+text
+
+```
+SQL> CONNECT hr/hrpassword@orcl
+
+```
+
+Or shorthand:
+
+text
+
+```
+SQL> CONN hr/hrpassword@orcl
+
+```
+
+### **2. DISCONNECT**
+
+Disconnects from the database but keeps SQL*Plus open:
+
+text
+
+```
+SQL> DISCONNECT
+
+```
+
+### **3. EXIT / QUIT**
+
+Disconnects and closes SQL*Plus completely:
+
+text
+
+```
+SQL> EXIT
+SQL> QUIT
+
+```
+
+### **4. DESCRIBE (DESC)**
+
+Shows the **structure of a table or view** — its column names and data types:
+
+text
+
+```
+SQL> DESCRIBE employees
+
+```
+
+Output would look like:
+
+text
+
+```
+ Name                Null?    Type
+ ------------------- -------- -------------------
+ EMPLOYEE_ID         NOT NULL NUMBER(6)
+ FIRST_NAME                   VARCHAR2(20)
+ LAST_NAME           NOT NULL VARCHAR2(25)
+ EMAIL               NOT NULL VARCHAR2(25)
+ SALARY                       NUMBER(8,2)
+
+```
+
+This is one of the most frequently used commands when exploring an unfamiliar database.
+
+### **5. SET Commands**
+
+These control how output is displayed:
+
+text
+
+```
+SQL> SET PAGESIZE 50
+
+```
+
+Sets how many lines appear per page before headers repeat. Default is 14, which is too small. DBAs usually set it to 50 or higher.
+
+text
+
+```
+SQL> SET LINESIZE 150
+
+```
+
+Sets the width of each line in characters. If your columns are wide, increase this to avoid ugly line wrapping.
+
+text
+
+```
+SQL> SET ECHO ON
+
+```
+
+When running script files, this makes SQL*Plus print each command before executing it. Good for debugging.
+
+text
+
+```
+SQL> SET FEEDBACK OFF
+
+```
+
+Turns off the "5 rows selected." type messages. Useful in scripts where you want clean output.
+
+text
+
+```
+SQL> SET HEADING OFF
+
+```
+
+Removes column headers from query output. Useful when the output will be processed by another program.
+
+text
+
+```
+SQL> SET SERVEROUTPUT ON
+
+```
+
+**This one is very important.** It enables output from **`DBMS_OUTPUT.PUT_LINE`** — Oracle's way of printing messages from PL/SQL code. Without this, your PL/SQL programs appear to do nothing.
+
+### **6. SPOOL**
+
+This command **captures everything displayed in SQL\*Plus into a file**:
+
+text
+
+```
+SQL> SPOOL /home/oracle/output.txt
+SQL> SELECT * FROM employees;
+SQL> SPOOL OFF
+
+```
+
+Everything between **`SPOOL filename`** and **`SPOOL OFF`** gets saved to the file. This is very useful for:
+
+- Saving query results
+- Logging what happened during a maintenance session
+- Creating reports
+
+### **7. @ (Run a Script File)**
+
+The **`@`** symbol runs a **`.sql`** script file:
+
+text
+
+```
+SQL> @/home/oracle/scripts/create_tables.sql
+
+```
+
+Or for a file in the current directory:
+
+text
+
+```
+SQL> @create_tables.sql
+
+```
+
+This is how DBAs run large sets of commands without typing them one by one. You write all your SQL in a text file and run it with one command.
+
+### **8. @@ (Run a Script Relative to Current Script)**
+
+When a script calls other scripts, **`@@`** looks for the second script in the **same directory as the calling script**, not the current working directory. Used inside script files.
+
+### **9. START**
+
+Same as **`@`** — runs a script file:
+
+text
+
+```
+SQL> START /path/to/script.sql
+
+```
+
+### **10. SAVE**
+
+Saves the last command you typed into a file:
+
+text
+
+```
+SQL> SAVE myquery.sql
+
+```
+
+### **11. GET**
+
+Loads a file into the SQL*Plus buffer (ready to run) without running it:
+
+text
+
+```
+SQL> GET myquery.sql
+
+```
+
+### **12. EDIT**
+
+Opens the current buffer in a text editor so you can modify the last command:
+
+text
+
+```
+SQL> EDIT
+
+```
+
+On Linux this opens **`vi`** by default. On Windows it opens Notepad.
+
+### **13. LIST (L)**
+
+Shows the contents of the current SQL buffer (the last command):
+
+text
+
+```
+SQL> L
+
+```
+
+### **14. RUN (/)**
+
+Runs whatever is currently in the SQL buffer:
+
+text
+
+```
+SQL> /
+
+```
+
+The **`/`** on its own line is used constantly — after editing or retrieving a query, you type **`/`** to run it.
+
+### **15. CLEAR BUFFER**
+
+Clears the current SQL buffer:
+
+text
+
+```
+SQL> CLEAR BUFFER
+
+```
+
+### **16. SHOW**
+
+Displays current SQL*Plus settings:
+
+text
+
+```
+SQL> SHOW ALL
+SQL> SHOW PAGESIZE
+SQL> SHOW USER
+
+```
+
+**`SHOW USER`** tells you which user you are currently connected as — very useful to confirm you're in the right account before running destructive commands.
+
+### **17. COLUMN (COL)**
+
+Formats how a specific column appears in output:
+
+text
+
+```
+SQL> COLUMN first_name FORMAT A20
+SQL> COLUMN salary FORMAT 999,999.99
+
+```
+
+**`A20`** means character column, 20 characters wide.\
+**`999,999.99`** formats a number with commas and 2 decimal places.
+
+This makes output much more readable.
+
+### **18. TTITLE and BTITLE**
+
+Sets a title that appears at the **top** or **bottom** of each page of output:
+
+text
+
+```
+SQL> TTITLE 'Employee Report'
+SQL> BTITLE 'Confidential'
+
+```
+
+Used when generating formal reports.
+
+---
+
+## **Running Scripts at Login — login.sql**
+
+SQL*Plus looks for a file called **`login.sql`** in the current directory when it starts. If found, it runs it automatically. DBAs use this to set their preferred settings every time:
+
+sql
+
+```
+SET PAGESIZE 100
+SET LINESIZE 200
+SET SERVEROUTPUT ON
+SET TIME ON
+SHOW USER
+
+```
+
+**`SET TIME ON`** displays the current time in the SQL*Plus prompt, which is useful for timing queries.
+
+---
+
+## **The SQL Buffer**
+
+SQL*Plus maintains a **buffer** — a temporary memory area holding the last SQL command you ran. Understanding this is important:
+
+- Every time you type and run a SQL command, it goes into the buffer
+- SQL*Plus commands (like SET, SPOOL) do **not** go into the buffer
+- You can recall and re-run the buffer with **`/`**
+- You can edit the buffer with **`EDIT`**
+- You can save it with **`SAVE`**
+
+---
+
+## **Substitution Variables**
+
+SQL*Plus supports **variables** that prompt the user for input when a script runs:
+
+### **Single Ampersand (&) — Prompts every time it appears:**
+
+sql
+
+```
+SELECT * FROM employees WHERE department_id = &dept_id;
+
+```
+
+When you run this, SQL*Plus asks:
+
+text
+
+```
+Enter value for dept_id: 10
+
+```
+
+### **Double Ampersand (&&) — Prompts once and remembers the value:**
+
+sql
+
+```
+SELECT &&column_name FROM employees;
+
+```
+
+### **DEFINE — Set a variable manually:**
+
+text
+
+```
+SQL> DEFINE dept = 20
+SQL> SELECT * FROM employees WHERE department_id = &dept;
+
+```
+
+### **ACCEPT — A more controlled way to accept user input:**
+
+text
+
+```
+SQL> ACCEPT v_name PROMPT 'Enter employee name: '
+SQL> SELECT * FROM employees WHERE last_name = '&v_name';
+
+```
+
+This is useful for creating **interactive scripts** that non-technical users can run.
+
+---
+
+## **SQLPLUS and DBA Tasks**
+
+As a DBA, you'll use SQL*Plus for important administrative commands:
+
+### **Startup and Shutdown (covered in detail later):**
+
+sql
+
+```
+STARTUP
+SHUTDOWN IMMEDIATE
+
+```
+
+### **Checking Database Status:**
+
+sql
+
+```
+SELECT STATUS FROM V$INSTANCE;
+SELECT NAME, OPEN_MODE FROM V$DATABASE;
+
+```
+
+### **Viewing Alert Log Location:**
+
+sql
+
+```
+SELECT VALUE FROM V$DIAG_INFO WHERE NAME = 'Diag Trace';
+
+```
+
+### **Granting Privileges:**
+
+sql
+
+```
+GRANT CREATE TABLE TO hr;
+GRANT DBA TO new_admin;
+
+```
+
+---
+
+## **SQL\*Plus in MySQL and PostgreSQL Context**
+
+To reinforce that these concepts apply beyond Oracle:
+
+**MySQL equivalent (mysql client):**
+
+bash
+
+```
+mysql -u root -p
+mysql -u root -p mydatabase
+
+```
+
+Inside mysql client:
+
+text
+
+```
+mysql> SHOW DATABASES;
+mysql> USE employees;
+mysql> DESCRIBE staff;
+mysql> SOURCE /path/to/script.sql;
+mysql> STATUS;
+
+```
+
+**PostgreSQL equivalent (psql):**
+
+bash
+
+```
+psql -U postgres
+psql -U postgres -d mydb
+
+```
+
+Inside psql:
+
+text
+
+```
+postgres=# \l          -- list databases
+postgres=# \c mydb     -- connect to database
+postgres=# \d tablename -- describe table
+postgres=# \i script.sql -- run script file
+postgres=# \q          -- quit
+
+```
+
+The idea is the same — a command-line client where you type commands and interact with the database.
+
+---
+
+## **Summary Table**
+
+{% table %}
+- **Command**
+- **Purpose**
+---
+- **`sqlplus / as sysdba`**
+- Connect as most privileged user
+---
+- **`CONNECT user/pass@db`**
+- Connect to a database
+---
+- **`DESCRIBE tablename`**
+- Show table structure
+---
+- **`SET PAGESIZE n`**
+- Control output page size
+---
+- **`SET LINESIZE n`**
+- Control output line width
+---
+- **`SET SERVEROUTPUT ON`**
+- Enable PL/SQL output
+---
+- **`SPOOL file`**
+- Save output to file
+---
+- **`@script.sql`**
+- Run a script file
+---
+- **`SHOW USER`**
+- Display current user
+---
+- **`COLUMN col FORMAT`**
+- Format column output
+---
+- **`/`**
+- Re-run last command
+---
+- **`EXIT`**
+- Close SQL*Plus
+{% /table %}
+
+\

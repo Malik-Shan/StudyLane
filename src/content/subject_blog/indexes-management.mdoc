@@ -1,0 +1,581 @@
+---
+draft: false
+readtime: true
+title: Indexes Management
+published: 2026-05-07T23:24:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **What is an Index?**
+
+Before jumping into management, you need to understand what an index actually **is** conceptually.
+
+Think of an index like the index at the back of a textbook. Instead of reading every single page to find a topic, you go to the index, find the topic, and it tells you exactly which page to turn to. A database index works the same way — instead of scanning every row in a table (called a **full table scan**), the database uses the index to jump directly to the rows you need.
+
+Without indexes, every query would have to read every single row in a table from start to finish. On a table with millions of rows, this is extremely slow and expensive. Indexes are one of the most powerful tools a DBA has to improve query performance.
+
+However — and this is important — **indexes are not free**. They consume storage space, and every time you INSERT, UPDATE, or DELETE data, the index also needs to be updated. So poorly managed indexes can actually **hurt** performance instead of helping it.
+
+---
+
+## **How Indexes Work Internally**
+
+Most databases store indexes using a data structure called a **B-Tree (Balanced Tree)**.
+
+Here is how a B-Tree index works:
+
+Imagine you have a table of 1 million employees and you want to find the employee with ID = 50234.
+
+Without an index, the database reads row 1, row 2, row 3... all the way until it finds row 50234. This could mean reading 1 million rows.
+
+With a B-Tree index on the Employee ID column, the database starts at the **root node** of the tree. The root node contains a range of values and pointers to the next level. The database follows the pointer that matches the range where 50234 falls. It keeps going level by level until it reaches a **leaf node**, which contains the actual value and a **ROWID** — a physical pointer telling the database exactly where on disk that row lives. The database then goes directly to that location.
+
+This process might involve reading only 3 or 4 blocks of data instead of thousands. That is the power of an index.
+
+The tree stays "balanced" meaning every path from the root to a leaf node is roughly the same length. This ensures consistent and predictable performance no matter which value you are searching for.
+
+---
+
+## **Types of Indexes**
+
+### **1. B-Tree Index (Standard / Default)**
+
+This is the most common type. When you create an index without specifying a type, it defaults to B-Tree.
+
+**Best used for:**
+
+- Columns with high cardinality (meaning many unique values — like Employee ID, Email, National ID)
+- Columns used in WHERE clauses with equality or range conditions (=, <, >, BETWEEN)
+- Columns used in JOIN conditions
+- Columns used in ORDER BY or GROUP BY
+
+**Example in Oracle:**
+
+sql
+
+```
+CREATE INDEX idx_emp_id ON employees(employee_id);
+
+```
+
+**Example in MySQL:**
+
+sql
+
+```
+CREATE INDEX idx_emp_id ON employees(employee_id);
+
+```
+
+**Example in PostgreSQL:**
+
+sql
+
+```
+CREATE INDEX idx_emp_id ON employees(employee_id);
+
+```
+
+---
+
+### **2. Unique Index**
+
+A unique index enforces the rule that no two rows can have the same value in the indexed column. When you define a PRIMARY KEY or UNIQUE constraint on a column, the database automatically creates a unique index behind the scenes.
+
+**Example:**
+
+sql
+
+```
+CREATE UNIQUE INDEX idx_emp_email ON employees(email);
+
+```
+
+If you now try to insert two employees with the same email, the database will reject the second insert with a constraint violation error. The index is both a performance tool and an integrity enforcer here.
+
+---
+
+### **3. Composite Index (Multi-Column Index)**
+
+A composite index is built on **two or more columns together**.
+
+sql
+
+```
+CREATE INDEX idx_emp_dept_job 
+ON employees(department_id, job_id);
+
+```
+
+This index is useful when queries filter by both **`department_id`** and **`job_id`** together.
+
+**Very important concept — Column Order Matters:**
+
+The order of columns in a composite index is critical. The index above is most effective when:
+
+- Your query filters on **`department_id`** alone
+- Your query filters on **`department_id`** AND **`job_id`**
+
+It is **not** effective if your query only filters on **`job_id`** alone (without **`department_id`**). This is called the **leading column rule** or **leftmost prefix rule**.
+
+Think of it like a phone book sorted by Last Name then First Name. You can easily find everyone with Last Name "Khan", or specifically "Khan, Ahmed". But if you only know the first name "Ahmed" and don't know the last name, the phone book is useless for searching — you'd have to read the whole thing.
+
+---
+
+### **4. Bitmap Index**
+
+A bitmap index is fundamentally different from a B-Tree index. Instead of storing a tree of values and pointers, a bitmap index creates a **binary bit map (0s and 1s)** for each distinct value in the column.
+
+**Example:**
+
+Suppose you have a column called **`gender`** with values 'M' and 'F'. The bitmap index would look like:
+
+text
+
+```
+Row:      1  2  3  4  5  6  7  8
+M:        1  0  1  1  0  0  1  0
+F:        0  1  0  0  1  1  0  1
+
+```
+
+For a query like **`WHERE gender = 'M'`**, the database just looks at the M bitmap and instantly knows rows 1, 3, 4, 7 qualify.
+
+**Best used for:**
+
+- Columns with **low cardinality** — very few distinct values (like gender, status, boolean flags, marital status)
+- Data warehouse environments with heavy read and analytical queries
+- Situations where multiple bitmap indexes can be combined using AND/OR operations very efficiently
+
+**NOT suitable for:**
+
+- OLTP (Online Transaction Processing) environments with frequent inserts/updates/deletes — because updating a bitmap index is expensive and causes locking issues
+
+In Oracle, you create one like this:
+
+sql
+
+```
+CREATE BITMAP INDEX idx_emp_gender ON employees(gender);
+
+```
+
+PostgreSQL and MySQL do not natively support bitmap indexes as a storage type (though PostgreSQL uses bitmap scans internally as a query execution strategy).
+
+---
+
+### **5. Function-Based Index**
+
+Sometimes your queries apply a function to a column in the WHERE clause. A regular index on that column becomes useless in that case.
+
+**Example Problem:**
+
+sql
+
+```
+SELECT * FROM employees WHERE UPPER(last_name) = 'KHAN';
+
+```
+
+If you have a regular B-Tree index on **`last_name`**, Oracle cannot use it here because the query is searching for **`UPPER(last_name)`**, not **`last_name`** itself.
+
+**Solution — Create a Function-Based Index:**
+
+sql
+
+```
+CREATE INDEX idx_emp_upper_name 
+ON employees(UPPER(last_name));
+
+```
+
+Now Oracle can use this index for that query.
+
+This is an Oracle-specific feature primarily. PostgreSQL also supports expression indexes which are the same concept:
+
+sql
+
+```
+CREATE INDEX idx_emp_upper_name 
+ON employees(UPPER(last_name));
+
+```
+
+---
+
+### **6. Clustered vs Non-Clustered Index**
+
+This distinction is very important especially in SQL Server and MySQL (InnoDB).
+
+**Clustered Index:**\
+The actual table data rows are physically stored in the order of the index. There can only be **one clustered index per table** because data can only be physically sorted one way. In MySQL InnoDB, the primary key is always the clustered index. In SQL Server, you define it explicitly.
+
+Because the data is stored in index order, range queries (like finding all employees with IDs between 100 and 200) are extremely fast because those rows are physically adjacent on disk.
+
+**Non-Clustered Index:**\
+The index is a separate structure from the table data. The leaf nodes of the index contain the index key values plus a pointer (ROWID or bookmark) back to the actual data row. A table can have many non-clustered indexes.
+
+In Oracle, all standard indexes are non-clustered in the traditional sense (Oracle has a different concept called "Index-Organized Table" which is similar to clustered).
+
+---
+
+## **Creating Indexes**
+
+**Basic syntax:**
+
+sql
+
+```
+CREATE INDEX index_name ON table_name(column_name);
+
+```
+
+**Unique index:**
+
+sql
+
+```
+CREATE UNIQUE INDEX index_name ON table_name(column_name);
+
+```
+
+**Composite index:**
+
+sql
+
+```
+CREATE INDEX index_name ON table_name(col1, col2, col3);
+
+```
+
+**In Oracle, you can also specify storage parameters:**
+
+sql
+
+```
+CREATE INDEX idx_emp_id 
+ON employees(employee_id)
+TABLESPACE users
+STORAGE (INITIAL 64K NEXT 64K);
+
+```
+
+This tells Oracle which tablespace to store the index in and how much space to initially allocate. This matters for DBAs managing storage.
+
+---
+
+## **Dropping Indexes**
+
+sql
+
+```
+DROP INDEX index_name;
+
+```
+
+In Oracle:
+
+sql
+
+```
+DROP INDEX idx_emp_id;
+
+```
+
+In MySQL you need to also specify the table:
+
+sql
+
+```
+DROP INDEX idx_emp_id ON employees;
+
+```
+
+You drop an index when:
+
+- It is no longer being used by any queries (wastes storage and slows down DML)
+- You need to rebuild it (sometimes you drop and recreate)
+- The underlying table is being dropped
+
+---
+
+## **Rebuilding Indexes**
+
+Over time, as data is inserted, updated, and deleted, indexes can become **fragmented**. Deleted entries leave gaps in the B-Tree structure, making the index less efficient. The tree can become unbalanced.
+
+This is similar to how a hard drive becomes fragmented over time and needs defragmentation.
+
+**In Oracle, you can rebuild an index:**
+
+sql
+
+```
+ALTER INDEX idx_emp_id REBUILD;
+
+```
+
+You can also rebuild it online (without locking the table from DML operations):
+
+sql
+
+```
+ALTER INDEX idx_emp_id REBUILD ONLINE;
+
+```
+
+**In SQL Server:**
+
+sql
+
+```
+ALTER INDEX idx_emp_id ON employees REBUILD;
+
+```
+
+Or reorganize (lighter operation, less locking):
+
+sql
+
+```
+ALTER INDEX idx_emp_id ON employees REORGANIZE;
+
+```
+
+**When should you rebuild?**
+
+- When index fragmentation is high (typically above 30% fragmentation is a common threshold)
+- After a large batch DELETE operation
+- After bulk loading data
+- When index performance has noticeably degraded
+
+---
+
+## **Coalescing Indexes (Oracle Specific)**
+
+In Oracle, instead of a full rebuild, you can coalesce an index. Coalescing merges adjacent leaf blocks to free up space without rebuilding the entire index structure. It is faster than a full rebuild and uses fewer resources.
+
+sql
+
+```
+ALTER INDEX idx_emp_id COALESCE;
+
+```
+
+The difference between REBUILD and COALESCE:
+
+- REBUILD creates a brand new index structure and drops the old one
+- COALESCE merges existing leaf blocks — less disruptive but less thorough
+
+---
+
+## **Index Monitoring and Usage Tracking**
+
+One of the biggest problems in database administration is **unused indexes**. Many DBAs create indexes thinking they will help, but some queries never actually use them. These unused indexes waste storage and slow down every INSERT, UPDATE, and DELETE operation on that table.
+
+**In Oracle, you can enable monitoring on an index:**
+
+sql
+
+```
+ALTER INDEX idx_emp_id MONITORING USAGE;
+
+```
+
+After letting the system run for a while (ideally during peak load), you check whether the index has been used:
+
+sql
+
+```
+SELECT index_name, table_name, monitoring, used
+FROM v$object_usage
+WHERE index_name = 'IDX_EMP_ID';
+
+```
+
+If **`USED`** shows **`NO`** after a period of representative workload, consider dropping the index.
+
+To stop monitoring:
+
+sql
+
+```
+ALTER INDEX idx_emp_id NOMONITORING USAGE;
+
+```
+
+**In SQL Server**, you can query dynamic management views:
+
+sql
+
+```
+SELECT 
+    i.name AS index_name,
+    s.user_seeks,
+    s.user_scans,
+    s.user_lookups,
+    s.user_updates
+FROM sys.indexes i
+LEFT JOIN sys.dm_db_index_usage_stats s
+    ON i.object_id = s.object_id 
+    AND i.index_id = s.index_id
+WHERE OBJECT_NAME(i.object_id) = 'employees';
+
+```
+
+High **`user_updates`** with zero **`user_seeks`** and **`user_scans`** tells you the index is being maintained with every data change but never actually used for reading — that is a prime candidate for dropping.
+
+---
+
+## **Viewing Existing Indexes**
+
+**In Oracle:**
+
+sql
+
+```
+-- View all indexes on a table
+SELECT index_name, index_type, uniqueness, status
+FROM user_indexes
+WHERE table_name = 'EMPLOYEES';
+
+-- View columns in each index
+SELECT index_name, column_name, column_position
+FROM user_ind_columns
+WHERE table_name = 'EMPLOYEES'
+ORDER BY index_name, column_position;
+
+```
+
+**In MySQL:**
+
+sql
+
+```
+SHOW INDEX FROM employees;
+
+```
+
+**In PostgreSQL:**
+
+sql
+
+```
+SELECT indexname, indexdef
+FROM pg_indexes
+WHERE tablename = 'employees';
+
+```
+
+**In SQL Server:**
+
+sql
+
+```
+EXEC sp_helpindex 'employees';
+
+```
+
+---
+
+## **When Does the Database Use an Index?**
+
+Understanding when the optimizer decides to use an index versus do a full table scan is crucial. The database has a **Query Optimizer** (also called Cost-Based Optimizer or CBO) that makes this decision based on statistics about the data.
+
+**The optimizer tends to use an index when:**
+
+- The query filters on a column with an index and the condition is highly selective (returns a small percentage of rows)
+- The table is large (more rows = more benefit from avoiding a full scan)
+- The statistics on the table are up to date
+
+**The optimizer may ignore an index when:**
+
+- The query would return a large percentage of the table (say 30% or more) — at that point a full table scan reading blocks sequentially is actually faster than jumping around the disk following index pointers
+- Statistics are stale or missing — the optimizer doesn't know the data distribution
+- A function is applied to the indexed column in the WHERE clause (unless you have a function-based index)
+- You use **`<>`** or **`!=`** operators — these are generally not indexable efficiently
+- The column has very low cardinality (few distinct values) and you're using a B-Tree index
+
+---
+
+## **Index Statistics**
+
+For the optimizer to make correct decisions about whether to use an index, it needs **up-to-date statistics**. Statistics tell the optimizer things like: how many rows are in the table, how many distinct values are in each column, how data is distributed.
+
+**In Oracle, gather statistics with:**
+
+sql
+
+```
+EXEC DBMS_STATS.GATHER_TABLE_STATS('HR', 'EMPLOYEES');
+
+```
+
+Or for an index specifically:
+
+sql
+
+```
+EXEC DBMS_STATS.GATHER_INDEX_STATS('HR', 'IDX_EMP_ID');
+
+```
+
+**In SQL Server:**
+
+sql
+
+```
+UPDATE STATISTICS employees;
+
+```
+
+**In PostgreSQL:**
+
+sql
+
+```
+ANALYZE employees;
+
+```
+
+**In MySQL:**
+
+sql
+
+```
+ANALYZE TABLE employees;
+
+```
+
+Stale statistics are a very common cause of poor query performance. The optimizer thinks a table has 1000 rows when it actually has 10 million rows and makes completely wrong decisions as a result.
+
+---
+
+## **The Invisible Index (Oracle 11g+)**
+
+Oracle introduced a very useful feature called **invisible indexes**. An invisible index exists and is maintained (updated on every DML) but the optimizer completely ignores it unless you explicitly tell the session to consider invisible indexes.
+
+This is incredibly useful for testing. You want to see if a new index will help certain queries, but you don't want to affect the rest of the production workload yet.
+
+sql
+
+```
+-- Create an invisible index
+CREATE INDEX idx_emp_test 
+ON employees(hire_date) INVISIBLE;
+
+-- Or make existing index invisible
+ALTER INDEX idx_emp_id INVISIBLE;
+
+-- In your test session, enable visibility
+ALTER SESSION SET OPTIMIZER_USE_INVISIBLE_INDEXES = TRUE;
+
+-- Run your test queries and check execution plans
+
+-- When satisfied, make it visible to everyone
+ALTER INDEX idx_emp_id VISIBLE;
+
+```

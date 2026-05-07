@@ -1,0 +1,499 @@
+---
+draft: false
+readtime: true
+title: Server, Instance, SGA, and Processes
+published: 2026-05-07T22:06:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **The Concept of a Database Server**
+
+In database terminology, the word **"server"** can mean two different things and it's important to distinguish them:
+
+### **1. The Physical/Hardware Server**
+
+This is the actual computer — the machine with CPU, RAM, and disk — on which the DBMS software is installed. When someone says "the database server is down," they often mean this machine is unreachable.
+
+### **2. The Database Server (Software Concept)**
+
+This refers to the **DBMS software running on the machine** that accepts connections and processes requests. When a user on their laptop runs a query, that query travels over the network to the database server software, which processes it and sends results back.
+
+This is the **client-server model**:
+
+text
+
+```
+┌─────────────┐         Network          ┌──────────────────────┐
+│   CLIENT    │  ──── SQL Request ───→   │   DATABASE SERVER    │
+│ (Your App)  │  ←─── Results ────────   │ (Oracle/MySQL/etc.)  │
+└─────────────┘                          └──────────────────────┘
+
+```
+
+The client sends requests. The server processes them and returns results. The client doesn't directly touch data files — it always goes through the server.
+
+### **Dedicated Server vs Shared Server**
+
+In Oracle, there are two ways the server handles client connections:
+
+**Dedicated Server:**
+
+- Every client connection gets its **own dedicated server process**
+- That process exists solely to serve that one client
+- When the client disconnects, that process ends
+- More memory consumption (each process has its own PGA)
+- Better performance for long-running, complex operations
+- This is the **default** and most common setup
+
+**Shared Server (MTS — Multi-Threaded Server):**
+
+- A pool of server processes is shared among many clients
+- A client's request is handled by whichever shared server process is free
+- Less memory consumption — efficient when you have thousands of connections doing small, quick transactions
+- We'll cover this in detail in a later topic
+
+---
+
+## **What is an Oracle Instance?**
+
+This is one of the most important concepts in Oracle architecture, and it's frequently tested in exams.
+
+### **Definition**
+
+An **Oracle Instance** is the combination of:
+
+1. **Memory structures** (primarily the SGA)
+1. **Background processes**
+
+That's it. An instance is **not** the database files on disk. An instance is what exists **in RAM and as running processes**.
+
+### **The Critical Distinction: Instance vs Database**
+
+This confuses many students. In Oracle:
+
+- **Database** = the physical files on disk (data files, redo logs, control file)
+- **Instance** = the memory (SGA) + background processes running in RAM
+
+They are **separate things** that work together:
+
+text
+
+```
+┌─────────────────────────────────────────┐
+│              ORACLE INSTANCE            │
+│                                         │
+│   ┌─────────────────────────────────┐   │
+│   │              SGA                │   │
+│   │  (Buffer Cache, Shared Pool,    │   │
+│   │   Redo Log Buffer, etc.)        │   │
+│   └─────────────────────────────────┘   │
+│                                         │
+│   Background Processes:                 │
+│   DBWn, LGWR, CKPT, SMON, PMON...      │
+└─────────────────────────────────────────┘
+              ↕ reads/writes
+┌─────────────────────────────────────────┐
+│              ORACLE DATABASE            │
+│                                         │
+│   Data Files (.dbf)                     │
+│   Redo Log Files                        │
+│   Control File                          │
+└─────────────────────────────────────────┘
+
+```
+
+### **Why Does This Distinction Matter?**
+
+Because they can exist independently:
+
+- **Instance without a database:** Oracle can start an instance (allocate SGA, start processes) without opening the database files. This is used during maintenance and recovery operations. This is called the **MOUNT** state.
+- **Database without an instance:** The files sit on disk but nothing is running. The database is "closed" — data is safe but inaccessible.
+- **Normal operation:** Instance is running AND database is open — this is the **OPEN** state.
+
+### **Instance Identification — ORACLE\_SID**
+
+Every Oracle instance is identified by a **SID (System Identifier)** — a short name like **`ORCL`**, **`PROD`**, **`DEV`**, **`TEST`**.
+
+On a single server, you can run **multiple Oracle instances** simultaneously, each with a different SID, each connected to a different database. The **`ORACLE_SID`** environment variable tells you which instance you're working with.
+
+bash
+
+```
+export ORACLE_SID=ORCL
+sqlplus / as sysdba
+
+```
+
+### **One Instance, One Database (Normally)**
+
+In standard Oracle, one instance connects to exactly one database. However, Oracle's **RAC (Real Application Clusters)** allows **multiple instances** running on different servers to share access to **one database**. This is for high availability and scalability in enterprise environments.
+
+---
+
+## **Background Processes**
+
+When an Oracle instance starts, it launches a set of **background processes** — programs that run continuously in the background, performing essential maintenance tasks automatically without any user intervention.
+
+These processes are what make Oracle self-managing and reliable. Let's go through each one:
+
+---
+
+### **1. DBWn — Database Writer**
+
+**Job:** Writes modified (dirty) data blocks from the **buffer cache** to **data files** on disk.
+
+**Why it exists:**\
+Remember that when data is changed (INSERT/UPDATE/DELETE), Oracle modifies the blocks in the buffer cache but doesn't immediately write them to disk. This is intentional — batching writes is much more efficient than writing after every single change.
+
+The DBWn process periodically writes dirty blocks to disk in large batches. This is called a **checkpoint** (partial).
+
+**When does DBWn write?**
+
+- When the buffer cache is getting full and needs space for new blocks
+- When a checkpoint occurs
+- When there are too many dirty buffers
+- When a tablespace goes offline or readonly
+- Every 3 seconds (periodic writes)
+
+**Multiple Writers:**\
+Oracle can have multiple database writer processes (DBW0, DBW1, DBW2... up to DBW9, DBWa, DBWb...) for better performance on systems with heavy write loads.
+
+**Important:** DBWn writes data files. It does NOT write redo logs — that's LGWR's job.
+
+**Equivalent processes:**
+
+- MySQL InnoDB: **page cleaner thread** (**`innodb_page_cleaners`**)
+- PostgreSQL: **bgwriter** (background writer)
+- SQL Server: **Lazy Writer** and **Checkpoint**
+
+---
+
+### **2. LGWR — Log Writer**
+
+**Job:** Writes redo entries from the **redo log buffer** (in SGA) to **redo log files** on disk.
+
+**Why it's critical:**\
+LGWR is arguably the most important background process for **transaction durability**. When you commit a transaction, Oracle **must** ensure that commit is written to the redo log before telling you the commit succeeded. LGWR handles this.
+
+**When does LGWR write?**
+
+- When a transaction **COMMITs** — this is forced, immediate
+- When the redo log buffer is **one-third full**
+- Every **3 seconds**
+- Before **DBWn** writes dirty blocks (redo must be written first — this is the WAL principle)
+
+**Why before DBWn?**\
+This is the **Write-Ahead Logging** rule: redo must always be written to disk **before** the corresponding data block is written to disk. This ensures that if a crash happens mid-write, the redo log has enough information to reconstruct the change.
+
+**LGWR Performance:**\
+LGWR is on the critical path of every commit. If LGWR is slow (slow disk, contention), every user transaction waits. This is why:
+
+- Redo log files should be on **fast disks** (SSDs in modern systems)
+- Redo log files should **not** be on the same disk as data files
+- Redo log files should be **appropriately sized** to avoid too-frequent log switches
+
+---
+
+### **3. CKPT — Checkpoint Process**
+
+**Job:** Updates the **control file** and **data file headers** with the latest checkpoint information.
+
+**What is a checkpoint?**\
+A checkpoint is a point in time where Oracle guarantees that all **dirty buffers up to a certain SCN (System Change Number)** have been written to disk by DBWn.
+
+During recovery after a crash, Oracle only needs to **apply redo logs from the last checkpoint forward**. Everything before the last checkpoint is already safely on disk. So more frequent checkpoints = faster recovery (less redo to apply) but more I/O during normal operation.
+
+**What CKPT does specifically:**
+
+- Signals DBWn to write dirty blocks
+- Updates the control file with the current checkpoint SCN
+- Updates the headers of all data files with the checkpoint SCN
+
+CKPT does **not** write data blocks itself — it just coordinates the checkpoint process and records it.
+
+---
+
+### **4. SMON — System Monitor**
+
+**Job:** Instance recovery and maintenance tasks.
+
+**SMON's responsibilities:**
+
+**a) Instance Recovery:**\
+When Oracle restarts after a crash, SMON automatically:
+
+1. **Rolls forward** — applies all committed transactions from the redo log that weren't yet in the data files
+1. **Rolls back** — undoes uncommitted transactions that were in progress when the crash happened
+
+This all happens **automatically** before the database opens to users. You don't need to do anything — SMON handles it.
+
+**b) Coalescing Free Space:**\
+In tablespaces that use dictionary-managed storage, SMON merges adjacent free extents into larger free chunks. This prevents fragmentation.
+
+**c) Cleaning up Temporary Segments:**\
+If a query that used temp space (for sorting) was terminated abnormally, SMON cleans up the leftover temporary segments.
+
+**d) Recovering Dead Transactions:**\
+For transactions that failed during two-phase commit (distributed transactions), SMON resolves them.
+
+---
+
+### **5. PMON — Process Monitor**
+
+**Job:** Cleans up after failed user processes.
+
+When a user's connection crashes (network drop, application crash, client machine restart), the **server process** that was serving that user may be left running as an orphan. PMON:
+
+- **Terminates** orphaned server processes
+- **Releases locks** that the dead process was holding — so other users aren't blocked waiting for those locks forever
+- **Rolls back** any uncommitted transaction the dead process had
+- **Releases** resources (memory, etc.) held by the dead process
+- **Re-registers** the database with the Oracle Listener if the listener restarts
+
+**Why PMON matters:**\
+Without PMON, a crashed client could leave locks held indefinitely, blocking other users from accessing those rows/tables. PMON is the automatic cleanup crew.
+
+---
+
+### **6. ARCn — Archiver Process**
+
+**Job:** Copies filled redo log files to the archive log destination.
+
+When Oracle is in **ARCHIVELOG mode** and a redo log group fills up and Oracle needs to reuse it, ARCn first **copies that redo log to the archive destination** before it gets overwritten.
+
+- Multiple archiver processes can run (ARC0, ARC1, ARC2...) for better throughput
+- Archive destination can be local disk, network path, or Oracle Recovery Manager
+- If archiving falls behind and all archive destinations are full, the database **stops** (waits) until space is freed — this is a serious operational issue DBAs must monitor
+
+If the database is in NOARCHIVELOG mode, ARCn doesn't run.
+
+---
+
+### **7. MMON — Manageability Monitor**
+
+**Job:** Supports Oracle's automatic management features.
+
+MMON:
+
+- Collects performance statistics for **AWR** (Automatic Workload Repository) snapshots
+- Generates **ADDM** (Automatic Database Diagnostic Monitor) reports
+- Issues **alerts** when thresholds are exceeded (e.g., tablespace usage > 85%)
+
+It runs every hour (by default) to take performance snapshots.
+
+---
+
+### **8. MMNL — Manageability Monitor Light**
+
+**Job:** Performs lighter, more frequent tasks than MMON.
+
+- Flushes **ASH (Active Session History)** data from memory to disk more frequently
+- Handles metric calculations
+
+---
+
+### **9. RECO — Recoverer Process**
+
+**Job:** Resolves **distributed transactions** (transactions that span multiple databases).
+
+If a distributed transaction fails halfway through (network failure between databases), RECO automatically contacts the remote database to either commit or roll back the distributed transaction, ensuring consistency across all involved databases.
+
+---
+
+### **10. LREG — Listener Registration Process**
+
+**Job:** Registers the database instance with the Oracle Listener.
+
+When the instance starts, LREG tells the listener "I exist, here's my name, here's my service name, here's how many connections I can accept." This is how clients can find and connect to the database through the listener.
+
+In older Oracle versions this was done by PMON.
+
+---
+
+### **11. Wnnn — Worker Processes (for Parallel Execution)**
+
+When Oracle runs queries in parallel (splitting the work across multiple processes), it spawns **parallel execution servers** (Pnnn) that work simultaneously on different portions of the data.
+
+---
+
+## **Optional/Additional Background Processes**
+
+Depending on configuration, Oracle may also run:
+
+{% table %}
+- **Process**
+- **Purpose**
+---
+- **CJQ0**
+- Job Queue Coordinator — manages scheduled jobs
+---
+- **QMNn**
+- Queue Monitor — for Oracle Advanced Queuing
+---
+- **FBDA**
+- Flashback Data Archiver — for Oracle Flashback
+---
+- **SMCO**
+- Space Management Coordinator — proactive space management
+---
+- **Wnnn**
+- Space Management Worker processes
+---
+- **VKTM**
+- Virtual Keeper of Time — provides timing for the instance
+---
+- **DIAG**
+- Diagnosability process — handles fault diagnostics
+{% /table %}
+
+---
+
+## **How All Processes Work Together — A Complete Picture**
+
+Let's trace what happens when a user runs **`UPDATE employees SET salary = 50000 WHERE employee_id = 101`**:
+
+text
+
+```
+1. User process sends UPDATE to server process
+
+2. Server process checks buffer cache — is the block containing
+   employee 101 already in memory?
+   → If not, reads it from data file into buffer cache
+
+3. Server process creates UNDO data (to reverse this change if 
+   needed) and writes it to undo segment in buffer cache
+
+4. Server process modifies the data block in buffer cache
+   (salary changed to 50000) — block is now "dirty"
+
+5. Server process writes a REDO ENTRY to the redo log buffer
+   (records: "block X, offset Y, old value Z, new value 50000")
+
+6. User issues COMMIT
+
+7. LGWR immediately writes all redo entries for this transaction
+   from the redo log buffer → to redo log file on disk
+   → Only after this write completes does Oracle confirm COMMIT success
+
+8. Later (asynchronously), DBWn writes the dirty buffer 
+   (modified data block) from buffer cache → to data file on disk
+
+9. CKPT updates control file and data file headers with 
+   checkpoint information
+
+```
+
+This sequence ensures:
+
+- **Performance** — data isn't written to slow disk on every change
+- **Durability** — redo log is written synchronously on commit, so committed data is never lost
+- **Recovery** — if crash happens between steps 7 and 8, redo log has the change and SMON will apply it on restart
+
+---
+
+## **Background Processes in Other DBMS**
+
+{% table %}
+- **Oracle Process**
+- **MySQL InnoDB Equivalent**
+- **PostgreSQL Equivalent**
+---
+- DBWn
+- Page Cleaner Threads
+- Background Writer (bgwriter)
+---
+- LGWR
+- InnoDB Log Writer
+- WAL Writer
+---
+- CKPT
+- InnoDB Checkpoint
+- Checkpointer
+---
+- SMON
+- InnoDB crash recovery
+- Startup recovery
+---
+- PMON
+- Connection cleanup
+- —
+---
+- ARCn
+- Binary Log rotation
+- WAL Archiver
+---
+- MMON
+- Performance Schema threads
+- Stats Collector
+{% /table %}
+
+---
+
+## **Viewing Instance and Process Information**
+
+In Oracle, you can query dynamic performance views (V$ views) to see instance and process information:
+
+sql
+
+```
+-- See instance information
+SELECT INSTANCE_NAME, STATUS, DATABASE_STATUS 
+FROM V$INSTANCE;
+
+-- See all background processes
+SELECT PNAME, DESCRIPTION 
+FROM V$BGPROCESS 
+WHERE PADDR != '00';
+
+-- See SGA component sizes
+SELECT COMPONENT, CURRENT_SIZE/1024/1024 AS SIZE_MB 
+FROM V$SGA_DYNAMIC_COMPONENTS;
+
+-- See overall SGA summary
+SELECT NAME, VALUE/1024/1024 AS SIZE_MB 
+FROM V$SGA;
+
+```
+
+---
+
+## **Summary**
+
+**Instance = SGA + Background Processes**
+
+{% table %}
+- **Background Process**
+- **Key Responsibility**
+---
+- DBWn
+- Writes dirty buffers to data files
+---
+- LGWR
+- Writes redo log buffer to redo log files
+---
+- CKPT
+- Records checkpoint info in control file
+---
+- SMON
+- Instance recovery, free space management
+---
+- PMON
+- Cleans up failed user processes and their locks
+---
+- ARCn
+- Archives filled redo log files
+---
+- MMON
+- AWR snapshots, ADDM, alerts
+---
+- RECO
+- Resolves failed distributed transactions
+---
+- LREG
+- Registers instance with the listener
+{% /table %}

@@ -1,0 +1,339 @@
+---
+draft: false
+readtime: true
+title: Managing Tablespaces
+published: 2026-05-07T22:22:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## What is a Tablespace?
+
+A **tablespace** is a logical storage unit in a database. Think of it as a container or folder that organizes how data is stored. It sits between the database (the whole system) and the actual physical files on disk.
+
+Here's the hierarchy to understand:
+
+```
+Database
+   └── Tablespace (logical)
+         └── Segments (tables, indexes, etc.)
+               └── Extents (groups of blocks)
+                     └── Data Blocks (smallest unit)
+                           └── Physical Data Files (.dbf, .mdf, etc.)
+
+```
+
+So when you create a table and insert data, you don't tell Oracle/SQL Server "put this on disk at this exact location." Instead, you say "put this in this tablespace," and the DBMS handles the rest. The tablespace is mapped to one or more **physical datafiles** on the operating system.
+
+---
+
+## Why Do Tablespaces Exist?
+
+Before tablespaces existed, all data was dumped into one big area. This caused problems:
+
+- You couldn't separate different types of data
+- Performance was hard to manage
+- Backups were all-or-nothing
+- One bad file could crash everything
+
+Tablespaces solve this by letting the DBA:
+
+- Separate user data from system data
+- Put frequently accessed data on faster disks
+- Take parts of the database offline without shutting everything down
+- Control storage quotas per user
+- Perform partial backups
+
+---
+
+## Types of Tablespaces
+
+### 1. SYSTEM Tablespace
+
+This is created automatically when the database is created. It stores:
+
+- The **data dictionary** (metadata about all objects in the database)
+- Internal system tables and views
+- PL/SQL source code for built-in packages
+
+**You should never store user data here.** If this tablespace runs out of space, the entire database stops working.
+
+### 2. SYSAUX Tablespace
+
+Introduced in Oracle 10g. It acts as an **auxiliary** to the SYSTEM tablespace. Tools and features like:
+
+- Oracle Enterprise Manager repository
+- Automatic Workload Repository (AWR)
+- LogMiner
+
+...store their data here instead of cluttering SYSTEM.
+
+### 3. UNDO Tablespace
+
+Stores **undo data** — the before-image of data before a transaction changed it. This is used for:
+
+- Rolling back transactions
+- Read consistency (so other users see a consistent snapshot)
+- Flashback queries
+
+We'll cover this deeply in the Undo Data topic.
+
+### 4. TEMP Tablespace (Temporary)
+
+Used for **sorting operations** that can't fit in memory. For example:
+
+- ORDER BY on a large table
+- GROUP BY
+- Hash joins
+- Creating indexes
+
+Data here is never permanent — it's wiped when the session ends. Every database should have a default temporary tablespace assigned.
+
+### 5. User/Application Tablespaces
+
+These are ones **you create** to hold application data. Best practice is to separate:
+
+- **Data tablespace** — for actual table data
+- **Index tablespace** — for indexes on those tables
+- **LOB tablespace** — for large objects like images, documents
+
+This separation improves performance and manageability.
+
+---
+
+## Tablespace Modes and States
+
+A tablespace can be in different states that control what users can do with it.
+
+### Online vs Offline
+
+- **ONLINE** — Normal state. Users can read and write to it.
+- **OFFLINE** — No one can access the objects in it. Used for maintenance, backups, or recovery.
+
+```
+-- Oracle syntax
+ALTER TABLESPACE users OFFLINE;
+ALTER TABLESPACE users ONLINE;
+
+```
+
+When you take a tablespace offline normally, Oracle writes a checkpoint — meaning all dirty buffers (data in memory not yet written to disk) are flushed to disk. This makes it easy to bring back online.
+
+If you take it offline with IMMEDIATE, no checkpoint happens, and you'll need media recovery before bringing it back online.
+
+### Read-Only vs Read-Write
+
+- **READ WRITE** — Normal, allows both reads and writes
+- **READ ONLY** — Users can query data but cannot insert, update, or delete
+
+```
+ALTER TABLESPACE users READ ONLY;
+ALTER TABLESPACE users READ WRITE;
+
+```
+
+Read-only tablespaces are useful for:
+
+- Historical/archival data that never changes
+- Distributing data on CD/DVD or read-only media
+- You don't need to back them up repeatedly since data doesn't change
+
+---
+
+## Creating a Tablespace
+
+When you create a tablespace, you're doing two things at once:
+
+1. Defining the logical structure in the database
+1. Creating a physical datafile on disk
+
+### Basic Syntax (Oracle)
+
+```
+CREATE TABLESPACE app_data
+DATAFILE '/u01/oradata/mydb/app_data01.dbf'
+SIZE 100M
+AUTOEXTEND ON
+NEXT 10M
+MAXSIZE 500M
+EXTENT MANAGEMENT LOCAL
+SEGMENT SPACE MANAGEMENT AUTO;
+
+```
+
+Let's break down each clause:
+
+**DATAFILE** — The physical file path and name. This file is created on the OS.
+
+**SIZE 100M** — Initial size of the file is 100 megabytes.
+
+**AUTOEXTEND ON** — If the tablespace fills up, Oracle automatically extends the file instead of throwing an error.
+
+**NEXT 10M** — When it auto-extends, it grows by 10MB each time.
+
+**MAXSIZE 500M** — The file will never grow beyond 500MB. Protects disk space.
+
+**EXTENT MANAGEMENT LOCAL** — This is about how free space is tracked. With LOCAL, a bitmap within the datafile itself tracks which extents are free. This is more efficient than DICTIONARY managed (older method where the data dictionary tracked extents — caused contention).
+
+**SEGMENT SPACE MANAGEMENT AUTO** — Oracle automatically manages free space within segments using bitmaps. You don't need to manually set PCTFREE and PCTUSED parameters (though we'll still cover those later).
+
+### Creating a Temporary Tablespace
+
+```
+CREATE TEMPORARY TABLESPACE temp_data
+TEMPFILE '/u01/oradata/mydb/temp01.dbf'
+SIZE 50M
+AUTOEXTEND ON;
+
+```
+
+Notice it uses TEMPFILE instead of DATAFILE. Tempfiles are not fully logged — writes to them don't generate redo logs, which makes temp operations much faster.
+
+### Creating an Undo Tablespace
+
+```
+CREATE UNDO TABLESPACE undo_ts
+DATAFILE '/u01/oradata/mydb/undo01.dbf'
+SIZE 200M
+AUTOEXTEND ON;
+
+```
+
+---
+
+## Extent Management — Dictionary vs Local
+
+This is an important concept worth understanding deeply.
+
+### Dictionary Managed Tablespaces (Old Way)
+
+Free extents were tracked in the **data dictionary** — specifically in tables like FET$ (free extents) and UET$ (used extents). Every time Oracle needed to allocate or free an extent, it had to update these dictionary tables.
+
+**Problem:** Multiple sessions allocating extents simultaneously would compete to update the same dictionary rows → serious contention and performance issues.
+
+### Locally Managed Tablespaces (Modern Way)
+
+Each tablespace has a **bitmap** stored in its own header area. Each bit represents an extent — 0 means free, 1 means used.
+
+**Advantages:**
+
+- No contention on data dictionary
+- Much faster extent allocation
+- Reduces recursive SQL (Oracle doesn't need to run SQL against FET(/UET) behind the scenes)
+- Automatically tracks and coalesces free space
+
+Since Oracle 9i, locally managed tablespaces are the default and recommended approach.
+
+---
+
+## Segment Space Management — Manual vs Auto
+
+Within a segment (like a table), Oracle needs to track which blocks have free space for new row insertions.
+
+### Manual Segment Space Management
+
+Uses **free lists** — linked lists of blocks that have space available. Problems:
+
+- In high concurrency environments, multiple processes compete for the same freelist
+- Can cause "buffer busy waits" performance issues
+
+You also have to manually tune PCTFREE and PCTUSED to control when blocks go on/off the freelist.
+
+### Automatic Segment Space Management (ASSM)
+
+Uses **bitmaps** inside the segment itself to track block free space. Multiple bitmap blocks exist, so concurrent sessions don't contend.
+
+Benefits:
+
+- Better concurrency
+- Simpler administration
+- More accurate space tracking
+
+---
+
+## Dropping a Tablespace
+
+```
+-- Drop empty tablespace
+DROP TABLESPACE app_data;
+
+-- Drop with all contents and datafiles
+DROP TABLESPACE app_data
+INCLUDING CONTENTS AND DATAFILES
+CASCADE CONSTRAINTS;
+
+```
+
+- INCLUDING CONTENTS — removes all segments (tables, indexes, etc.) stored in it
+- AND DATAFILES — also deletes the physical files from the OS
+- CASCADE CONSTRAINTS — removes referential integrity constraints from other tablespaces that point to objects in this one
+
+You **cannot** drop:
+
+- SYSTEM tablespace
+- The active UNDO tablespace
+- The default TEMP tablespace
+- A tablespace that contains active segments being used
+
+---
+
+## Default Tablespace for Users
+
+Every database user should have a **default tablespace** and a **temporary tablespace** assigned. Otherwise, Oracle puts their objects in SYSTEM — which is dangerous.
+
+```
+-- Set at user creation
+CREATE USER john
+IDENTIFIED BY password123
+DEFAULT TABLESPACE app_data
+TEMPORARY TABLESPACE temp_data
+QUOTA 50M ON app_data;
+
+-- Or alter an existing user
+ALTER USER john DEFAULT TABLESPACE app_data;
+
+-- Set a database-wide default
+ALTER DATABASE DEFAULT TABLESPACE app_data;
+ALTER DATABASE DEFAULT TEMPORARY TABLESPACE temp_data;
+
+```
+
+**QUOTA** — limits how much space a user can use in a tablespace. Without a quota, the user can't create any objects even if the tablespace has space.
+
+---
+
+## Monitoring Tablespace Usage
+
+As a DBA, you constantly monitor how full tablespaces are getting. Key views in Oracle:
+
+```
+-- See all tablespaces and their status
+SELECT tablespace_name, status, contents, extent_management
+FROM dba_tablespaces;
+
+-- See datafiles and their sizes
+SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb, autoextensible
+FROM dba_data_files;
+
+-- Check free space
+SELECT tablespace_name, SUM(bytes)/1024/1024 AS free_mb
+FROM dba_free_space
+GROUP BY tablespace_name;
+
+-- Combined used vs free report
+SELECT
+  d.tablespace_name,
+  d.total_mb,
+  NVL(f.free_mb, 0) AS free_mb,
+  d.total_mb - NVL(f.free_mb, 0) AS used_mb
+FROM
+  (SELECT tablespace_name, SUM(bytes)/1024/1024 total_mb
+   FROM dba_data_files GROUP BY tablespace_name) d,
+  (SELECT tablespace_name, SUM(bytes)/1024/1024 free_mb
+   FROM dba_free_space GROUP BY tablespace_name) f
+WHERE d.tablespace_name = f.tablespace_name(+);
+
+```

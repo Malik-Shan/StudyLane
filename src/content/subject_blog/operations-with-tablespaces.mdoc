@@ -1,0 +1,422 @@
+---
+draft: false
+readtime: true
+title: Operations with Tablespaces
+published: 2026-05-07T22:28:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **1. Adding a Datafile to a Tablespace**
+
+This is the most common operation. When a tablespace is running out of space and you either don't want AUTOEXTEND or you've hit MAXSIZE, you add a new datafile to it.
+
+Remember — a tablespace can have **multiple datafiles**. They all belong to the same tablespace and Oracle treats them as one logical pool of space.
+
+sql
+
+```
+ALTER TABLESPACE app_data
+ADD DATAFILE '/u01/oradata/mydb/app_data02.dbf'
+SIZE 200M
+AUTOEXTEND ON
+NEXT 20M
+MAXSIZE 1G;
+
+```
+
+What happens here:
+
+- A brand new physical file is created on disk
+- It is associated with the **`app_data`** tablespace
+- Oracle can now use space from both **`app_data01.dbf`** and **`app_data02.dbf`**
+- From the application's perspective, nothing changes — tables just have more room
+
+This is different from resizing an existing file (covered next). Adding a file is useful when:
+
+- The existing file is already at MAXSIZE
+- You want to spread I/O across different disks (put the new file on a different disk)
+- The filesystem has no more room but another filesystem does
+
+---
+
+## **2. Resizing a Datafile**
+
+Instead of adding a new file, you can grow or shrink an existing one.
+
+sql
+
+```
+-- Grow the file
+ALTER DATABASE DATAFILE '/u01/oradata/mydb/app_data01.dbf'
+RESIZE 500M;
+
+-- Shrink the file (only works if the end of the file is empty)
+ALTER DATABASE DATAFILE '/u01/oradata/mydb/app_data01.dbf'
+RESIZE 150M;
+
+```
+
+**Important about shrinking:**\
+You can only shrink a datafile down to the highest used block within it. If data exists near the end of the file, Oracle will refuse to shrink it that far. The data would need to be moved first (via export/import or segment shrink) before you can reclaim that space.
+
+### **Modifying AUTOEXTEND on an Existing File**
+
+sql
+
+```
+ALTER DATABASE DATAFILE '/u01/oradata/mydb/app_data01.dbf'
+AUTOEXTEND ON
+NEXT 50M
+MAXSIZE 2G;
+
+-- Turn off autoextend
+ALTER DATABASE DATAFILE '/u01/oradata/mydb/app_data01.dbf'
+AUTOEXTEND OFF;
+
+```
+
+---
+
+## **3. Moving a Datafile to a Different Location**
+
+Sometimes you need to move a datafile to a different disk — maybe the current disk is too slow, too full, or you're reorganizing storage. There are two approaches depending on whether the database is up or not.
+
+### **Method 1 — Offline the Tablespace (Database stays up)**
+
+This is the most common method. The database keeps running; only that tablespace goes offline temporarily.
+
+sql
+
+```
+-- Step 1: Take tablespace offline
+ALTER TABLESPACE app_data OFFLINE NORMAL;
+
+-- Step 2: Copy the file at OS level (outside of SQL)
+-- On Linux:
+-- cp /u01/oradata/mydb/app_data01.dbf /u02/oradata/mydb/app_data01.dbf
+
+-- Step 3: Tell Oracle the new location
+ALTER TABLESPACE app_data
+RENAME DATAFILE '/u01/oradata/mydb/app_data01.dbf'
+TO '/u02/oradata/mydb/app_data01.dbf';
+
+-- Step 4: Bring tablespace back online
+ALTER TABLESPACE app_data ONLINE;
+
+-- Step 5: Delete the old file manually from OS
+
+```
+
+### **Method 2 — Shut Down the Database First**
+
+Used for SYSTEM tablespace datafiles since you cannot take SYSTEM offline while the database is running.
+
+sql
+
+```
+-- Step 1: Shut down cleanly
+SHUTDOWN IMMEDIATE;
+
+-- Step 2: Copy the file at OS level
+
+-- Step 3: Start in MOUNT state (database not fully open)
+STARTUP MOUNT;
+
+-- Step 4: Rename the file in control file
+ALTER DATABASE RENAME FILE '/u01/oradata/mydb/system01.dbf'
+TO '/u02/oradata/mydb/system01.dbf';
+
+-- Step 5: Open the database
+ALTER DATABASE OPEN;
+
+```
+
+### **Why the Two-Step Process?**
+
+Oracle doesn't move files itself — the OS moves them. Oracle only updates its **control file** to record the new path. The control file is the map that tells Oracle where all datafiles are. If you move a file without telling Oracle (without the RENAME step), Oracle won't find it on next startup and the database will fail.
+
+---
+
+## **4. Taking a Tablespace Offline and Online**
+
+We touched on this before. Let's go deeper.
+
+sql
+
+```
+ALTER TABLESPACE app_data OFFLINE;        -- Default: NORMAL
+ALTER TABLESPACE app_data OFFLINE NORMAL; -- Flushes dirty buffers, clean offline
+ALTER TABLESPACE app_data OFFLINE TEMPORARY; -- Best-effort checkpoint
+ALTER TABLESPACE app_data OFFLINE IMMEDIATE; -- No checkpoint at all
+
+```
+
+**NORMAL** — Oracle performs a checkpoint (writes all modified blocks to disk). Clean state. No recovery needed when you bring it back online.
+
+**TEMPORARY** — Oracle checkpoints datafiles that are available but skips any that have I/O errors. Some files may need recovery on the way back.
+
+**IMMEDIATE** — No checkpoint whatsoever. The tablespace is immediately unavailable. You **will** need to perform media recovery before bringing it back online. Used when a datafile has already gone missing or is corrupted.
+
+sql
+
+```
+-- Bring it back
+ALTER TABLESPACE app_data ONLINE;
+
+```
+
+When you bring a tablespace online after an IMMEDIATE offline, Oracle will detect that recovery is needed and apply redo logs automatically (assuming you're in ARCHIVELOG mode).
+
+---
+
+## **5. Making a Tablespace Read-Only**
+
+sql
+
+```
+ALTER TABLESPACE app_data READ ONLY;
+
+```
+
+For this to succeed:
+
+- The tablespace must be online
+- There must be no active transactions currently writing to it
+- No active rollback segments in it
+
+Once read-only, Oracle **skips** writing redo for that tablespace (since nothing changes). This makes it very efficient for archival data.
+
+sql
+
+```
+-- Back to normal
+ALTER TABLESPACE app_data READ WRITE;
+
+```
+
+**Practical Use Case:**\
+Imagine you have a reporting database with 5 years of historical data. You put years 2019–2023 in a **`HIST_DATA`** tablespace and make it READ ONLY. You only back it up once. From then on, backups only need to cover the tablespace with current data — saves enormous backup time.
+
+---
+
+## **6. Coalescing a Tablespace**
+
+Over time, extents get allocated and freed. This can leave many small free extents scattered throughout the tablespace that are not contiguous. Even if the total free space is large, Oracle might not find a big enough contiguous chunk for a new large extent.
+
+sql
+
+```
+ALTER TABLESPACE app_data COALESCE;
+
+```
+
+This merges adjacent free extents into larger ones. However, if you're using **locally managed tablespaces** (which you should be), Oracle does this automatically in the background. Coalescing is mainly relevant for older **dictionary managed tablespaces**.
+
+---
+
+## **7. Dropping a Tablespace**
+
+Covered previously but let's be thorough:
+
+sql
+
+```
+DROP TABLESPACE app_data
+INCLUDING CONTENTS AND DATAFILES
+CASCADE CONSTRAINTS;
+
+```
+
+What each part does:
+
+{% table %}
+- **Clause**
+- **Effect**
+---
+- **`INCLUDING CONTENTS`**
+- Drops all segments inside
+---
+- **`AND DATAFILES`**
+- Deletes the actual .dbf files from OS
+---
+- **`CASCADE CONSTRAINTS`**
+- Drops foreign key constraints from other tablespaces pointing here
+{% /table %}
+
+Without **`INCLUDING CONTENTS`**, the DROP fails if the tablespace has any objects in it. Without **`AND DATAFILES`**, the datafiles remain as orphan files on disk wasting space.
+
+---
+
+## **8. Renaming a Tablespace**
+
+Available from Oracle 10g onwards:
+
+sql
+
+```
+ALTER TABLESPACE app_data RENAME TO application_data;
+
+```
+
+This just changes the name in the data dictionary. The physical files don't move or get renamed. Simple and instant.
+
+---
+
+## **9. Shrinking a Tablespace (Segment Shrink)**
+
+This is more involved. It's not just shrinking the datafile — it's actually compacting the data within segments so you can reclaim unused space.
+
+sql
+
+```
+-- First, enable row movement on the table
+ALTER TABLE employees ENABLE ROW MOVEMENT;
+
+-- Shrink the segment (compacts and releases space back to tablespace)
+ALTER TABLE employees SHRINK SPACE CASCADE;
+
+-- Disable row movement after
+ALTER TABLE employees DISABLE ROW MOVEMENT;
+
+```
+
+**`SHRINK SPACE CASCADE`** also shrinks dependent objects like indexes.
+
+After shrinking segments, you can then resize the datafile smaller:
+
+sql
+
+```
+ALTER DATABASE DATAFILE '/u01/oradata/mydb/app_data01.dbf' RESIZE 100M;
+
+```
+
+This full process — shrink segments, then shrink datafile — is how you actually return disk space to the OS.
+
+---
+
+## **10. Transporting a Tablespace**
+
+This is a powerful but advanced feature. It lets you move a tablespace (with all its data) from one database to another — much faster than export/import because you just copy the datafiles.
+
+### **High-Level Steps:**
+
+sql
+
+```
+-- On SOURCE database:
+-- 1. Make the tablespace read-only
+ALTER TABLESPACE app_data READ ONLY;
+
+-- 2. Export the metadata only (no data, just structure)
+-- (Using Data Pump)
+expdp system/password
+  TRANSPORT_TABLESPACES=app_data
+  DUMPFILE=transport.dmp
+  DIRECTORY=dpump_dir
+
+-- 3. Copy the datafiles and the dump file to the TARGET server (OS level)
+
+-- On TARGET database:
+-- 4. Import the metadata
+impdp system/password
+  TRANSPORT_DATAFILES='/u01/oradata/targetdb/app_data01.dbf'
+  DUMPFILE=transport.dmp
+  DIRECTORY=dpump_dir
+
+-- 5. Make tablespace read-write on target
+ALTER TABLESPACE app_data READ WRITE;
+
+-- Back on SOURCE:
+-- 6. Make tablespace read-write again
+ALTER TABLESPACE app_data READ WRITE;
+
+```
+
+The actual data (potentially hundreds of gigabytes) moves as raw files at OS speed — much faster than row-by-row export.
+
+**Requirements:**
+
+- Source and target must have compatible character sets
+- Source and target must have the same block size (for that tablespace)
+- The tablespace must be self-contained (no references going outside it)
+
+---
+
+## **11. Checking Tablespace Operations — Key Views**
+
+sql
+
+```
+-- All tablespace details
+SELECT tablespace_name, status, contents,
+       extent_management, segment_space_management
+FROM dba_tablespaces;
+
+-- Space usage summary
+SELECT
+  ts.tablespace_name,
+  ROUND(SUM(df.bytes)/1024/1024) AS total_mb,
+  ROUND(NVL(SUM(fs.bytes),0)/1024/1024) AS free_mb,
+  ROUND((SUM(df.bytes) - NVL(SUM(fs.bytes),0))/1024/1024) AS used_mb,
+  ROUND((SUM(df.bytes) - NVL(SUM(fs.bytes),0)) / SUM(df.bytes) * 100) AS pct_used
+FROM dba_tablespaces ts
+JOIN dba_data_files df ON ts.tablespace_name = df.tablespace_name
+LEFT JOIN dba_free_space fs ON ts.tablespace_name = fs.tablespace_name
+GROUP BY ts.tablespace_name
+ORDER BY pct_used DESC;
+
+-- See pending offline tablespaces
+SELECT * FROM v$recover_file;
+
+-- See datafiles and their autoextend settings
+SELECT file_name, tablespace_name,
+       bytes/1024/1024 curr_size_mb,
+       maxbytes/1024/1024 max_size_mb,
+       autoextensible
+FROM dba_data_files
+ORDER BY tablespace_name;
+
+```
+
+---
+
+## **12. Best Practices for Tablespace Operations**
+
+**Separate your data logically:**
+
+- System data → SYSTEM, SYSAUX
+- User/application data → separate tablespace
+- Indexes → their own tablespace (so you can easily rebuild without touching data)
+- Temp → TEMP tablespace
+- Undo → UNDO tablespace
+
+**Spread datafiles across disks:**\
+Adding a second datafile to a different physical disk means Oracle can do I/O on both files in parallel — doubling throughput for that tablespace.
+
+**Always use AUTOEXTEND with a MAXSIZE:**
+
+- AUTOEXTEND saves you from emergencies
+- MAXSIZE protects you from one tablespace accidentally consuming all disk space
+
+**Monitor regularly:**\
+Set up alerts when a tablespace exceeds 80% full. Don't wait until it's 100% — at that point, transactions start failing and applications crash.
+
+**Don't store user objects in SYSTEM:**\
+This cannot be stressed enough. Always assign users a proper default tablespace.
+
+---
+
+## **Key Exam Points**
+
+- You **add datafiles** to give a tablespace more space. The tablespace grows logically; users see no difference.
+- Moving a datafile is a two-step operation: OS copy + Oracle RENAME. Skipping either step breaks things.
+- OFFLINE NORMAL = clean shutdown of that tablespace. OFFLINE IMMEDIATE = dirty, needs recovery.
+- READ ONLY tablespaces generate no redo — perfect for archival data that never changes.
+- Coalescing merges fragmented free extents — mostly relevant for old dictionary-managed tablespaces.
+- Transportable tablespaces let you move huge amounts of data between databases by copying files rather than exporting rows.
+- Always monitor tablespace usage proactively — 100% full tablespace = application failure.

@@ -1,0 +1,763 @@
+---
+draft: false
+readtime: true
+title: Managing Instances
+published: 2026-05-07T22:17:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## What Does "Managing an Instance" Mean?
+
+Once the database is up and running, a DBA's job doesn't stop. The instance needs to be **continuously monitored, configured, and controlled**. Managing an instance means:
+
+- Viewing and changing **initialization parameters** that control instance behavior
+- Monitoring the **health and performance** of the running instance
+- Managing **sessions** (connected users)
+- Controlling **instance behavior** dynamically without shutting down
+- Reading **diagnostic information** when problems occur
+
+This is day-to-day DBA work. Understanding it deeply is what separates a good DBA from someone who just knows how to start and stop a database.
+
+---
+
+## Initialization Parameters
+
+### What Are Initialization Parameters?
+
+Initialization parameters are **configuration settings** that control almost every aspect of how an Oracle instance behaves:
+
+- How much memory to allocate
+- How many processes can connect
+- Where to find control files
+- Whether to archive redo logs
+- How the optimizer makes decisions
+- Security settings
+- Auditing settings
+- Hundreds more
+
+There are over **400 initialization parameters** in Oracle. Most have sensible defaults, but DBAs must understand the important ones and tune them appropriately.
+
+### Parameter File Types — PFILE vs SPFILE
+
+There are two types of parameter files and understanding the difference is important:
+
+#### PFILE (Parameter File / init.ora)
+
+A **PFILE** is a plain text file, typically named init<SID>.ora:
+
+```
+# Example PFILE contents
+db_name = ORCL
+memory_target = 2G
+db_block_size = 8192
+control_files = ('/u01/oradata/orcl/control01.ctl',
+                 '/u01/oradata/orcl/control02.ctl')
+log_archive_dest_1 = 'LOCATION=/u01/archive'
+undo_tablespace = UNDOTBS1
+
+```
+
+Characteristics:
+
+- Plain text — you edit it with any text editor
+- Changes take effect only after **restarting** the instance
+- Oracle reads it at startup and creates the instance configuration in memory
+- Does not update itself — if you change a parameter through SQL, the PFILE is NOT updated automatically
+
+#### SPFILE (Server Parameter File)
+
+An **SPFILE** is a **binary file**, typically named spfile<SID>.ora.
+
+Characteristics:
+
+- Binary format — you **cannot** edit it with a text editor (it will get corrupted)
+- Changes made through SQL commands are **automatically written** to the SPFILE
+- Can persist changes **across restarts** automatically
+- Is the **preferred and default** parameter file in modern Oracle
+
+You modify SPFILE using:
+
+```
+ALTER SYSTEM SET parameter_name = value SCOPE = SPFILE|MEMORY|BOTH;
+
+```
+
+#### SCOPE Options — Very Important
+
+When you change a parameter, you specify the **SCOPE** which determines where the change applies:
+
+**SCOPE = MEMORY:**
+
+- Change takes effect **immediately** in the running instance
+- Change is **NOT saved** to SPFILE
+- Change is **lost** when the instance restarts
+- Used for: temporary changes, testing a value before making it permanent
+
+```
+ALTER SYSTEM SET log_buffer = 10485760 SCOPE = MEMORY;
+
+```
+
+**SCOPE = SPFILE:**
+
+- Change is **written to SPFILE** but does NOT take effect now
+- Change takes effect on the **next startup**
+- Used for: parameters that cannot be changed dynamically (static parameters)
+
+```
+ALTER SYSTEM SET db_block_size = 16384 SCOPE = SPFILE;
+-- This requires a restart to take effect
+
+```
+
+**SCOPE = BOTH (default):**
+
+- Change takes effect **immediately** AND is saved to SPFILE
+- Change **persists** across restarts
+- Used for: most dynamic parameter changes in production
+
+```
+ALTER SYSTEM SET sga_target = 4G SCOPE = BOTH;
+
+```
+
+### Static vs Dynamic Parameters
+
+**Dynamic parameters** can be changed while the instance is running (SCOPE=MEMORY or SCOPE=BOTH).
+
+**Static parameters** cannot be changed while running — they require a restart. If you try:
+
+```
+ALTER SYSTEM SET db_block_size = 16384 SCOPE = MEMORY;
+-- ERROR: ORA-02095: specified initialization parameter cannot be modified
+
+```
+
+You must use SCOPE=SPFILE and restart.
+
+### Creating SPFILE from PFILE and Vice Versa
+
+```
+-- Create SPFILE from current PFILE
+CREATE SPFILE FROM PFILE;
+
+-- Create SPFILE from a specific PFILE
+CREATE SPFILE = '/oracle/dbs/spfileORCL.ora' 
+FROM PFILE = '/oracle/dbs/initORCL.ora';
+
+-- Create PFILE from current SPFILE (useful for backup or editing)
+CREATE PFILE FROM SPFILE;
+
+-- Create PFILE from running instance memory
+CREATE PFILE = '/tmp/init_backup.ora' FROM MEMORY;
+
+```
+
+Creating a PFILE from the SPFILE is a common DBA practice before making significant parameter changes — it gives you a text backup of current settings that you can restore from if something goes wrong.
+
+---
+
+## Important Initialization Parameters
+
+Let's go through the most important parameters every DBA should know:
+
+### Memory Parameters
+
+**DB\_BLOCK\_SIZE:**
+
+```
+DB_BLOCK_SIZE = 8192  -- 8KB (default and most common)
+
+```
+
+The size of Oracle's basic I/O unit — the data block. Must be set at database creation and **cannot be changed afterward**. Common values are 4KB, 8KB, 16KB, 32KB. Larger blocks are better for data warehouses (large scans), smaller blocks for OLTP (random access).
+
+**MEMORY\_TARGET:**
+
+```
+ALTER SYSTEM SET MEMORY_TARGET = 4G SCOPE = BOTH;
+
+```
+
+Enables **Automatic Memory Management (AMM)**. Oracle automatically manages both SGA and PGA within this total limit. Simple to configure — Oracle handles the rest.
+
+**SGA\_TARGET:**
+
+```
+ALTER SYSTEM SET SGA_TARGET = 3G SCOPE = BOTH;
+
+```
+
+When using Automatic Shared Memory Management (ASMM) instead of full AMM. Oracle automatically sizes individual SGA components (buffer cache, shared pool, etc.) within this total.
+
+**PGA\_AGGREGATE\_TARGET:**
+
+```
+ALTER SYSTEM SET PGA_AGGREGATE_TARGET = 1G SCOPE = BOTH;
+
+```
+
+Oracle tries to keep total PGA usage across all sessions within this limit.
+
+**DB\_CACHE\_SIZE:**
+
+```
+ALTER SYSTEM SET DB_CACHE_SIZE = 2G SCOPE = BOTH;
+
+```
+
+Manually sets the buffer cache size (when not using AMM/ASMM).
+
+**SHARED\_POOL\_SIZE:**
+
+```
+ALTER SYSTEM SET SHARED_POOL_SIZE = 512M SCOPE = BOTH;
+
+```
+
+Manually sets the shared pool size.
+
+**LARGE\_POOL\_SIZE:**
+
+```
+ALTER SYSTEM SET LARGE_POOL_SIZE = 128M SCOPE = BOTH;
+
+```
+
+### Process and Session Parameters
+
+**PROCESSES:**
+
+```
+PROCESSES = 300
+
+```
+
+Maximum number of OS processes that can connect to Oracle simultaneously. This includes background processes AND user processes. **Static parameter — requires restart.**
+
+If you exceed this limit, new connections fail with:
+
+```
+ORA-00020: maximum number of processes (300) exceeded
+
+```
+
+**SESSIONS:**
+
+```
+SESSIONS = 335
+
+```
+
+Maximum number of sessions. Automatically derived from PROCESSES if not set:\
+SESSIONS = (1.5 * PROCESSES) + 22. **Static parameter.**
+
+**OPEN\_CURSORS:**
+
+```
+ALTER SYSTEM SET OPEN_CURSORS = 500 SCOPE = BOTH;
+
+```
+
+Maximum number of cursors (open SQL statements) per session. If an application opens many cursors without closing them, it hits this limit. Dynamic parameter.
+
+### Storage Parameters
+
+**DB\_NAME:**
+
+```
+DB_NAME = ORCL
+
+```
+
+The database name. Set at creation, cannot be changed without recreating the database.
+
+**CONTROL\_FILES:**
+
+```
+CONTROL_FILES = ('/u01/control01.ctl', '/u02/control02.ctl')
+
+```
+
+Locations of control files. Always have at least two on different disks. **Static parameter.**
+
+**DB\_RECOVERY\_FILE\_DEST:**
+
+```
+ALTER SYSTEM SET DB_RECOVERY_FILE_DEST = '/u01/fast_recovery_area' SCOPE = BOTH;
+ALTER SYSTEM SET DB_RECOVERY_FILE_DEST_SIZE = 50G SCOPE = BOTH;
+
+```
+
+Location and size of the **Fast Recovery Area (FRA)** — Oracle's managed storage area for backups, archive logs, and flashback logs.
+
+**UNDO\_TABLESPACE:**
+
+```
+ALTER SYSTEM SET UNDO_TABLESPACE = UNDOTBS1 SCOPE = BOTH;
+
+```
+
+Specifies which tablespace to use for undo data.
+
+### Logging Parameters
+
+**LOG\_ARCHIVE\_MODE:**\
+Set through ALTER DATABASE ARCHIVELOG/NOARCHIVELOG at MOUNT stage, not directly as a parameter.
+
+**LOG\_ARCHIVE\_DEST\_1:**
+
+```
+ALTER SYSTEM SET LOG_ARCHIVE_DEST_1 = 'LOCATION=/u01/archive' SCOPE = BOTH;
+
+```
+
+Where to store archive log files. You can have up to 31 archive destinations (LOG_ARCHIVE_DEST_1 through LOG_ARCHIVE_DEST_31) for redundancy.
+
+### Diagnostic Parameters
+
+**DIAGNOSTIC\_DEST:**
+
+```
+DIAGNOSTIC_DEST = /u01/app/oracle
+
+```
+
+The root location for all diagnostic files — alert log, trace files, etc. Oracle creates a structured directory called ADR (Automatic Diagnostic Repository) here.
+
+**AUDIT\_TRAIL:**
+
+```
+ALTER SYSTEM SET AUDIT_TRAIL = DB SCOPE = SPFILE;
+-- Requires restart
+
+```
+
+Controls database auditing. Values: NONE, OS, DB, XML, etc.
+
+---
+
+## Viewing Parameters
+
+### V$PARAMETER — Current In-Memory Values
+
+```
+-- View all parameters
+SELECT NAME, VALUE, DESCRIPTION 
+FROM V$PARAMETER
+ORDER BY NAME;
+
+-- Find a specific parameter
+SELECT NAME, VALUE, ISDEFAULT, ISMODIFIED
+FROM V$PARAMETER
+WHERE NAME = 'sga_target';
+
+-- Find all parameters that have been modified from default
+SELECT NAME, VALUE 
+FROM V$PARAMETER
+WHERE ISDEFAULT = 'FALSE';
+
+```
+
+**ISMODIFIED** column values:
+
+- FALSE — not changed since startup
+- MODIFIED — changed with ALTER SESSION
+- SYSTEM_MOD — changed with ALTER SYSTEM
+
+### V$SPPARAMETER — Values in the SPFILE
+
+```
+-- Compare memory values vs SPFILE values
+SELECT NAME, VALUE AS memory_value,
+       (SELECT VALUE FROM V$SPPARAMETER sp 
+        WHERE sp.NAME = p.NAME) AS spfile_value
+FROM V$PARAMETER p
+WHERE NAME IN ('sga_target', 'pga_aggregate_target', 'processes');
+
+```
+
+This is useful for spotting **differences** between what's running now (in memory) and what will run after next restart (in SPFILE).
+
+### SHOW PARAMETER (SQL*Plus)
+
+A convenient SQL*Plus command that searches parameters by partial name:
+
+```
+-- Show all memory-related parameters
+SHOW PARAMETER memory
+
+-- Show all log-related parameters
+SHOW PARAMETER log
+
+-- Show specific parameter
+SHOW PARAMETER db_cache_size
+
+```
+
+Output includes parameter name, type, and current value. Much more convenient than querying V$PARAMETER when you're in SQL*Plus.
+
+---
+
+## Managing Sessions
+
+### Viewing Current Sessions
+
+```
+-- See all connected sessions
+SELECT SID, SERIAL#, USERNAME, STATUS, 
+       MACHINE, PROGRAM, LOGON_TIME
+FROM V$SESSION
+WHERE TYPE = 'USER'
+ORDER BY LOGON_TIME;
+
+```
+
+Key columns:
+
+- **SID** — Session ID (unique within the instance)
+- **SERIAL#** — Serial number (changes each time a session reuses a SID)
+- **USERNAME** — Oracle username
+- **STATUS** — ACTIVE (executing SQL) or INACTIVE (idle)
+- **MACHINE** — client machine name
+- **PROGRAM** — application connecting (SQL Developer, JDBC, etc.)
+
+### Finding What a Session is Doing
+
+```
+-- Find what SQL a session is currently executing
+SELECT s.SID, s.USERNAME, s.STATUS,
+       q.SQL_TEXT
+FROM V$SESSION s
+LEFT JOIN V$SQL q ON s.SQL_ID = q.SQL_ID
+WHERE s.TYPE = 'USER';
+
+```
+
+### Finding Blocking Sessions (Lock Waits)
+
+```
+-- Find sessions waiting for locks
+SELECT 
+    w.SID AS waiting_session,
+    w.USERNAME AS waiting_user,
+    b.SID AS blocking_session,
+    b.USERNAME AS blocking_user,
+    w.SECONDS_IN_WAIT AS seconds_waiting
+FROM V$SESSION w
+JOIN V$SESSION b ON w.BLOCKING_SESSION = b.SID
+WHERE w.BLOCKING_SESSION IS NOT NULL;
+
+```
+
+This is one of the most useful queries in production — when users complain their application is hanging, this shows you exactly who is blocking whom.
+
+### Killing a Session
+
+When a session is causing problems (blocking others, consuming excessive resources, crashed client that PMON hasn't cleaned up yet), a DBA can kill it:
+
+```
+-- Kill a specific session
+ALTER SYSTEM KILL SESSION 'sid,serial#';
+
+-- Example:
+ALTER SYSTEM KILL SESSION '145,2734';
+
+```
+
+This marks the session for termination. Oracle will roll back any active transaction and release locks.
+
+For immediate termination (when KILL SESSION is taking too long):
+
+```
+ALTER SYSTEM KILL SESSION '145,2734' IMMEDIATE;
+
+```
+
+On Linux, you can also kill the OS process directly (use with care):
+
+```
+-- First find the OS process ID
+SELECT p.SPID AS os_pid, s.SID, s.SERIAL#, s.USERNAME
+FROM V$SESSION s
+JOIN V$PROCESS p ON s.PADDR = p.ADDR
+WHERE s.SID = 145;
+
+-- Then kill it at OS level
+-- kill -9 
+
+```
+
+### Disconnecting All Users (for Maintenance)
+
+```
+-- Enable restricted session mode (blocks new connections)
+ALTER SYSTEM ENABLE RESTRICTED SESSION;
+
+-- Then kill existing sessions one by one
+-- Or generate kill commands for all user sessions:
+SELECT 'ALTER SYSTEM KILL SESSION ''' || SID || ',' || SERIAL# 
+       || ''' IMMEDIATE;'
+FROM V$SESSION
+WHERE TYPE = 'USER' AND USERNAME IS NOT NULL;
+
+```
+
+---
+
+## Dynamic Performance Views (V$ Views)
+
+Oracle provides a rich set of **dynamic performance views** (V$ views) that give real-time information about the running instance. These are sometimes called **virtual views** because they don't read from data files — they read from Oracle's internal memory structures.
+
+Understanding these views is essential for instance management:
+
+### Key V$ Views for Instance Management
+
+**V$INSTANCE:**
+
+```
+SELECT INSTANCE_NAME, HOST_NAME, VERSION, 
+       STARTUP_TIME, STATUS, DATABASE_STATUS
+FROM V$INSTANCE;
+
+```
+
+Basic instance information — what version, when started, current status.
+
+**V$DATABASE:**
+
+```
+SELECT NAME, DB_UNIQUE_NAME, CREATED, 
+       LOG_MODE, OPEN_MODE, CHECKPOINT_CHANGE#
+FROM V$DATABASE;
+
+```
+
+Database-level information — name, archivelog mode, open mode.
+
+**V$SGA:**
+
+```
+SELECT NAME, VALUE/1024/1024 AS SIZE_MB
+FROM V$SGA;
+
+```
+
+Summary of SGA component sizes.
+
+**V$SGAINFO:**
+
+```
+SELECT NAME, BYTES/1024/1024 AS SIZE_MB, RESIZEABLE
+FROM V$SGAINFO;
+
+```
+
+More detailed SGA breakdown, including which components can be dynamically resized.
+
+**V$SGASTAT:**
+
+```
+SELECT POOL, NAME, BYTES/1024/1024 AS SIZE_MB
+FROM V$SGASTAT
+WHERE POOL IS NOT NULL
+ORDER BY POOL, BYTES DESC;
+
+```
+
+Granular breakdown of memory usage within each SGA pool.
+
+**V$PROCESS:**
+
+```
+SELECT PID, SPID, PROGRAM, PGA_USED_MEM/1024/1024 AS PGA_MB
+FROM V$PROCESS
+ORDER BY PGA_USED_MEM DESC;
+
+```
+
+All Oracle processes including background processes and user server processes.
+
+**V$BGPROCESS:**
+
+```
+SELECT PNAME, DESCRIPTION, ERROR
+FROM V$BGPROCESS
+WHERE PADDR != '00';
+
+```
+
+Background processes that are currently running.
+
+**V$SYSSTAT:**
+
+```
+-- Key system-wide statistics
+SELECT NAME, VALUE
+FROM V$SYSSTAT
+WHERE NAME IN (
+    'db block gets',
+    'consistent gets',
+    'physical reads',
+    'redo size',
+    'parse count (hard)',
+    'parse count (total)',
+    'execute count',
+    'user commits',
+    'user rollbacks'
+);
+
+```
+
+Cumulative statistics since instance startup — useful for calculating ratios like buffer cache hit ratio and hard parse ratio.
+
+**V$SESSTAT:**
+
+```sql
+-- Statistics for a specific session
+SELECT s.NAME, ss.VALUE
+FROM V$SESSTAT ss
+JOIN V$STATNAME s ON ss.STATISTIC# = s.STATISTIC#
+WHERE ss.SID = 145
+AND ss.VALUE > 0
+ORDER BY ss.VALUE DESC;
+
+```
+
+**V$WAITSTAT:**
+
+```sql
+SELECT CLASS, COUNT, TIME
+FROM V$WAITSTAT
+ORDER BY COUNT DESC;
+
+```
+
+Shows wait event statistics — what Oracle processes are spending time waiting for (buffer busy waits, free buffer waits, etc.).
+
+**V$SYSTEM\_EVENT:**
+
+```sql
+SELECT EVENT, TOTAL_WAITS, TOTAL_TIMEOUTS,
+       TIME_WAITED, AVERAGE_WAIT
+FROM V$SYSTEM_EVENT
+WHERE WAIT_CLASS != 'Idle'
+ORDER BY TIME_WAITED DESC;
+
+```
+
+System-wide wait events. The most powerful view for diagnosing performance problems — it tells you exactly what the database has been waiting for since startup.
+
+---
+
+## Resetting Parameters (Undoing Changes)
+
+If you made a parameter change that caused problems:
+
+```sql
+-- Reset a parameter to its default value
+ALTER SYSTEM RESET parameter_name SCOPE = BOTH SID = '*';
+
+-- Example:
+ALTER SYSTEM RESET cursor_sharing SCOPE = BOTH SID = '*';
+
+```
+
+Or restore from the backup PFILE you created earlier:
+
+```sql
+SHUTDOWN IMMEDIATE;
+STARTUP PFILE = '/tmp/init_backup.ora';
+-- If that works, recreate SPFILE from this good PFILE:
+CREATE SPFILE FROM PFILE = '/tmp/init_backup.ora';
+
+```
+
+---
+
+## Instance-Level vs Session-Level Changes
+
+Some parameters can be changed at the **session level** — affecting only your current session without impacting other users:
+
+```sql
+-- Change optimizer mode for just this session
+ALTER SESSION SET OPTIMIZER_MODE = FIRST_ROWS;
+
+-- Change NLS date format for just this session
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MON-YYYY';
+
+-- Change sort area size for just this session
+ALTER SESSION SET SORT_AREA_SIZE = 10485760;
+
+```
+
+While system-level changes (ALTER SYSTEM) affect all current and future sessions:
+
+```sql
+-- Change for entire instance
+ALTER SYSTEM SET OPTIMIZER_MODE = ALL_ROWS SCOPE = BOTH;
+
+```
+
+The hierarchy is:
+
+```sql
+Parameter File defaults
+    → overridden by ALTER SYSTEM settings
+        → overridden by ALTER SESSION settings
+
+```
+
+---
+
+## Monitoring Instance Health — Key Metrics
+
+A DBA regularly checks these metrics to ensure the instance is healthy:
+
+### Buffer Cache Hit Ratio
+
+```sql
+SELECT ROUND(
+    (1 - (phyrds.value / (dbgets.value + congets.value))) * 100, 2
+) AS buffer_cache_hit_ratio
+FROM 
+    (SELECT VALUE FROM V$SYSSTAT WHERE NAME = 'physical reads') phyrds,
+    (SELECT VALUE FROM V$SYSSTAT WHERE NAME = 'db block gets') dbgets,
+    (SELECT VALUE FROM V$SYSSTAT WHERE NAME = 'consistent gets') congets;
+-- Target: > 95%
+```
+
+### Library Cache Hit Ratio
+
+```sql
+SELECT ROUND((SUM(PINS) - SUM(RELOADS)) / SUM(PINS) * 100, 2) 
+AS library_cache_hit_ratio
+FROM V$LIBRARYCACHE;
+-- Target: > 95%
+```
+
+### Hard Parse Ratio
+
+```sql
+SELECT ROUND(
+    hard.VALUE / GREATEST(total.VALUE, 1) * 100, 2
+) AS hard_parse_ratio
+FROM 
+    (SELECT VALUE FROM V$SYSSTAT WHERE NAME = 'parse count (hard)') hard,
+    (SELECT VALUE FROM V$SYSSTAT WHERE NAME = 'parse count (total)') total;
+-- Target: < 5% (the lower the better)
+```
+
+### Redo Log Space Wait
+
+```sql
+SELECT VALUE 
+FROM V$SYSSTAT 
+WHERE NAME = 'redo log space requests';
+-- Target: 0 or near 0
+-- High values mean redo logs are too small or LGWR is slow
+```

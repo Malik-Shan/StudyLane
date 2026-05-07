@@ -1,0 +1,768 @@
+---
+draft: false
+readtime: true
+title: Startup and Shutdown Database
+published: 2026-05-07T22:15:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+Starting and shutting down a database sounds simple — like turning a computer on and off. But in Oracle, startup and shutdown are **multi-stage processes** where each stage serves a specific purpose. A DBA must understand each stage because:
+
+- Different **maintenance tasks** require the database to be in a specific stage
+- Different **shutdown modes** have different impacts on users and data integrity
+- Understanding these stages helps you **diagnose startup failures** — if Oracle fails to start, knowing which stage it failed in tells you exactly what's wrong
+- Recovery operations often require starting the database in a specific mode
+
+---
+
+## **The Three Stages of Oracle Startup**
+
+Oracle startup happens in **three distinct stages**. You can stop at any stage and the database will remain in that state until you advance it further.
+
+text
+
+```
+SHUTDOWN
+    ↓  (STARTUP NOMOUNT)
+NOMOUNT
+    ↓  (ALTER DATABASE MOUNT)
+MOUNT
+    ↓  (ALTER DATABASE OPEN)
+OPEN  ← Normal operation, users can connect
+
+```
+
+Let's go through each stage in detail.
+
+---
+
+## **Stage 1: NOMOUNT**
+
+### **What Happens During NOMOUNT**
+
+When you issue **`STARTUP NOMOUNT`**, Oracle does the following:
+
+**Step 1 — Read the Parameter File:**\
+Oracle looks for the parameter file (SPFILE or PFILE) to get configuration settings. It searches in this order:
+
+1. **`spfile<SID>.ora`** in **`$ORACLE_HOME/dbs`** (Linux) or **`%ORACLE_HOME%\database`** (Windows)
+1. **`spfile.ora`**
+1. **`init<SID>.ora`**
+
+If no parameter file is found, Oracle cannot proceed and startup fails immediately.
+
+**Step 2 — Allocate the SGA:**\
+Using the parameters in the parameter file, Oracle allocates the SGA in memory:
+
+- Buffer Cache
+- Shared Pool (Library Cache + Data Dictionary Cache)
+- Large Pool
+- Redo Log Buffer
+- Other components
+
+**Step 3 — Start Background Processes:**\
+Oracle starts all mandatory background processes:
+
+- DBWn, LGWR, CKPT, SMON, PMON, MMON, etc.
+
+**That's all.** At NOMOUNT stage, Oracle has not read the control file yet. It doesn't know where the data files are. It doesn't know anything about the actual database.
+
+### **What is the Database State at NOMOUNT?**
+
+- SGA is allocated ✓
+- Background processes are running ✓
+- Control file has NOT been read ✗
+- Data files are NOT opened ✗
+- Database is NOT accessible to users ✗
+
+### **What Tasks Require NOMOUNT State?**
+
+The only significant task that requires NOMOUNT (and cannot be done in MOUNT or OPEN) is:
+
+**Creating a new database:**
+
+sql
+
+```
+STARTUP NOMOUNT;
+CREATE DATABASE mydb ...;
+
+```
+
+When creating a brand new database, there is no control file yet — so you can't mount. You start at NOMOUNT and the CREATE DATABASE command creates the control file, data files, and redo logs.
+
+**Recreating a lost control file:**
+
+sql
+
+```
+STARTUP NOMOUNT;
+CREATE CONTROLFILE REUSE DATABASE "ORCL" ...;
+
+```
+
+If all copies of your control file are lost, you can recreate it from NOMOUNT state.
+
+---
+
+## **Stage 2: MOUNT**
+
+### **What Happens During MOUNT**
+
+Oracle advances from NOMOUNT to MOUNT when you issue **`ALTER DATABASE MOUNT`** (or **`STARTUP MOUNT`** which does NOMOUNT + MOUNT together).
+
+**Step 1 — Read the Control File:**\
+Oracle reads the location of the control file from the parameter file (**`CONTROL_FILES`** parameter). It opens and reads the control file, which contains:
+
+- The database name
+- Names and locations of all data files
+- Names and locations of all redo log files
+- Checkpoint information
+- SCN (System Change Number) history
+
+**Step 2 — Verify Consistency Information:**\
+Oracle reads the checkpoint information to understand the state of the database. It checks whether the database was shut down cleanly or crashed.
+
+**That's all for MOUNT.** Oracle has read the control file but has NOT yet opened the data files.
+
+### **What is the Database State at MOUNT?**
+
+- SGA is allocated ✓
+- Background processes are running ✓
+- Control file has been read ✓
+- Data files are NOT opened yet ✗
+- Database is NOT accessible to regular users ✗
+- Only users connected AS SYSDBA can work ✓
+
+### **What Tasks Require MOUNT State?**
+
+MOUNT is the workhorse stage for DBA maintenance. Many important operations must be done with the database mounted but not open:
+
+**1. Database Recovery:**
+
+sql
+
+```
+STARTUP MOUNT;
+RECOVER DATABASE;
+ALTER DATABASE OPEN;
+
+```
+
+When recovering from a backup, the database must be mounted (so Oracle knows where files are) but not open (so users can't interfere).
+
+**2. Enabling or Disabling ARCHIVELOG Mode:**
+
+sql
+
+```
+STARTUP MOUNT;
+ALTER DATABASE ARCHIVELOG;   -- Enable archive logging
+ALTER DATABASE NOARCHIVELOG; -- Disable archive logging
+ALTER DATABASE OPEN;
+
+```
+
+This is one of the most common reasons to go to MOUNT state.
+
+**3. Renaming or Moving Data Files and Redo Log Files:**
+
+sql
+
+```
+STARTUP MOUNT;
+ALTER DATABASE RENAME FILE '/old/path/data01.dbf' 
+                        TO '/new/path/data01.dbf';
+ALTER DATABASE OPEN;
+
+```
+
+If you need to move database files to a different disk, you do it at MOUNT stage.
+
+**4. Full Database Recovery (RMAN):**\
+RMAN restore and recovery operations often require the database to be in MOUNT state.
+
+**5. Changing the Database Character Set:**
+
+sql
+
+```
+STARTUP MOUNT;
+ALTER SYSTEM ENABLE RESTRICTED SESSION;
+ALTER DATABASE OPEN;
+ALTER DATABASE CHARACTER SET ...;
+
+```
+
+---
+
+## **Stage 3: OPEN**
+
+### **What Happens During OPEN**
+
+Oracle advances from MOUNT to OPEN when you issue **`ALTER DATABASE OPEN`** (or just **`STARTUP`** which does all three stages automatically).
+
+**Step 1 — Open Data Files:**\
+Oracle opens all data files listed in the control file.
+
+**Step 2 — Open Redo Log Files:**\
+Oracle opens the online redo log files.
+
+**Step 3 — Verify Consistency:**\
+Oracle compares the SCN in the control file with the SCN in the headers of each data file. They must match.
+
+- If they match → database was shut down cleanly → open normally
+- If they don't match → database crashed or was not shut down properly → **Oracle automatically performs instance recovery** (SMON applies redo logs to bring data files up to date, then rolls back uncommitted transactions) → then opens
+
+**Step 4 — Database is Open:**\
+Regular users can now connect and work.
+
+### **What is the Database State at OPEN?**
+
+- SGA is allocated ✓
+- Background processes are running ✓
+- Control file has been read ✓
+- Data files are open ✓
+- Redo log files are open ✓
+- All users can connect ✓
+
+### **OPEN in READ WRITE vs READ ONLY**
+
+Normal open is **READ WRITE** — users can query and modify data.
+
+But you can also open in **READ ONLY** mode:
+
+sql
+
+```
+ALTER DATABASE OPEN READ ONLY;
+
+```
+
+In READ ONLY mode:
+
+- Users can run SELECT queries
+- No INSERT, UPDATE, or DELETE is allowed
+- No redo is generated
+- Useful for **reporting databases** or **standby databases** used for queries
+
+---
+
+## **Startup Commands Summary**
+
+sql
+
+```
+-- Full automatic startup (NOMOUNT → MOUNT → OPEN)
+STARTUP;
+
+-- Stop at NOMOUNT stage
+STARTUP NOMOUNT;
+
+-- Stop at MOUNT stage
+STARTUP MOUNT;
+
+-- From NOMOUNT, advance to MOUNT
+ALTER DATABASE MOUNT;
+
+-- From MOUNT, advance to OPEN
+ALTER DATABASE OPEN;
+
+-- Open in READ ONLY mode
+ALTER DATABASE OPEN READ ONLY;
+
+-- Open with recovery (forces recovery before opening)
+ALTER DATABASE OPEN RESETLOGS;
+
+```
+
+**`RESETLOGS`** is used after incomplete recovery — it resets the redo log sequence, creating a new incarnation of the database. After RESETLOGS, old archive logs cannot be used with the new incarnation.
+
+---
+
+## **Restricted Mode**
+
+When opening the database, you can open it in **restricted mode** — only users with the **`RESTRICTED SESSION`** privilege can connect. Regular users are blocked.
+
+sql
+
+```
+STARTUP RESTRICT;
+
+```
+
+Or if already open:
+
+sql
+
+```
+ALTER SYSTEM ENABLE RESTRICTED SESSION;
+-- Do maintenance work...
+ALTER SYSTEM DISABLE RESTRICTED SESSION;
+
+```
+
+This is useful when you need the database open (to run maintenance scripts) but don't want regular users connecting while you work.
+
+---
+
+## **Force Startup**
+
+sql
+
+```
+STARTUP FORCE;
+
+```
+
+This shuts down the instance (like SHUTDOWN ABORT) and then immediately starts it up. Used when the instance is in a stuck state and normal startup/shutdown won't work.
+
+---
+
+## **Startup in Other DBMS**
+
+### **MySQL:**
+
+bash
+
+```
+# Start MySQL service
+sudo systemctl start mysql
+
+# Stop MySQL service  
+sudo systemctl stop mysql
+
+# Restart
+sudo systemctl restart mysql
+
+```
+
+MySQL doesn't have multiple startup stages like Oracle. It either starts or it doesn't. However, MySQL does have:
+
+sql
+
+```
+-- Start in read-only mode
+SET GLOBAL read_only = ON;
+
+```
+
+### **PostgreSQL:**
+
+bash
+
+```
+# Start PostgreSQL
+pg_ctl start -D /var/lib/postgresql/data
+
+# Stop PostgreSQL
+pg_ctl stop -D /var/lib/postgresql/data
+
+# Restart
+pg_ctl restart -D /var/lib/postgresql/data
+
+```
+
+### **SQL Server:**
+
+bash
+
+```
+# Start SQL Server service
+sudo systemctl start mssql-server
+
+# Or through Windows Services Manager
+net start MSSQLSERVER
+net stop MSSQLSERVER
+
+```
+
+---
+
+## **Shutdown Modes**
+
+Now let's talk about shutting down. Oracle provides **four different shutdown modes**, each with different behavior regarding:
+
+1. Whether new connections are allowed
+1. Whether Oracle waits for current users to finish
+1. Whether Oracle waits for current transactions to finish
+1. Whether Oracle performs a checkpoint (writes dirty buffers to disk)
+
+Understanding these is critical because the wrong shutdown mode can cause longer recovery time on next startup.
+
+---
+
+## **The Four Shutdown Modes**
+
+### **1. SHUTDOWN NORMAL**
+
+sql
+
+```
+SHUTDOWN NORMAL;
+-- or simply:
+SHUTDOWN;
+
+```
+
+**Behavior:**
+
+- No new connections are allowed
+- Oracle **waits** for all currently connected users to disconnect voluntarily
+- Once all users disconnect, Oracle performs a checkpoint (writes all dirty buffers to disk)
+- Then shuts down cleanly
+
+**Key characteristic:** Oracle does NOT force anyone off. It just waits. If one user decides to keep their session open indefinitely, the shutdown waits indefinitely too.
+
+**Next startup:** Because a full checkpoint was performed, the next startup is clean — no recovery needed.
+
+**When to use:** Almost never in practice. The waiting behavior makes it impractical in production. If you want a clean shutdown, use IMMEDIATE instead.
+
+---
+
+### **2. SHUTDOWN TRANSACTIONAL**
+
+sql
+
+```
+SHUTDOWN TRANSACTIONAL;
+
+```
+
+**Behavior:**
+
+- No new connections are allowed
+- No new transactions are allowed to start
+- Oracle **waits** for all currently active transactions to complete (commit or rollback)
+- Once all transactions complete, connected users are disconnected
+- Oracle performs a full checkpoint
+- Shuts down cleanly
+
+**Key characteristic:** It respects in-flight transactions — nobody loses work in progress. But it doesn't wait forever for idle sessions — only for active transactions.
+
+**Next startup:** Clean — no recovery needed.
+
+**When to use:** When you want to shut down cleanly without interrupting active transactions. Better than NORMAL because it doesn't wait for idle sessions, only active transactions.
+
+---
+
+### **3. SHUTDOWN IMMEDIATE**
+
+sql
+
+```
+SHUTDOWN IMMEDIATE;
+
+```
+
+**Behavior:**
+
+- No new connections are allowed
+- Current SQL statements being executed are **terminated immediately**
+- Active transactions are **rolled back** automatically by Oracle
+- Connected users are disconnected
+- Oracle performs a full checkpoint (writes all dirty buffers to disk)
+- Shuts down cleanly
+
+**Key characteristic:** Users lose any uncommitted work (it gets rolled back). But the shutdown happens quickly — Oracle doesn't wait for anything.
+
+**Next startup:** Clean — no recovery needed because a full checkpoint was done.
+
+**When to use:** This is the **most commonly used shutdown mode** in production. It's fast, clean, and the next startup is quick. Most scheduled maintenance windows use this.
+
+text
+
+```
+SHUTDOWN IMMEDIATE workflow:
+1. No new connections
+2. Kill active SQL statements
+3. Roll back uncommitted transactions
+4. Write dirty buffers to disk (checkpoint)
+5. Close data files
+6. Shutdown complete
+
+```
+
+---
+
+### **4. SHUTDOWN ABORT**
+
+sql
+
+```
+SHUTDOWN ABORT;
+
+```
+
+**Behavior:**
+
+- Instance is **immediately terminated** — like pulling the power plug
+- No SQL statements are finished
+- No transactions are rolled back
+- No checkpoint is performed — dirty buffers in memory are lost
+- Background processes are killed immediately
+- SGA is deallocated
+
+**Key characteristic:** This is the fastest shutdown but the "dirtiest." Oracle essentially crashes itself deliberately.
+
+**Next startup:** Oracle will perform **automatic instance recovery** on the next startup (SMON will apply redo logs and roll back uncommitted transactions). This makes the next startup slower.
+
+**When to use:**
+
+- When SHUTDOWN IMMEDIATE is hanging and not completing
+- Emergency situations (disk filling up, runaway processes)
+- When you need the instance stopped RIGHT NOW
+- Before taking a cold backup on a system where IMMEDIATE is taking too long
+
+**Important misconception:** Many people think SHUTDOWN ABORT is dangerous or corrupts data. It does NOT corrupt data — Oracle's redo logs ensure full recovery on next startup. It just makes the next startup slower due to recovery. That said, it should not be the default method.
+
+---
+
+## **Comparison Table — Shutdown Modes**
+
+{% table %}
+- **Mode**
+- **Waits for Users?**
+- **Waits for Transactions?**
+- **Rolls Back?**
+- **Checkpoint?**
+- **Next Startup**
+---
+- NORMAL
+- Yes — until all disconnect
+- Yes
+- No
+- Yes (full)
+- Clean
+---
+- TRANSACTIONAL
+- No
+- Yes — until complete
+- No
+- Yes (full)
+- Clean
+---
+- IMMEDIATE
+- No
+- No
+- Yes (automatic)
+- Yes (full)
+- Clean
+---
+- ABORT
+- No
+- No
+- No
+- No
+- Needs recovery
+{% /table %}
+
+---
+
+## **What Happens to Users in Each Mode**
+
+Imagine 3 users are connected when you initiate shutdown:
+
+- User A: idle, doing nothing
+- User B: in the middle of a transaction (hasn't committed)
+- User C: actively executing a long-running query
+
+{% table %}
+- **Mode**
+- **User A**
+- **User B**
+- **User C**
+---
+- NORMAL
+- Waits for A to disconnect
+- Waits for B to disconnect
+- Waits for C to disconnect
+---
+- TRANSACTIONAL
+- Disconnected when B finishes
+- Waits for B to commit/rollback
+- Disconnected when C's query finishes and they have no active transaction
+---
+- IMMEDIATE
+- Disconnected immediately
+- Transaction rolled back, disconnected
+- Query killed, disconnected
+---
+- ABORT
+- All killed immediately
+- Transaction lost (recovered on restart)
+- Query killed immediately
+{% /table %}
+
+---
+
+## **Monitoring Startup and Shutdown**
+
+### **Viewing Startup/Shutdown History in Alert Log**
+
+Every startup and shutdown is recorded in the **alert log**. This is the first place to check if startup fails:
+
+bash
+
+```
+# Find alert log location
+sqlplus / as sysdba
+SQL> SELECT VALUE FROM V$DIAG_INFO WHERE NAME = 'Diag Trace';
+
+# Then view the alert log
+tail -100 /u01/app/oracle/diag/rdbms/orcl/orcl/trace/alert_orcl.log
+
+```
+
+### **Checking Current Database Status**
+
+sql
+
+```
+-- Check if instance is started and database is open
+SELECT INSTANCE_NAME, STATUS, DATABASE_STATUS 
+FROM V$INSTANCE;
+
+-- STATUS values:
+-- STARTED   = NOMOUNT stage
+-- MOUNTED   = MOUNT stage  
+-- OPEN      = OPEN stage (normal operation)
+
+-- Check database open mode
+SELECT NAME, OPEN_MODE FROM V$DATABASE;
+-- OPEN_MODE values: READ WRITE, READ ONLY, MOUNTED
+
+```
+
+---
+
+## **Common Startup Errors and What They Mean**
+
+Understanding startup stages helps you diagnose errors:
+
+**Error at NOMOUNT stage:**
+
+text
+
+```
+ORA-01078: failure in processing system parameters
+LRM-00109: could not open parameter file '/oracle/dbs/initORCL.ora'
+
+```
+
+→ Parameter file is missing or has an error. Oracle couldn't read configuration.
+
+**Error at MOUNT stage:**
+
+text
+
+```
+ORA-00205: error in identifying control file
+
+```
+
+→ Control file is missing, corrupted, or in the wrong location. Oracle read the parameter file but can't find the control file.
+
+**Error at OPEN stage:**
+
+text
+
+```
+ORA-01157: cannot identify/lock data file 5
+ORA-01110: data file 5: '/u01/oradata/users01.dbf'
+
+```
+
+→ A data file is missing or inaccessible. Oracle read the control file but can't open a data file.
+
+This is why understanding the three stages is so useful — the stage at which startup fails immediately tells you which type of file is the problem.
+
+---
+
+## **Automating Startup — oratab and dbstart**
+
+On Linux, Oracle provides scripts to automatically start/stop databases when the OS boots:
+
+**`/etc/oratab`** — lists all databases on the server:
+
+text
+
+```
+ORCL:/u01/app/oracle/product/19.0.0/dbhome_1:Y
+DEV:/u01/app/oracle/product/19.0.0/dbhome_1:N
+
+```
+
+The **`Y`** means auto-start, **`N`** means don't auto-start.
+
+**`dbstart` and `dbshut` scripts:**
+
+bash
+
+```
+# Start all databases marked Y in oratab
+dbstart $ORACLE_HOME
+
+# Stop all databases marked Y in oratab
+dbshut $ORACLE_HOME
+
+```
+
+These scripts are called from Linux init scripts or systemd service files to start Oracle automatically when the server boots.
+
+---
+
+## **Summary**
+
+**Startup Stages:**
+
+{% table %}
+- **Stage**
+- **What's Done**
+- **Key Use Case**
+---
+- NOMOUNT
+- SGA + processes started
+- Creating new database, recreating control file
+---
+- MOUNT
+- Control file read
+- Recovery, enabling archivelog, renaming files
+---
+- OPEN
+- Data files opened
+- Normal operation
+{% /table %}
+
+**Shutdown Modes:**
+
+{% table %}
+- **Mode**
+- **Speed**
+- **Impact**
+- **When to Use**
+---
+- NORMAL
+- Slowest
+- None — waits for everyone
+- Rarely used
+---
+- TRANSACTIONAL
+- Moderate
+- Waits for transactions
+- Planned maintenance respecting users
+---
+- IMMEDIATE
+- Fast
+- Rolls back uncommitted work
+- Standard production shutdown
+---
+- ABORT
+- Instant
+- No rollback, recovery needed
+- Emergency only
+{% /table %}
