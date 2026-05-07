@@ -1,0 +1,262 @@
+---
+draft: false
+readtime: true
+title: Installation of DBMS
+published: 2026-05-07T21:59:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **What is a DBMS?**
+
+A **Database Management System** is software that allows you to create, store, retrieve, update, and manage data in a structured way. It acts as a bridge between the user/application and the actual data stored on disk.
+
+Examples of popular DBMS:
+
+- **Oracle Database** (enterprise-level)
+- **MySQL** (open-source, widely used)
+- **Microsoft SQL Server** (Windows-centric enterprise)
+- **PostgreSQL** (open-source, feature-rich)
+- **IBM DB2** (enterprise)
+
+Each of these has its own installation process, but the **concepts and steps are largely the same** across all of them.
+
+---
+
+## **Why Installation Matters for a DBA**
+
+Installation is not just clicking "Next → Next → Finish." A DBA must make critical decisions **during installation** that affect:
+
+- **Performance** of the database
+- **Security** of the system
+- **Storage** allocation
+- **Network accessibility**
+- **Backup and recovery** options
+
+A wrong choice during installation can cause serious problems later that are hard to fix without reinstalling everything.
+
+---
+
+## **Pre-Installation Requirements**
+
+Before you even run the installer, a DBA must check and prepare the following:
+
+### **1. Hardware Requirements**
+
+Every DBMS has minimum hardware requirements. For example:
+
+- **Oracle 19c** requires at least 2 GB RAM (8 GB recommended), several GB of disk space for software alone, plus additional space for your actual data.
+- **MySQL 8.0** can run on much less RAM — even 512 MB in minimal setups.
+- **SQL Server 2022** requires at least 1 GB RAM, 6 GB disk for installation.
+
+The point here is: **you must check the official documentation** before installing. If hardware is insufficient, the DBMS will either fail to install or will perform very poorly.
+
+### **2. Operating System Compatibility**
+
+Different DBMS versions support specific OS versions:
+
+- Oracle runs on Linux (RHEL, Oracle Linux), Solaris, Windows
+- MySQL runs on Linux, Windows, macOS
+- PostgreSQL runs on virtually everything
+- SQL Server traditionally ran only on Windows, but now also supports Linux (since 2017)
+
+You must match the **DBMS version** with the **correct OS version**. Installing an incompatible version is a common beginner mistake.
+
+### **3. Disk Space Planning**
+
+This is critical. You need space for:
+
+- **DBMS software itself** (binaries, libraries)
+- **Database files** (actual data)
+- **Redo logs / Transaction logs** (for recovery)
+- **Temporary files** (for sorting, temp operations)
+- **Backup files**
+
+Experienced DBAs always separate these onto **different disk drives or partitions** for performance and safety reasons. For example, if your data disk fills up, you don't want your redo logs to stop working too.
+
+### **4. User Accounts and Permissions**
+
+On Linux/Unix systems, Oracle and PostgreSQL installations require creating a **dedicated OS user** before installing. For example:
+
+- Oracle requires an OS user typically called **`oracle`** with specific group memberships (**`oinstall`**, **`dba`**)
+- PostgreSQL creates a **`postgres`** OS user
+
+This is a security best practice — the DBMS runs under its own account, not as **`root`** or Administrator, so if the database is compromised, the attacker doesn't automatically get full system access.
+
+### **5. Kernel Parameters (Linux)**
+
+For Oracle on Linux, the DBA must configure **kernel parameters** before installation. These are low-level OS settings that control:
+
+- **Shared memory** — how much RAM processes can share (Oracle uses a lot of shared memory)
+- **Semaphores** — used for process synchronization
+- **Open file limits** — Oracle can open thousands of files simultaneously
+
+These are set in files like **`/etc/sysctl.conf`** and **`/etc/security/limits.conf`**.
+
+MySQL and PostgreSQL are less demanding in this regard, though tuning still matters.
+
+### **6. Network Configuration**
+
+Before installation, you should have:
+
+- A proper **hostname** configured
+- **DNS resolution** working (hostname should resolve to an IP)
+- Required **ports** available and not blocked by firewall
+
+Oracle Listener (which allows remote connections) uses port **1521** by default.\
+MySQL uses **3306**, PostgreSQL uses **5432**, SQL Server uses **1433**.
+
+---
+
+## **The Installation Process (General Flow)**
+
+While each DBMS has its own installer, the general process follows these stages:
+
+### **Stage 1: Download the Software**
+
+You download the installation package from the vendor's website. For Oracle, this is from oracle.com. For MySQL, from mysql.com. These are often large files — Oracle can be several GB.
+
+### **Stage 2: Extract/Mount the Installer**
+
+On Linux, this usually means extracting a **`.zip`** or **`.tar.gz`** file. On Windows, it might be an **`.exe`** or **`.msi`** installer.
+
+### **Stage 3: Run the Installer / Setup Wizard**
+
+Most modern DBMS have a **graphical installer** (GUI) or a **silent installer** (command-line, used for automation).
+
+During this step you typically choose:
+
+**a) Installation Type:**
+
+- **Typical/Default** — installs with common defaults, good for learning
+- **Custom** — you choose exactly what components to install, good for production
+- **Minimal** — only core engine, no extra tools
+
+**b) Installation Location (Oracle Home / Base Directory):**\
+This is where the software files go. On Linux, Oracle is typically installed in **`/u01/app/oracle/product/19.0.0/dbhome_1`**. SQL Server goes to **`C:\Program Files\Microsoft SQL Server\`**.
+
+For Oracle specifically, there's the concept of **ORACLE\_HOME** (where this specific version is installed) and **ORACLE\_BASE** (the parent directory). This is important because Oracle supports having **multiple versions installed simultaneously** on the same server — each in its own ORACLE_HOME.
+
+**c) Character Set:**\
+This is one of the most important decisions. The character set determines what languages and characters your database can store.
+
+- **`AL32UTF8`** (Unicode, UTF-8) — recommended for most modern systems, supports all languages
+- **`WE8ISO8859P1`** — Western European only
+- **`AR8ISO8859P6`** — Arabic
+
+**Changing the character set after installation is extremely difficult and risky.** So choose carefully.
+
+**d) Database Edition:**\
+Oracle offers:
+
+- **Enterprise Edition** — all features
+- **Standard Edition** — limited features, cheaper
+- **Express Edition (XE)** — free, limited resources, good for learning
+
+MySQL offers Community Edition (free) and Enterprise Edition (paid).
+
+### **Stage 4: Create the Database (Optional During Install)**
+
+Some installers (like Oracle's OUI with DBCA) let you **create a database during installation**. Others install just the software and you create the database separately afterward.
+
+In Oracle, the tool to create a database post-installation is **DBCA (Database Configuration Assistant)**.
+
+In MySQL, the database is initialized using **`mysqld --initialize`**.
+
+In PostgreSQL, you run **`initdb`** to initialize a database cluster.
+
+### **Stage 5: Post-Installation Steps**
+
+After installation:
+
+1. **Set environment variables** — On Linux, you need to set:
+   - **`ORACLE_HOME`**, **`ORACLE_BASE`**, **`ORACLE_SID`**, **`PATH`** in **`.bash_profile`**
+   - For MySQL/PostgreSQL, add their binary directories to **`PATH`**
+1. **Start the database service** — On Linux using **`systemctl`**, on Windows as a Service
+1. **Change default passwords** — Default accounts like **`SYS`**, **`SYSTEM`** in Oracle, or **`root`** in MySQL must have their passwords changed immediately
+1. **Apply security patches** — Always check if there are patches released after the version you installed
+1. **Configure the Listener** (Oracle) — The Oracle Listener is a separate process that listens for incoming network connections
+
+---
+
+## **Silent Installation**
+
+In real enterprise environments, DBAs often install DBMS on many servers at once. Doing this through a GUI each time is impractical. So they use **silent installation** — a command-line method where all choices are pre-specified in a **response file**.
+
+For Oracle:
+
+bash
+
+```
+./runInstaller -silent -responseFile /path/to/response.rsp
+
+```
+
+For MySQL on Linux:
+
+bash
+
+```
+sudo apt-get install mysql-server -y
+
+```
+
+For PostgreSQL on Linux:
+
+bash
+
+```
+sudo apt-get install postgresql postgresql-contrib
+
+```
+
+This is important for **automation** and **consistency** — every server gets configured exactly the same way.
+
+---
+
+## **Multiple DBMS or Multiple Versions**
+
+In production environments, it's common to have:
+
+- **Multiple instances** of the same DBMS running (e.g., one for development, one for testing, one for production)
+- **Multiple versions** of the same DBMS installed (Oracle supports this natively through multiple ORACLE_HOME directories)
+
+The DBA must carefully manage which version is active using environment variables, especially **`ORACLE_SID`** (System Identifier — a name that identifies a specific Oracle database instance on a server).
+
+---
+
+## **Summary of Key Points**
+
+{% table %}
+- **Aspect**
+- **What You Must Know**
+---
+- Hardware check
+- RAM, disk, CPU before installing
+---
+- OS compatibility
+- Match DBMS version to OS version
+---
+- Disk planning
+- Separate data, logs, temp, backup
+---
+- OS user creation
+- Security best practice (especially Linux)
+---
+- Character set
+- Choose UTF-8/Unicode for modern systems
+---
+- Environment variables
+- ORACLE_HOME, ORACLE_SID, PATH
+---
+- Silent install
+- Used for automation in enterprise
+---
+- Post-install security
+- Change default passwords immediately
+{% /table %}
+
+\
