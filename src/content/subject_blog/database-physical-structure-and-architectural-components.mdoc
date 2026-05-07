@@ -1,0 +1,398 @@
+---
+draft: false
+readtime: true
+title: Database Physical Structure & Architectural Components
+published: 2026-05-07T22:02:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+Before a DBA can manage, tune, or troubleshoot a database, they must deeply understand **how the database is structured** — both on disk and in memory. This topic is the foundation of everything else in this course.
+
+When people say "database," they often think of just tables and data. But a real database system is far more complex. It has:
+
+- **Physical structures** — actual files sitting on your hard disk
+- **Memory structures** — data loaded into RAM for fast access
+- **Process structures** — background programs constantly running to manage everything
+
+Oracle's architecture is the most detailed and well-documented, so we'll use it as the primary reference, but we'll draw comparisons to MySQL, PostgreSQL, and SQL Server throughout.
+
+---
+
+## **The Big Picture — Three Layers**
+
+A DBMS architecture can be understood in three layers:
+
+text
+
+```
+┌─────────────────────────────────────┐
+│         MEMORY STRUCTURES           │  ← RAM (fast, temporary)
+│  (SGA, PGA, Buffer Cache, etc.)     │
+├─────────────────────────────────────┤
+│         PROCESS STRUCTURES          │  ← Background programs
+│  (DBWn, LGWR, CKPT, SMON, PMON)    │
+├─────────────────────────────────────┤
+│         PHYSICAL STRUCTURES         │  ← Hard Disk (slow, permanent)
+│  (Data Files, Redo Logs, Control)   │
+└─────────────────────────────────────┘
+
+```
+
+Data flows between these layers constantly. Understanding this flow is the key to understanding database performance and reliability.
+
+---
+
+## **Physical Structures — Files on Disk**
+
+A database at its most basic level is a collection of files on disk. In Oracle, there are several types:
+
+### **1. Data Files (.dbf)**
+
+**Data files** are where the actual data lives — your tables, indexes, and everything else. Every piece of data you insert into a table eventually ends up in a data file on disk.
+
+Key characteristics:
+
+- A database has **one or more data files**
+- Each data file belongs to exactly **one tablespace** (logical grouping — covered later)
+- Data files grow as more data is inserted
+- They can be placed on different disks for performance
+
+Example: If you have a database with 500 GB of data, that data is spread across data files totaling 500 GB on disk.
+
+In MySQL (InnoDB engine), the equivalent is **`ibdata1`** (the system tablespace file) and **`.ibd`** files (per-table files). In PostgreSQL, each table and index is stored as a separate file in the data directory.
+
+### **2. Redo Log Files**
+
+**Redo log files** record every change made to the database. Before any change (INSERT, UPDATE, DELETE) is written to the actual data file, it is first written to the redo log.
+
+Why? **Recovery.** If the system crashes before the data file is updated, Oracle reads the redo logs and **replays** those changes. This is how Oracle guarantees that **committed transactions are never lost**, even if the power goes out.
+
+Key characteristics:
+
+- Oracle maintains **at least two redo log groups** (it cycles through them in a circular fashion)
+- Each group can have multiple **members** (copies) on different disks — for redundancy
+- When one log file fills up, Oracle switches to the next one (**log switch**)
+- They are written to extremely fast because they are **sequential writes** (fastest type of disk write)
+
+This concept exists in all serious DBMS:
+
+- MySQL/InnoDB calls them **InnoDB redo logs** (**`ib_logfile0`**, **`ib_logfile1`**)
+- PostgreSQL calls them **WAL (Write-Ahead Log)** files
+- SQL Server calls them the **Transaction Log** (**`.ldf`** files)
+
+The concept is the same everywhere: **write changes to the log first, apply to data files later.** This is called **Write-Ahead Logging (WAL)**.
+
+### **3. Control File**
+
+The **control file** is a small but critically important binary file. It contains:
+
+- The **name** of the database
+- The **names and locations** of all data files and redo log files
+- The current **SCN (System Change Number)** — a counter that tracks every change
+- **Checkpoint information** — records of when data was last synchronized between memory and disk
+- **RMAN backup history** (in Oracle)
+
+When Oracle starts up, the **first thing it reads is the control file**. Without it, Oracle cannot find its data files or redo logs — the database cannot open.
+
+Because of its critical importance:
+
+- Oracle strongly recommends having **multiple copies (multiplexed)** of the control file on different disks
+- Losing all copies of the control file without a backup is a serious disaster
+
+### **4. Parameter File (init.ora / spfile.ora)**
+
+The **parameter file** contains configuration settings for the database instance:
+
+- How much memory to use (SGA size)
+- Maximum number of processes
+- Location of control files
+- Archive log mode settings
+- Hundreds of other tunable parameters
+
+There are two types:
+
+- **PFILE (init.ora)** — a plain text file, manually edited
+- **SPFILE (spfile.ora)** — a binary file, modified through SQL commands (**`ALTER SYSTEM SET parameter=value`**)
+
+Oracle reads this file at **startup** to configure the instance. If the parameter file has an error, the database won't start.
+
+### **5. Archive Log Files**
+
+When Oracle is in **ARCHIVELOG mode**, every filled redo log file is **archived** (copied to another location) before being reused. These archived copies are called **archive log files**.
+
+Why this matters:
+
+- With archive logs, you can recover the database to **any point in time** (point-in-time recovery)
+- Without archive logs (NOARCHIVELOG mode), you can only restore to the last full backup — losing all changes since then
+- Production databases should always be in ARCHIVELOG mode
+- Archive logs take up disk space — DBAs must manage this
+
+### **6. Alert Log**
+
+The **alert log** is a text file where Oracle writes important messages:
+
+- Database startup and shutdown events
+- Error messages
+- Parameter changes
+- Log switches
+- Checkpoint information
+
+DBAs check the alert log regularly. It's the first place to look when something goes wrong. Location found with:
+
+sql
+
+```
+SELECT VALUE FROM V$DIAG_INFO WHERE NAME = 'Diag Trace';
+
+```
+
+### **7. Trace Files**
+
+When Oracle encounters errors or when specific diagnostic features are enabled, it writes detailed **trace files**. These are text files containing detailed information about what was happening when the error occurred.
+
+---
+
+## **Memory Structures — The SGA and PGA**
+
+When Oracle starts, it **allocates a large chunk of RAM** for its own use. This memory is divided into structured areas, each serving a specific purpose.
+
+---
+
+# **The SGA (System Global Area)**
+
+The **SGA** is the most important memory structure in Oracle. It is a **shared memory area** — meaning all Oracle processes (background and user processes) can read from and write to it.
+
+The SGA is divided into several components:
+
+---
+
+## **1. Database Buffer Cache**
+
+The **database buffer cache** is the largest component of the SGA. Its job is to **cache data blocks from data files in memory**.
+
+Here's the problem it solves: disk access is **thousands of times slower** than RAM access. If every query had to read from disk every time, the database would be unacceptably slow. The buffer cache keeps recently used data blocks in memory so they can be served from RAM instead of disk.
+
+**How it works:**
+
+1. A query needs data from a table
+1. Oracle checks the buffer cache — is the data already there?
+1. If **yes** → **cache hit** → data served from RAM, very fast
+1. If **no** → **cache miss** → Oracle reads the block from disk into the buffer cache, then serves it
+1. Next time the same data is needed, it's already in cache
+
+**LRU (Least Recently Used) Algorithm:**\
+The buffer cache has limited size. When it fills up and needs space for a new block, it removes the **least recently used** block. Data that hasn't been accessed recently is evicted first. Data that is accessed frequently stays in cache.
+
+**Dirty Buffers:**\
+When data in the buffer cache is modified (UPDATE, INSERT, DELETE), those blocks become **dirty** (modified but not yet written to disk). They stay in the buffer cache and are eventually written to disk by the **DBWn (Database Writer)** background process.
+
+**Buffer Cache Sizing:**\
+This is a critical tuning decision. Too small → too many cache misses → slow performance. Too large → less memory for other things. DBAs use hit ratio statistics to tune this:
+
+sql
+
+```
+SELECT 1 - (physical_reads / (db_block_gets + consistent_gets)) 
+       AS hit_ratio
+FROM V$BUFFER_POOL_STATISTICS;
+
+```
+
+A hit ratio above 95% is generally considered good — meaning 95% of the time data was found in cache without needing a disk read.
+
+**Equivalent in other DBMS:**
+
+- MySQL/InnoDB: **InnoDB Buffer Pool** — serves the exact same purpose, often the most important tuning parameter in MySQL
+- PostgreSQL: **Shared Buffers** — same concept
+- SQL Server: **Buffer Pool** — same concept
+
+---
+
+## **2. Shared Pool**
+
+The **Shared Pool** is the second most important SGA component. It caches **SQL statements and their execution plans**, plus Oracle's internal data dictionary information.
+
+It has two main sub-components:
+
+### **a) Library Cache**
+
+When you submit a SQL statement, Oracle must:
+
+1. **Parse** it — check syntax
+1. **Validate** it — check that tables and columns exist, user has permission
+1. **Optimize** it — determine the best execution plan (which indexes to use, what join method, etc.)
+1. **Execute** it
+
+Steps 1-3 are called **hard parsing** and they are expensive (CPU-intensive). The **Library Cache** stores the results of this work — the parsed representation and execution plan of SQL statements.
+
+If the same SQL statement is submitted again, Oracle finds it in the library cache and **reuses** the execution plan — this is called a **soft parse**, which is much faster.
+
+**This is why SQL should be written consistently.** These two statements look similar but are different to Oracle:
+
+sql
+
+```
+SELECT * FROM employees WHERE department_id = 10;
+select * from employees where department_id = 10;
+SELECT * FROM employees WHERE department_id = 20;
+
+```
+
+Oracle treats each of these as a different statement and stores them separately in the library cache. If your application generates thousands of slightly different SQL statements (especially with literal values instead of bind variables), the library cache fills up with non-reusable plans — this is a serious performance problem called **library cache contention**.
+
+**The solution:** Use **bind variables** instead of literals:
+
+sql
+
+```
+-- Bad practice (hard parse every time):
+SELECT * FROM employees WHERE department_id = 10;
+SELECT * FROM employees WHERE department_id = 20;
+
+-- Good practice (parsed once, reused):
+SELECT * FROM employees WHERE department_id = :dept_id;
+
+```
+
+### **b) Data Dictionary Cache**
+
+The **Data Dictionary Cache** (also called the **Row Cache**) caches metadata about database objects:
+
+- Table definitions (column names, data types)
+- User privileges
+- Index information
+- Constraint definitions
+
+Every time Oracle parses a SQL statement, it needs to look up this metadata. Caching it in memory is much faster than reading it from the data dictionary tables on disk every time.
+
+If the data dictionary cache is too small, Oracle has to frequently go to disk for metadata — this shows up as **"dictionary cache misses"** in performance reports.
+
+---
+
+## **3. Large Pool**
+
+The **Large Pool** is an optional SGA component for large memory allocations that would otherwise pollute the shared pool or buffer cache.
+
+It is used by:
+
+- **RMAN (backup operations)** — backup processes need large memory buffers
+- **Shared Server connections** — session memory for shared server architecture
+- **Parallel Query operations** — when a query runs in parallel across multiple processes
+- **Oracle XA transactions** — distributed transactions
+
+By having a separate large pool, these large allocations don't compete with the shared pool's SQL caching work.
+
+If the large pool is not configured, these operations borrow memory from the shared pool, which hurts performance.
+
+---
+
+## **4. Java Pool**
+
+Used for memory needed by Java stored procedures running inside the Oracle JVM (Java Virtual Machine). If you don't use Java inside Oracle, this can be kept small.
+
+---
+
+## **5. Streams Pool**
+
+Used by Oracle Streams and GoldenGate — Oracle's data replication technologies. Used when you're replicating data between databases.
+
+---
+
+## **6. Redo Log Buffer**
+
+The **Redo Log Buffer** is a circular buffer in the SGA that temporarily holds **redo entries** (records of changes) before they are written to the redo log files on disk.
+
+When a transaction makes changes:
+
+1. The change is recorded as a redo entry in the redo log buffer (in RAM — fast)
+1. The **LGWR (Log Writer)** background process periodically writes these entries from the buffer to the redo log files on disk
+
+This is important because disk writes are slow. By buffering redo entries in RAM and writing them in batches, performance is much better than writing to disk for every single change.
+
+However, **on COMMIT**, Oracle forces LGWR to immediately write all redo for that transaction to disk. This is what makes transactions durable — once you commit, Oracle guarantees the change is on disk in the redo log, even if the data file hasn't been updated yet.
+
+---
+
+## **The PGA (Program Global Area)**
+
+The **PGA** is **private memory** for each individual Oracle server process (each connected user session). Unlike the SGA which is shared, each session has its own PGA.
+
+The PGA contains:
+
+- **Sort area** — memory used when sorting query results (ORDER BY, GROUP BY, DISTINCT)
+- **Hash join area** — memory used for hash join operations
+- **Session information** — login details, current transaction state
+- **Cursor information** — state of SQL cursors (open queries)
+- **Stack space** — for PL/SQL execution
+
+**Why PGA size matters:**\
+If the PGA sort area is too small for a sort operation, Oracle **spills to disk** (writes temporary data to temp files). Disk sorts are dramatically slower than in-memory sorts. DBAs tune PGA to minimize disk sorts.
+
+You can see sort statistics:
+
+sql
+
+```
+SELECT * FROM V$SYSSTAT 
+WHERE NAME IN ('sorts (memory)', 'sorts (disk)');
+
+```
+
+---
+
+## **Automatic Memory Management**
+
+Managing SGA and PGA manually used to be complex. Modern Oracle versions support:
+
+- **AMM (Automatic Memory Management)** — Oracle automatically manages both SGA and PGA within a total memory target you specify
+- **ASMM (Automatic Shared Memory Management)** — Oracle automatically manages SGA components within a total SGA size you set
+
+These features reduce the DBA's tuning burden but understanding the underlying components is still essential for diagnosing problems.
+
+---
+
+## **Comparison: Memory Architecture Across DBMS**
+
+{% table %}
+- **Component**
+- **Oracle**
+- **MySQL (InnoDB)**
+- **PostgreSQL**
+- **SQL Server**
+---
+- Data cache
+- Buffer Cache (SGA)
+- InnoDB Buffer Pool
+- Shared Buffers
+- Buffer Pool
+---
+- SQL plan cache
+- Library Cache (Shared Pool)
+- Query Cache (deprecated)
+- pg_prepared_statements
+- Plan Cache
+---
+- Metadata cache
+- Data Dictionary Cache
+- Table Cache
+- Catalog Cache
+- Plan Cache
+---
+- Sort memory
+- PGA Sort Area
+- sort_buffer_size
+- work_mem
+- Memory Grant
+---
+- Log buffer
+- Redo Log Buffer
+- InnoDB Log Buffer
+- WAL Buffers
+- Log Buffer
+{% /table %}
+
+\
