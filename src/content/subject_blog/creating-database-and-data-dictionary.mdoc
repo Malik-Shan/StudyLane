@@ -1,0 +1,404 @@
+---
+draft: false
+readtime: true
+title: Creating Database and Data Dictionary
+published: 2026-05-07T22:21:00.000Z
+bannerImg:
+  discriminant: false
+category:
+  - database
+tag: []
+postedBy: admin
+---
+## **What is a Database (in DBA context)?**
+
+Before we talk about *creating* one, you need to understand what a database actually is at the physical and logical level — not just "a place to store data."
+
+A **database** is a collection of data files, control files, and redo log files stored on disk, managed by a Database Management System (DBMS). When a DBA says "I'm creating a database," they mean they are setting up all of these files, registering them with the system, and preparing the environment so users and applications can connect and work with data.
+
+Different DBMS examples:
+
+- **Oracle** — uses a very structured approach with SGA, instances, tablespaces
+- **MySQL / MariaDB** — simpler structure, databases map to directories on disk
+- **PostgreSQL** — uses clusters and schemas
+- **SQL Server** — uses **`.mdf`** (primary data file) and **`.ldf`** (log file)
+
+We'll use Oracle as the primary reference (since your course is Oracle-focused) but mention others where relevant.
+
+---
+
+## **What Happens When You "Create a Database"?**
+
+Creating a database is not just running one command. It is a process that involves:
+
+1. Planning (storage, memory, character sets)
+1. Setting OS-level parameters
+1. Creating an initialization/parameter file
+1. Starting the instance (without a database attached yet)
+1. Running the **`CREATE DATABASE`** command
+1. Running scripts to build the **Data Dictionary**
+1. Running scripts to set up additional components (PL/SQL, etc.)
+
+Each of these steps matters. If you skip or misconfigure one, the database may not start, may perform poorly, or may corrupt data later.
+
+---
+
+## **Step 1 — Planning Before Creation**
+
+A DBA must decide several things before creating a database:
+
+### **Database Name (DB\_NAME)**
+
+Every database has a unique name, typically 8 characters or less in Oracle. This is stored inside the database files themselves. Example: **`PRODDB`**, **`HRDB`**, **`TESTDB`**.
+
+In MySQL, you simply run:
+
+sql
+
+```
+CREATE DATABASE company_db;
+
+```
+
+But in Oracle, naming is deeper — it connects to the **Oracle System Identifier (SID)**, which identifies the instance running on the server.
+
+### **Character Set**
+
+This defines what languages/characters the database can store. Example:
+
+- **`AL32UTF8`** — supports almost all world languages (Unicode)
+- **`WE8ISO8859P1`** — Western European only
+
+**This is critical.** Once a database is created, changing the character set later is extremely difficult and risky. A wrong character set means data gets corrupted when storing Urdu, Arabic, Chinese, etc.
+
+### **Block Size**
+
+The database block size (e.g., 8KB, 16KB) is set at creation time and **cannot be changed** afterward for the default tablespace. A block is the smallest unit Oracle reads/writes. We'll cover blocks in detail in their own topic.
+
+### **File Locations**
+
+Where will data files, control files, and redo logs be stored on disk? A good DBA spreads these across different physical disks to reduce I/O bottlenecks.
+
+---
+
+## **Step 2 — The Initialization Parameter File (init.ora / spfile)**
+
+Before the database exists, Oracle needs a **parameter file** that tells the instance how to behave. This file contains settings like:
+
+text
+
+```
+DB_NAME         = MYDB
+DB_BLOCK_SIZE   = 8192
+SGA_TARGET      = 512M
+MEMORY_TARGET   = 1G
+CONTROL_FILES   = (/u01/oradata/mydb/control01.ctl, /u02/oradata/mydb/control02.ctl)
+UNDO_TABLESPACE = UNDOTBS1
+
+```
+
+There are two types:
+
+- **PFILE (init.ora)** — a plain text file, edited manually
+- **SPFILE (spfile.ora)** — a binary file, managed by Oracle itself, changes survive restarts
+
+Oracle reads this file when you start the instance. Without it, the instance cannot start.
+
+In **SQL Server**, this concept maps to server-level configuration properties set through SQL Server Configuration Manager or **`sp_configure`**.
+
+In **PostgreSQL**, the equivalent is **`postgresql.conf`**.
+
+---
+
+## **Step 3 — Starting the Instance in NOMOUNT Mode**
+
+In Oracle, before you can create the database, you start the **instance** in a special mode called **`NOMOUNT`**:
+
+sql
+
+```
+STARTUP NOMOUNT;
+
+```
+
+At this point:
+
+- Oracle reads the parameter file
+- Allocates memory (SGA)
+- Starts background processes
+- But **no database files exist yet** — the instance is running "in the air"
+
+This is the only state where you can issue the **`CREATE DATABASE`** command.
+
+---
+
+## **Step 4 — The CREATE DATABASE Command**
+
+This is the core command. Here is what it looks like in Oracle:
+
+sql
+
+```
+CREATE DATABASE mydb
+   USER SYS IDENTIFIED BY sys_password
+   USER SYSTEM IDENTIFIED BY system_password
+   LOGFILE GROUP 1 ('/u01/oradata/mydb/redo01.log') SIZE 100M,
+           GROUP 2 ('/u01/oradata/mydb/redo02.log') SIZE 100M,
+           GROUP 3 ('/u01/oradata/mydb/redo03.log') SIZE 100M
+   MAXLOGFILES 5
+   MAXLOGMEMBERS 5
+   MAXDATAFILES 100
+   CHARACTER SET AL32UTF8
+   NATIONAL CHARACTER SET AL16UTF16
+   EXTENT MANAGEMENT LOCAL
+   DATAFILE '/u01/oradata/mydb/system01.dbf' SIZE 700M REUSE
+   SYSAUX DATAFILE '/u01/oradata/mydb/sysaux01.dbf' SIZE 550M REUSE
+   DEFAULT TABLESPACE users
+      DATAFILE '/u01/oradata/mydb/users01.dbf'
+      SIZE 500M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED
+   DEFAULT TEMPORARY TABLESPACE tempts1
+      TEMPFILE '/u01/oradata/mydb/temp01.dbf'
+      SIZE 20M REUSE;
+
+```
+
+Let's break down what each part does:
+
+### **SYS and SYSTEM Users**
+
+These are Oracle's two built-in administrative accounts:
+
+- **SYS** — the most powerful account. Owns the data dictionary. You log in as SYS when the database itself has problems.
+- **SYSTEM** — slightly less powerful. Used for general DBA tasks.
+
+Both must have passwords set at creation.
+
+### **LOGFILE (Redo Log Groups)**
+
+Redo logs record every change made to the database. Oracle writes to these files before writing to data files. If the system crashes, Oracle uses redo logs to recover. You need at least 2 groups; 3 is recommended. Each group should be on a different disk.
+
+### **MAXLOGFILES, MAXDATAFILES**
+
+These set hard limits recorded in the **control file**. You can have up to this many redo log files or data files. These limits are set in stone unless you recreate the control file.
+
+### **DATAFILE (SYSTEM tablespace)**
+
+The SYSTEM tablespace is mandatory. It stores the **data dictionary** (explained below). It must be created as part of the database.
+
+### **SYSAUX Tablespace**
+
+Also mandatory in Oracle 10g and above. It offloads many of the workload repository, statistics, and diagnostic data that used to go into SYSTEM. This keeps the SYSTEM tablespace clean.
+
+### **DEFAULT TABLESPACE**
+
+Where regular user objects (tables, indexes) go by default if the user has no specific tablespace assigned.
+
+### **DEFAULT TEMPORARY TABLESPACE**
+
+Used for sorting operations, hash joins, and other operations that need temporary space during query processing. Uses **tempfiles** which are not fully logged (for performance).
+
+---
+
+## **Step 5 — What Oracle Actually Creates on Disk**
+
+When **`CREATE DATABASE`** runs successfully, Oracle physically creates:
+
+{% table %}
+- **File Type**
+- **Purpose**
+---
+- Control File
+- Tracks database structure, file locations, checkpoint info
+---
+- Redo Log Files
+- Record of all changes for recovery
+---
+- SYSTEM datafile
+- Stores data dictionary
+---
+- SYSAUX datafile
+- Stores auxiliary system data
+---
+- TEMP file
+- Temporary operations
+---
+- Default tablespace file
+- User data storage
+{% /table %}
+
+The **control file** is the most critical file. Oracle reads it every time the database starts. It contains the names and locations of all datafiles and redo logs, the database name, and checkpoint information. Without the control file, Oracle cannot mount the database.
+
+---
+
+## **Step 6 — The Data Dictionary**
+
+This is one of the most important concepts in database administration. You absolutely need to understand this.
+
+### **What is the Data Dictionary?**
+
+The **Data Dictionary** is a set of read-only tables and views maintained automatically by Oracle (or any DBMS) that contains **metadata** — data about data.
+
+Think of it as the database's own internal encyclopedia. It knows:
+
+- What tables exist
+- Who owns them
+- What columns are in each table
+- What indexes exist
+- What constraints are defined
+- Who has what privileges
+- Where data files are located
+- How much space is used
+
+**The DBA never manually edits the data dictionary.** It is updated automatically by the DBMS every time you run DDL commands like **`CREATE TABLE`**, **`ALTER TABLE`**, **`DROP INDEX`**, **`GRANT`**, etc.
+
+In **PostgreSQL**, the equivalent is the **system catalog** (**`pg_catalog`** schema — tables like **`pg_tables`**, **`pg_indexes`**, **`pg_users`**).
+
+In **SQL Server**, the equivalent is **system catalog views** like **`sys.tables`**, **`sys.columns`**, **`sys.databases`**.
+
+In **MySQL**, it's the **information\_schema** database.
+
+### **Data Dictionary in Oracle — Structure**
+
+Oracle's data dictionary has two layers:
+
+**Base Tables:**\
+These are the actual underlying tables in the SYSTEM tablespace that store the raw metadata. They have names like **`TAB$`**, **`COL$`**, **`USER$`**, **`OBJ$`**. These are encrypted and compressed — you never query them directly. Only SYS owns them.
+
+**Views (the ones DBAs actually use):**\
+Oracle creates views on top of the base tables to make the data readable. These views are organized in three groups based on prefix:
+
+{% table %}
+- **Prefix**
+- **Scope**
+- **Example**
+---
+- **`USER_`**
+- Objects owned by the current user
+- **`USER_TABLES`**
+---
+- **`ALL_`**
+- Objects the current user can access
+- **`ALL_TABLES`**
+---
+- **`DBA_`**
+- All objects in the entire database
+- **`DBA_TABLES`**
+{% /table %}
+
+Examples:
+
+sql
+
+```
+-- What tables do I own?
+SELECT table_name FROM USER_TABLES;
+
+-- What tables can I see (mine + granted to me)?
+SELECT owner, table_name FROM ALL_TABLES;
+
+-- What tables exist in the entire database? (DBA only)
+SELECT owner, table_name FROM DBA_TABLES;
+
+-- Who are all the users?
+SELECT username, account_status, created FROM DBA_USERS;
+
+-- What tablespaces exist?
+SELECT tablespace_name, status FROM DBA_TABLESPACES;
+
+-- What datafiles exist?
+SELECT file_name, bytes, tablespace_name FROM DBA_DATA_FILES;
+
+```
+
+### **Dynamic Performance Views (V$ Views)**
+
+These are a separate but equally important part of the data dictionary. They are called **dynamic** because they show real-time information about what the database is doing *right now* — memory usage, sessions, locks, I/O, etc.
+
+Examples:
+
+sql
+
+```
+-- Current active sessions
+SELECT sid, serial#, username, status FROM V$SESSION;
+
+-- Current memory usage
+SELECT name, bytes FROM V$SGASTAT;
+
+-- Redo log status
+SELECT group#, status, members FROM V$LOG;
+
+-- Control file locations
+SELECT name FROM V$CONTROLFILE;
+
+-- Database status
+SELECT name, open_mode, db_unique_name FROM V$DATABASE;
+
+```
+
+These views are especially important for **performance tuning** and **troubleshooting**.
+
+### **Building the Data Dictionary — Running Scripts**
+
+After **`CREATE DATABASE`** runs, the data dictionary views do not exist yet. The DBA must run Oracle-provided SQL scripts:
+
+sql
+
+```
+-- Must be run as SYS
+@?/rdbms/admin/catalog.sql    -- Creates data dictionary views (DBA_, ALL_, USER_)
+@?/rdbms/admin/catproc.sql    -- Creates PL/SQL packages, procedures, built-in functions
+@?/rdbms/admin/catblock.sql   -- Creates views for lock management (optional but common)
+
+```
+
+**`catalog.sql`** creates thousands of views. **`catproc.sql`** sets up the entire PL/SQL environment. These scripts take time to run and must complete successfully — if they fail halfway, the database may be in an inconsistent state.
+
+In **MySQL**, the data dictionary equivalent is built automatically during installation and does not require manual scripting.
+
+---
+
+## **Creating a Database in MySQL (for Comparison)**
+
+In MySQL, creating a database is much simpler because MySQL manages storage differently:
+
+sql
+
+```
+CREATE DATABASE company_db
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+```
+
+MySQL stores each database as a directory under its data directory (e.g., **`/var/lib/mysql/company_db/`**). Tables become files inside that directory (**`.ibd`** files for InnoDB).
+
+The metadata in MySQL is stored in the **`information_schema`** database, which is auto-generated and always available.
+
+---
+
+## **Creating a Database in PostgreSQL (for Comparison)**
+
+sql
+
+```
+CREATE DATABASE company_db
+  OWNER = admin_user
+  ENCODING = 'UTF8'
+  LC_COLLATE = 'en_US.UTF-8'
+  TEMPLATE = template0;
+
+```
+
+PostgreSQL databases belong to a **cluster** — a single PostgreSQL server instance can host multiple databases. The system catalog is per-database and is built automatically.
+
+---
+
+## **Common Mistakes When Creating a Database**
+
+1. **Wrong character set** — Cannot be easily changed later. Always use Unicode (**`AL32UTF8`** in Oracle, **`utf8mb4`** in MySQL) unless there's a very specific reason not to.
+1. **Control file on only one disk** — If that disk fails, the database cannot open. Always multiplex (copy) the control file to at least 2-3 different locations.
+1. **Redo logs too small** — Causes excessive log switching, which hurts performance.
+1. **Not running catalog.sql** — The database exists but has no data dictionary views. Nothing will work properly.
+1. **SYSTEM tablespace too small** — As the database grows (more objects, more dictionary entries), SYSTEM can fill up, which is a critical error that stops DDL operations.
+1. **Block size mismatch** — Setting a block size that doesn't match the OS block size causes unnecessary I/O overhead.
